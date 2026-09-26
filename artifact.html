@@ -1,0 +1,1048 @@
+<title>Mapa do Explorador</title>
+<meta name="description" content="Jogo de memória de trabalho e planejamento para 6–12 anos: guardar a sequência, traçar a rota, conversar sobre a estratégia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+  :root{
+    --sand:#FBF7F0; --surface:#FFFFFF; --surface-2:#F5EEE0;
+    --ink:#28373E; --ink-soft:#5E6D72; --border:#EBE2D1;
+    --teal:#3AA6A0; --teal-deep:#2E8A85; --coral:#F0956B; --gold:#E6B23C; --green:#7BB274; --sky:#6FB1E0; --night:#8E86C9;
+    --primary:#2E8A85; --on-primary:#FFFFFF; --route:#D9674A;
+    --tile:#F7F0E2; --tile-2:#F1E8D6; --tree:#DDEBD2;
+    --ok-bg:#E4F1E0; --ok-line:#5E9E57; --bad-bg:#FCE7DC; --bad-line:#E07E55;
+    --shadow:0 6px 18px rgba(40,55,62,.09); --shadow-lg:0 16px 40px rgba(40,55,62,.16);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --sand:#131F1E; --surface:#1C2B29; --surface-2:#243634; --ink:#EAF2EF; --ink-soft:#A6BAB6; --border:#2E4340;
+      --teal:#4FBDB6; --teal-deep:#6BD0C9; --coral:#F0A47F; --gold:#E0BE63; --green:#8FC787; --sky:#83BAE6; --night:#A79EDC;
+      --primary:#5FC7C0; --on-primary:#0E1F1D; --route:#F0A47F;
+      --tile:#20322F; --tile-2:#1C2C29; --tree:#1F3A2B;
+      --ok-bg:#1F3A2B; --ok-line:#8FC787; --bad-bg:#3A2A22; --bad-line:#F0A47F;
+      --shadow:0 6px 18px rgba(0,0,0,.32); --shadow-lg:0 16px 40px rgba(0,0,0,.45);
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --sand:#131F1E; --surface:#1C2B29; --surface-2:#243634; --ink:#EAF2EF; --ink-soft:#A6BAB6; --border:#2E4340;
+    --teal:#4FBDB6; --teal-deep:#6BD0C9; --coral:#F0A47F; --gold:#E0BE63; --green:#8FC787; --sky:#83BAE6; --night:#A79EDC;
+    --primary:#5FC7C0; --on-primary:#0E1F1D; --route:#F0A47F;
+    --tile:#20322F; --tile-2:#1C2C29; --tree:#1F3A2B;
+    --ok-bg:#1F3A2B; --ok-line:#8FC787; --bad-bg:#3A2A22; --bad-line:#F0A47F;
+    --shadow:0 6px 18px rgba(0,0,0,.32); --shadow-lg:0 16px 40px rgba(0,0,0,.45);
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{margin:0}
+  body{background:var(--sand); color:var(--ink); font-family:"Nunito",system-ui,-apple-system,sans-serif; font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:"Fredoka","Nunito",system-ui,sans-serif; font-weight:600; text-wrap:balance; margin:0}
+  button{font:inherit; color:inherit}
+  :focus-visible{outline:3px solid var(--sky); outline-offset:2px}
+
+  .app{max-width:1100px; margin:0 auto; padding-inline:16px; padding-block:12px 36px}
+
+  /* header */
+  .top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .brand{display:flex; align-items:center; gap:12px; min-width:0}
+  .badge{width:48px; height:48px; flex:0 0 auto; border-radius:15px; background:var(--green); display:grid; place-items:center; font-size:1.6rem; box-shadow:var(--shadow)}
+  .brand h1{font-size:1.4rem; line-height:1.15}
+  .brand .sub{color:var(--ink-soft); font-weight:700; font-size:.85rem; font-variant-numeric:tabular-nums}
+  .tools{display:flex; align-items:center; gap:8px}
+  .seg{display:inline-flex; background:var(--surface-2); border:1px solid var(--border); border-radius:13px; padding:3px; gap:3px}
+  .seg button{border:0; background:transparent; border-radius:10px; padding:6px 11px; font-family:"Fredoka",sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; color:var(--ink-soft)}
+  .seg button.on, .seg button[aria-pressed="true"]{background:var(--primary); color:var(--on-primary)}
+  .icon{border:1px solid var(--border); background:var(--surface); width:40px; height:40px; border-radius:12px; font-size:1rem; cursor:pointer; box-shadow:var(--shadow); display:grid; place-items:center}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:48px; padding:0 18px; border:1px solid var(--border); background:var(--surface); color:var(--ink); border-radius:14px; font-family:"Fredoka",sans-serif; font-weight:600; font-size:1rem; cursor:pointer; box-shadow:var(--shadow); transition:transform .12s ease}
+  .btn:active:not(:disabled){transform:translateY(1px)}
+  .btn:disabled{opacity:.45; cursor:default; box-shadow:none}
+  .btn.primary{background:var(--primary); border-color:var(--primary); color:var(--on-primary)}
+  .btn.big{width:100%; min-height:58px; font-size:1.2rem; border-radius:16px}
+  .btn.ghost{box-shadow:none; background:transparent}
+  .btn.danger{background:var(--bad-line); border-color:var(--bad-line); color:#fff}
+  .btn.small{min-height:40px; font-size:.9rem; padding:0 14px}
+  .hide-narrow{display:inline}
+  @media (max-width:520px){ .hide-narrow{display:none} }
+
+  /* stage layout */
+  .stage{display:grid; gap:16px; margin-top:16px; grid-template-areas:"mission" "board" "dock"}
+  @media (min-width:900px){
+    .stage{grid-template-columns:minmax(0,1fr) 380px; grid-template-rows:auto 1fr; grid-template-areas:"board mission" "board dock"; align-items:start; column-gap:28px}
+  }
+  .mission-box{grid-area:mission; display:flex; flex-direction:column; gap:10px}
+  .boardwrap{grid-area:board; display:flex; justify-content:center}
+  .dock{grid-area:dock; display:flex; flex-direction:column; gap:12px}
+
+  /* mission strip */
+  .mlabel{font-family:"Fredoka",sans-serif; font-weight:600; font-size:1rem; color:var(--ink-soft); text-align:center}
+  @media (min-width:900px){ .mlabel{text-align:left} .mission{justify-content:flex-start!important} }
+  .mission{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
+  .slot{position:relative; width:70px; height:84px; border-radius:16px; background:var(--surface); border:2px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:var(--shadow); transition:border-color .2s, background .2s}
+  .slot .num{position:absolute; top:4px; left:7px; font-family:"Fredoka",sans-serif; font-weight:700; font-size:.72rem; color:var(--ink-soft); font-variant-numeric:tabular-nums}
+  .slot .em{font-size:2rem; line-height:1.1}
+  .slot .nm{font-size:.7rem; font-weight:700; color:var(--ink-soft); max-width:64px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .slot.q{border-style:dashed; background:var(--surface-2); box-shadow:none}
+  .slot.q .em{font-family:"Fredoka",sans-serif; font-weight:700; color:var(--ink-soft); font-size:1.7rem}
+  .slot.ok{border-color:var(--ok-line); background:var(--ok-bg)}
+  .slot.bad{border-color:var(--bad-line); background:var(--bad-bg)}
+  .slot.pop{animation:pop .35s ease}
+  .timer{height:8px; border-radius:99px; background:var(--surface-2); border:1px solid var(--border); overflow:hidden}
+  .timer i{display:block; height:100%; width:100%; background:var(--gold); border-radius:99px}
+
+  /* board */
+  .board{position:relative; width:min(100%, 68vh, 600px); aspect-ratio:1; display:grid; grid-template-columns:repeat(var(--n,5),1fr); border-radius:20px; overflow:hidden; border:2px solid var(--border); box-shadow:var(--shadow-lg); background:var(--tile); container-type:inline-size; touch-action:none; user-select:none; -webkit-user-select:none}
+  .cell{position:relative; display:grid; place-items:center; background:var(--tile); box-shadow:inset 0 0 0 .5px var(--border); font-size:calc(100cqi / var(--n,5) * .5); line-height:1}
+  .cell.alt{background:var(--tile-2)}
+  .cell.tree{background:var(--tree)}
+  .board.planning .cell{cursor:pointer}
+  .board.planning .cell.tree{cursor:not-allowed}
+  .cell.next::after{content:""; position:absolute; inset:12%; border-radius:28%; border:2px dashed color-mix(in srgb, var(--primary) 60%, transparent); pointer-events:none}
+  .cell .tent{position:absolute; right:5%; bottom:4%; font-size:.5em}
+  .item{display:inline-block; transition:transform .28s ease, opacity .28s ease}
+  .item.got{transform:scale(.2) translateY(-40%); opacity:0}
+  .cell.shake{animation:shake .35s ease}
+  .route{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible}
+  .route polyline{fill:none; stroke:var(--route); stroke-width:.09; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:.16 .13}
+  .route circle{fill:var(--route); stroke:var(--surface); stroke-width:.05}
+  .piece{position:absolute; left:0; top:0; width:calc(100% / var(--n,5)); height:calc(100% / var(--n,5)); display:grid; place-items:center; font-size:calc(100cqi / var(--n,5) * .6); line-height:1; pointer-events:none; z-index:2; transform:translate(calc(var(--x,0) * 100%), calc(var(--y,0) * 100%)); transition:transform .24s ease; filter:drop-shadow(0 3px 3px rgba(0,0,0,.22))}
+
+  /* dock */
+  .status{margin:0; min-height:1.5em; color:var(--ink-soft); font-weight:700; text-align:center}
+  @media (min-width:900px){ .status{text-align:left} }
+  .status.hint{color:var(--bad-line)}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:20px; box-shadow:var(--shadow); padding:18px; display:flex; flex-direction:column; gap:14px}
+  .card h2{font-size:1.45rem}
+  .card p{margin:0}
+  .card .rule{color:var(--ink-soft); font-size:.92rem}
+  .lbl{font-family:"Fredoka",sans-serif; font-weight:600; font-size:.9rem; color:var(--ink-soft)}
+  .avatars{display:flex; flex-wrap:wrap; gap:8px}
+  .av{width:52px; height:52px; border-radius:15px; border:2px solid var(--border); background:var(--surface-2); font-size:1.7rem; cursor:pointer; display:grid; place-items:center}
+  .av.on{border-color:var(--primary); background:color-mix(in srgb, var(--primary) 16%, var(--surface))}
+  .ctrls{display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:8px}
+  .energy{display:flex; flex-direction:column; gap:6px}
+  .elabel{font-weight:700; font-variant-numeric:tabular-nums}
+  .elabel b{font-family:"Fredoka",sans-serif; font-size:1.15rem}
+  .ebar{height:12px; border-radius:99px; background:var(--surface-2); border:1px solid var(--border); overflow:hidden}
+  .ebar i{display:block; height:100%; background:var(--green); border-radius:99px; transition:width .18s ease, background .18s}
+  .energy.low .ebar i{background:var(--gold)}
+  .energy.full .ebar i{background:var(--bad-line)}
+  .energy.flash{animation:shake .35s ease}
+
+  .stars{display:flex; gap:6px; justify-content:center}
+  .stars svg{width:48px; height:48px}
+  .stars polygon{fill:var(--border)}
+  .stars .on polygon{fill:var(--gold)}
+  .stars .on{animation:pop .45s ease both}
+  .stars .on:nth-child(2){animation-delay:.12s}
+  .stars .on:nth-child(3){animation-delay:.24s}
+  .result h2{text-align:center}
+  .checks{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
+  .checks li{display:flex; gap:9px; align-items:flex-start; font-weight:600}
+  .checks li::before{content:"✓"; flex:0 0 22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:.8rem; font-weight:800; background:var(--ok-bg); color:var(--ok-line); border:1.5px solid var(--ok-line)}
+  .checks li.off{color:var(--ink-soft)}
+  .checks li.off::before{content:""; background:transparent; border:1.5px dashed var(--border)}
+  .cmp{display:flex; flex-direction:column; gap:8px}
+  .cmp .row2{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .cmp .row2 span.k{font-weight:700; color:var(--ink-soft); font-size:.88rem; min-width:9ch}
+  .mini{display:inline-grid; place-items:center; width:40px; height:40px; border-radius:11px; border:2px solid var(--border); background:var(--surface-2); font-size:1.3rem}
+  .mini.ok{border-color:var(--ok-line); background:var(--ok-bg)}
+  .mini.bad{border-color:var(--bad-line); background:var(--bad-bg)}
+  .lvlmsg{font-family:"Fredoka",sans-serif; font-weight:600; color:var(--primary); text-align:center}
+  .chips{display:flex; flex-wrap:wrap; gap:7px}
+  .chip{border:1.5px solid var(--border); background:var(--surface-2); border-radius:999px; padding:7px 13px; font-family:"Fredoka",sans-serif; font-weight:600; font-size:.88rem; cursor:pointer}
+  .chip.on{background:var(--primary); border-color:var(--primary); color:var(--on-primary)}
+  .talk{background:color-mix(in srgb, var(--night) 14%, var(--surface)); border-radius:14px; padding:12px 14px; font-size:.95rem}
+  .talk b{display:block; font-family:"Fredoka",sans-serif; font-weight:600; color:var(--night); font-size:.82rem; letter-spacing:.03em; text-transform:uppercase; margin-bottom:2px}
+  .btnrow{display:flex; flex-wrap:wrap; gap:8px}
+  .btnrow .btn{flex:1 1 180px}
+
+  /* who's playing */
+  .plist{display:flex; flex-direction:column; gap:8px}
+  .pbtn{display:flex; align-items:center; gap:12px; text-align:left; padding:10px 12px; border-radius:16px; border:1.5px solid var(--border); background:var(--surface-2); cursor:pointer; min-height:60px}
+  .pbtn:hover{border-color:var(--primary)}
+  .pbtn .pav{font-size:1.8rem; line-height:1}
+  .pbtn b{font-family:"Fredoka",sans-serif; font-weight:600; display:block; font-size:1.05rem}
+  .pbtn small{display:block; color:var(--ink-soft); font-weight:700; font-size:.8rem}
+  .newp{display:flex; flex-direction:column; gap:10px; border-top:1px solid var(--border); padding-top:14px}
+  .fl{font-weight:700; font-size:.9rem}
+  input[type="text"]{width:100%; min-height:48px; font:inherit; font-size:1.05rem; padding:0 14px; border-radius:14px; border:1.5px solid var(--border); background:var(--surface-2); color:var(--ink)}
+  input[type="text"]:focus{border-color:var(--primary); outline:none}
+  .linkbtn{border:0; background:none; padding:0; color:var(--primary); font-weight:800; text-decoration:underline; cursor:pointer}
+  .who-line{font-size:.9rem; color:var(--ink-soft); font-weight:700}
+
+  /* therapist panel */
+  dialog{border:1px solid var(--border); border-radius:22px; background:var(--surface); color:var(--ink); padding:0; width:min(700px, calc(100% - 32px)); max-height:calc(100% - 48px); box-shadow:var(--shadow-lg); overflow:auto}
+  dialog::backdrop{background:rgba(18,28,28,.5)}
+  .phead{position:sticky; top:0; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 18px; background:var(--surface); border-bottom:1px solid var(--border)}
+  .phead h2{font-size:1.3rem}
+  .pbody{padding:18px; display:flex; flex-direction:column; gap:14px}
+  .pbody h3{font-size:1.08rem; margin-top:8px}
+  .pbody h4{font-size:.95rem; color:var(--ink-soft)}
+  .pbody p{margin:0}
+  .intro{color:var(--ink-soft); max-width:62ch}
+  .fine{color:var(--ink-soft); font-size:.85rem}
+  .levels{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px}
+  .lvl{text-align:left; padding:10px 12px; border-radius:14px; border:1.5px solid var(--border); background:var(--surface-2); cursor:pointer}
+  .lvl b{font-family:"Fredoka",sans-serif; font-weight:600; display:block}
+  .lvl small{display:block; color:var(--ink-soft); font-size:.78rem; font-variant-numeric:tabular-nums}
+  .lvl.on{border-color:var(--primary); background:color-mix(in srgb, var(--primary) 15%, var(--surface))}
+  .toggle{display:flex; gap:10px; align-items:flex-start; cursor:pointer; font-weight:600}
+  .toggle input{width:20px; height:20px; margin:2px 0 0; accent-color:var(--primary); flex:0 0 auto}
+  .seg.wide{flex-wrap:wrap}
+  .seg.wide button{padding:8px 13px}
+  .stats{display:grid; grid-template-columns:repeat(4, 1fr); gap:8px}
+  @media (max-width:560px){ .stats{grid-template-columns:repeat(2, 1fr)} }
+  .stat{background:var(--surface-2); border-radius:14px; padding:10px 12px}
+  .stat b{display:block; font-family:"Fredoka",sans-serif; font-size:1.5rem; font-weight:600; font-variant-numeric:tabular-nums; line-height:1.2}
+  .stat span{font-size:.8rem; color:var(--ink-soft); font-weight:700}
+  .tbl{overflow-x:auto; border:1px solid var(--border); border-radius:14px}
+  table{border-collapse:collapse; width:100%; font-size:.86rem}
+  th,td{padding:8px 10px; text-align:left; white-space:nowrap; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums}
+  th{font-family:"Fredoka",sans-serif; font-weight:600; color:var(--ink-soft); background:var(--surface-2)}
+  tr:last-child td{border-bottom:0}
+  .pill{display:inline-block; padding:2px 9px; border-radius:999px; font-weight:700; font-size:.78rem}
+  .pill.win{background:var(--ok-bg); color:var(--ok-line)}
+  .pill.fail{background:var(--bad-bg); color:var(--bad-line)}
+  textarea{width:100%; font:inherit; font-size:.85rem; border:1px solid var(--border); border-radius:12px; background:var(--surface-2); color:var(--ink); padding:10px}
+  .confirm{border:1.5px solid var(--bad-line); border-radius:14px; padding:12px; display:flex; flex-direction:column; gap:10px; background:var(--bad-bg)}
+
+  @keyframes pop{0%{transform:scale(.4)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none!important; transition-duration:0s!important}
+  }
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="badge" aria-hidden="true">🗺️</span>
+      <div>
+        <h1 id="hTitle">Mapa do Explorador</h1>
+        <div class="sub" id="hSub"></div>
+      </div>
+    </div>
+    <div class="tools">
+      <div class="seg" role="group" id="langSeg">
+        <button id="lPT" type="button">PT</button>
+        <button id="lEN" type="button">EN</button>
+      </div>
+      <button class="icon" id="themeBtn" type="button">🌙</button>
+      <button class="btn small" id="panelBtn" type="button"><span aria-hidden="true">📋</span><span class="hide-narrow" data-t="therapist">Terapeuta</span></button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <section class="mission-box">
+      <div class="mlabel" id="mLabel"></div>
+      <div class="mission" id="mission"></div>
+      <div class="timer" id="timer" hidden><i id="timerFill"></i></div>
+    </section>
+    <div class="boardwrap"><div class="board" id="board" role="application"></div></div>
+    <section class="dock">
+      <p class="status" id="status" aria-live="polite"></p>
+      <div id="dockBody"></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="panel">
+  <div class="phead">
+    <h2 data-t="panelTitle">Painel do terapeuta</h2>
+    <button class="icon" id="panelClose" type="button">✕</button>
+  </div>
+  <div class="pbody" id="panelBody"></div>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+
+var ITEMS=[
+  {e:"🍎",pt:"maçã",en:"apple"},{e:"🔑",pt:"chave",en:"key"},{e:"🐚",pt:"concha",en:"shell"},
+  {e:"⭐",pt:"estrela",en:"star"},{e:"🍄",pt:"cogumelo",en:"mushroom"},{e:"💎",pt:"diamante",en:"gem"},
+  {e:"🥕",pt:"cenoura",en:"carrot"},{e:"🌻",pt:"girassol",en:"sunflower"},{e:"🎈",pt:"balão",en:"balloon"},
+  {e:"🍯",pt:"mel",en:"honey"},{e:"🦋",pt:"borboleta",en:"butterfly"},{e:"🔔",pt:"sino",en:"bell"}
+];
+var AVATARS=["🦊","🐼","🐸","🐯","🦉","🐧"];
+// n = grid size, seq = items to remember, mem = seconds to memorise, obs = trees, dec = distractor items, slack = extra steps over the shortest route
+var LEVELS=[
+  {n:4,seq:2,mem:6, obs:1,dec:0,slack:4},
+  {n:5,seq:2,mem:6, obs:3,dec:1,slack:3},
+  {n:5,seq:3,mem:7, obs:3,dec:1,slack:3},
+  {n:5,seq:3,mem:7, obs:4,dec:2,slack:2},
+  {n:6,seq:4,mem:8, obs:5,dec:2,slack:2},
+  {n:6,seq:4,mem:8, obs:6,dec:3,slack:1},
+  {n:6,seq:5,mem:9, obs:6,dec:3,slack:1},
+  {n:7,seq:6,mem:10,obs:8,dec:4,slack:1}
+];
+var STRATS=[
+  {id:"voice",  e:"🗣️", pt:"Falei em voz alta",            en:"Said it out loud"},
+  {id:"story",  e:"📖", pt:"Inventei uma história",        en:"Made up a story"},
+  {id:"fingers",e:"✋", pt:"Contei nos dedos",             en:"Counted on my fingers"},
+  {id:"route",  e:"🧠", pt:"Imaginei o caminho",           en:"Pictured the route in my head"},
+  {id:"look",   e:"👀", pt:"Olhei onde cada coisa estava", en:"Looked where each thing was"},
+  {id:"try",    e:"🎲", pt:"Fui tentando",                 en:"Just tried it"}
+];
+var QUESTIONS={
+  pt:["Como você fez pra lembrar a ordem?",
+      "Você planejou o caminho todo antes de sair, ou foi decidindo no meio?",
+      "O que foi mais difícil: lembrar as coisas ou achar o caminho?",
+      "Se fosse jogar este mapa de novo, o que você faria igual? E diferente?",
+      "Teve alguma hora que você ficou em dúvida? O que você fez?"],
+  en:["How did you remember the order?",
+      "Did you plan the whole route before leaving, or decide along the way?",
+      "What was harder: remembering the things or finding the way?",
+      "If you played this map again, what would you do the same? And differently?",
+      "Was there a moment you weren't sure? What did you do?"]
+};
+var T={
+  pt:{
+    title:"Mapa do Explorador", sub:"Nível {l} · Missão {r}", therapist:"Terapeuta",
+    themeAria:"Mudar tema", langAria:"Idioma", close:"Fechar", boardAria:"Mapa com {n} por {n} quadrados",
+    mReady:"Sua missão tem {n} coisas", mMem:"Guarde esta ordem", mPlan:"Qual era a ordem?", mWalk:"Coletando…", mResult:"A missão era",
+    readyTitle:"Missão {r}",
+    readyBody:"Você vai ver {n} coisas pra buscar no mapa. Guarde quais são e em que ordem. Depois, trace o caminho inteiro antes de sair da barraca.",
+    readyRetry:"Mesmo mapa, nova chance. Olhe a missão de novo com calma.",
+    readyRule:"Passar por cima de qualquer coisa pega ela, então desvie do que não é a vez.",
+    chooseAvatar:"Quem vai explorar?", showMission:"Mostrar missão",
+    stMem:"Olhe bem: o que buscar e em que ordem. Onde cada coisa está no mapa?",
+    stMemFree:"Olhe bem: o que buscar e em que ordem. Toque em “Já guardei!” quando estiver pronto.",
+    gotIt:"Já guardei!",
+    stPlan:"Trace o caminho a partir da barraca, um quadrado de cada vez. Nada anda até você tocar em “Ir!”.",
+    undo:"Desfazer", clear:"Apagar", peek:"Espiar", go:"Ir!", steps:"{s} de {b} passos", stWalk:"Lá vai!",
+    hintAdj:"Um quadrado de cada vez, sem pular.",
+    hintTree:"Tem uma árvore aí. Dê a volta.",
+    hintEnergy:"Acabaram os passos. Desfaça alguns e procure um caminho mais curto.",
+    winTitle:"Missão cumprida!", failTitle:"Quase lá!",
+    star1:"Pegou tudo na ordem certa", star2:"Lembrou sem espiar",
+    star3:"Caminho curtinho: {s} passos (o mais curto possível era {o})",
+    star3no:"Foram {s} passos. Dá pra fazer em {o}!",
+    youGot:"Você pegou", wasMission:"A missão era", nothing:"nada",
+    failWhy:"Olhem juntos o caminho no mapa: por onde a rota passou?",
+    strategyQ:"O que te ajudou?", talk:"Pra conversar",
+    retry:"Tentar este mapa de novo", next:"Próxima missão",
+    levelUp:"Subiu pro nível {l}!", levelDown:"A próxima missão é no nível {l}, pra treinar mais um pouco.",
+    panelTitle:"Painel do terapeuta",
+    panelIntro:"O jogo treina memória de trabalho (guardar a sequência), planejamento (traçar a rota inteira antes de agir) e automonitoramento (conversar sobre a estratégia depois de cada missão).",
+    difficulty:"Dificuldade", levelN:"Nível {l}", levelDesc:"{n}×{n} · {s} itens · {d}",
+    dec0:"sem distrações", dec1:"1 distração", decN:"{d} distrações",
+    nextOnly:"A mudança vale a partir da próxima missão.",
+    auto:"Ajustar sozinho: 2 missões cumpridas seguidas sobe um nível, 2 não cumpridas desce",
+    memTime:"Tempo pra memorizar", memLevel:"Padrão do nível", memMore:"50% a mais", memFree:"Sem limite",
+    allowPeek:"Permitir espiar a lista durante o planejamento",
+    summary:"Resumo da sessão", sMissions:"Missões", sWins:"Cumpridas", sSpan:"Maior sequência", sPeeks:"Espiadas",
+    spanUnit:"{n} itens", strategies:"Estratégias que a criança marcou", noneYet:"Nenhuma missão terminada ainda.", noStrat:"Nenhuma marcada ainda.",
+    cLevel:"Nível", cItems:"Itens", cResult:"Resultado", cSteps:"Passos (mín.)", cPeeks:"Espiadas", cStrat:"Estratégias",
+    resWin:"Cumpriu", resFail:"Não cumpriu", retryTag:"repetição",
+    copy:"Copiar resumo", copied:"Resumo copiado.", copyFail:"Não deu pra copiar direto. Selecione o texto abaixo e copie.",
+    newSession:"Nova sessão", cancel:"Cancelar",
+    confirmNew:"Encerrar esta sessão e começar outra com {p}? O nível continua de onde parou.", confirmNewGuest:"Isso apaga o resumo desta sessão.", confirmYes:"Começar nova sessão",
+    who:"Quem vai explorar hoje?", whoNone:"Ainda não tem ninguém salvo neste aparelho.",
+    profMeta:"Nível {l} · {s} sessões", profMeta1:"Nível {l} · 1 sessão",
+    newExplorer:"Novo explorador", nameLabel:"Apelido ou código", namePh:"ex.: Leo, P-07",
+    nameNote:"Use um apelido ou código, não o nome completo. Os dados ficam só neste aparelho.",
+    create:"Criar e jogar", nameMissing:"Escreva um apelido ou código pra criar o explorador.", guest:"Jogar sem salvar", guestName:"Visitante",
+    playing:"Explorando: {p} · sessão {s}", guestPlaying:"Jogando sem salvar", switchP:"Trocar",
+    patient:"Paciente", sessionOf:"Sessão {s} · {d}", switchPatient:"Trocar paciente", choosePatient:"Escolher paciente",
+    sessionAuto:"Uma sessão nova começa sozinha quando o paciente volta depois de 2 horas ou mais. Use “Nova sessão” pra começar antes disso.",
+    history:"Histórico", hSession:"Sessão", hDate:"Data", hMissions:"Missões", hWins:"Cumpridas", hLevel:"Nível", hSpan:"Maior seq.", current:"atual",
+    data:"Dados neste aparelho",
+    dataNote:"Tudo fica salvo só neste navegador. Pra usar em outro aparelho ou guardar uma cópia, exporte um backup e importe no outro.",
+    exportB:"Exportar backup", importB:"Importar backup", imported:"Backup importado: {n} pacientes.", importFail:"Não deu pra ler esse arquivo. Use um backup exportado por este jogo.",
+    deleteP:"Excluir paciente", confirmDel:"Excluir {p} e todo o histórico deste aparelho? Não dá pra desfazer.", confirmDelYes:"Excluir",
+    noStorage:"Este navegador não está guardando dados (janela anônima ou bloqueio). O jogo funciona, mas nada fica salvo.",
+    sumHead:"Mapa do Explorador · {p} · sessão {s} ({d})",
+    sumLine1:"Missões: {m} · Cumpridas: {w} ({p}%)",
+    sumLine2:"Nível atual: {l} · Maior sequência lembrada: {s}",
+    sumLine3:"Espiadas na lista: {k}", sumLine4:"Estratégias: {x}",
+    stepsLine:"{s} passos (mín. {o})", peeksLine:"{k} espiadas"
+  },
+  en:{
+    title:"Explorer's Map", sub:"Level {l} · Mission {r}", therapist:"Therapist",
+    themeAria:"Switch theme", langAria:"Language", close:"Close", boardAria:"Map, {n} by {n} squares",
+    mReady:"Your mission has {n} things", mMem:"Remember this order", mPlan:"What was the order?", mWalk:"Collecting…", mResult:"The mission was",
+    readyTitle:"Mission {r}",
+    readyBody:"You'll see {n} things to find on the map. Remember what they are and in what order. Then draw the whole route before you leave the tent.",
+    readyRetry:"Same map, another go. Take your time looking at the mission again.",
+    readyRule:"Walking onto anything picks it up, so steer around things that aren't next.",
+    chooseAvatar:"Who's exploring?", showMission:"Show the mission",
+    stMem:"Look closely: what to find, and in what order. Where is each thing on the map?",
+    stMemFree:"Look closely: what to find, and in what order. Tap “Got it!” when you're ready.",
+    gotIt:"Got it!",
+    stPlan:"Draw the route from the tent, one square at a time. Nothing moves until you tap “Go!”.",
+    undo:"Undo", clear:"Clear", peek:"Peek", go:"Go!", steps:"{s} of {b} steps", stWalk:"Here we go!",
+    hintAdj:"One square at a time, no jumping.",
+    hintTree:"There's a tree there. Go around it.",
+    hintEnergy:"Out of steps. Undo a few and look for a shorter route.",
+    winTitle:"Mission complete!", failTitle:"Almost there!",
+    star1:"Got everything in the right order", star2:"Remembered without peeking",
+    star3:"Short route: {s} steps (the shortest possible was {o})",
+    star3no:"That took {s} steps. It can be done in {o}!",
+    youGot:"You collected", wasMission:"The mission was", nothing:"nothing",
+    failWhy:"Look at the route on the map together: where did it go?",
+    strategyQ:"What helped you?", talk:"Let's talk",
+    retry:"Try this map again", next:"Next mission",
+    levelUp:"Up to level {l}!", levelDown:"The next mission is level {l}, for a bit more practice.",
+    panelTitle:"Therapist panel",
+    panelIntro:"The game trains working memory (holding the sequence), planning (drawing the whole route before acting) and self-monitoring (talking about strategy after each mission).",
+    difficulty:"Difficulty", levelN:"Level {l}", levelDesc:"{n}×{n} · {s} items · {d}",
+    dec0:"no distractors", dec1:"1 distractor", decN:"{d} distractors",
+    nextOnly:"Changes apply from the next mission.",
+    auto:"Adjust automatically: 2 completed missions in a row goes up a level, 2 missed goes down",
+    memTime:"Time to memorise", memLevel:"Level default", memMore:"50% more", memFree:"No limit",
+    allowPeek:"Allow peeking at the list while planning",
+    summary:"Session summary", sMissions:"Missions", sWins:"Completed", sSpan:"Longest sequence", sPeeks:"Peeks",
+    spanUnit:"{n} items", strategies:"Strategies the child picked", noneYet:"No missions finished yet.", noStrat:"None picked yet.",
+    cLevel:"Level", cItems:"Items", cResult:"Result", cSteps:"Steps (min.)", cPeeks:"Peeks", cStrat:"Strategies",
+    resWin:"Completed", resFail:"Missed", retryTag:"retry",
+    copy:"Copy summary", copied:"Summary copied.", copyFail:"Couldn't copy directly. Select the text below and copy it.",
+    newSession:"New session", cancel:"Cancel",
+    confirmNew:"End this session and start a new one for {p}? The level carries over.", confirmNewGuest:"This clears this session's summary.", confirmYes:"Start new session",
+    who:"Who's exploring today?", whoNone:"Nobody is saved on this device yet.",
+    profMeta:"Level {l} · {s} sessions", profMeta1:"Level {l} · 1 session",
+    newExplorer:"New explorer", nameLabel:"Nickname or code", namePh:"e.g. Leo, P-07",
+    nameNote:"Use a nickname or code, not the full name. The data stays on this device only.",
+    create:"Create and play", nameMissing:"Type a nickname or code to create the explorer.", guest:"Play without saving", guestName:"Guest",
+    playing:"Exploring: {p} · session {s}", guestPlaying:"Playing without saving", switchP:"Switch",
+    patient:"Patient", sessionOf:"Session {s} · {d}", switchPatient:"Switch patient", choosePatient:"Choose patient",
+    sessionAuto:"A new session starts automatically when the patient comes back after 2 hours or more. Use “New session” to start one sooner.",
+    history:"History", hSession:"Session", hDate:"Date", hMissions:"Missions", hWins:"Completed", hLevel:"Level", hSpan:"Longest seq.", current:"current",
+    data:"Data on this device",
+    dataNote:"Everything is saved in this browser only. To use another device or keep a copy, export a backup and import it on the other one.",
+    exportB:"Export backup", importB:"Import backup", imported:"Backup imported: {n} patients.", importFail:"Couldn't read that file. Use a backup exported from this game.",
+    deleteP:"Delete patient", confirmDel:"Delete {p} and all their history from this device? This can't be undone.", confirmDelYes:"Delete",
+    noStorage:"This browser isn't saving data (private window or blocked storage). The game works, but nothing is saved.",
+    sumHead:"Explorer's Map · {p} · session {s} ({d})",
+    sumLine1:"Missions: {m} · Completed: {w} ({p}%)",
+    sumLine2:"Current level: {l} · Longest sequence remembered: {s}",
+    sumLine3:"Peeks at the list: {k}", sumLine4:"Strategies: {x}",
+    stepsLine:"{s} steps (min. {o})", peeksLine:"{k} peeks"
+  }
+};
+
+var reduced=false;
+try{ reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
+function $(s){ return document.querySelector(s); }
+function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var x=a[i]; a[i]=a[j]; a[j]=x; } return a; }
+function range(n){ var a=[]; for(var i=0;i<n;i++) a.push(i); return a; }
+
+var S, R=null, cells=[], memT=0, peekT=0, hintT=0;
+
+function defaults(){ return {lang:"pt", avatar:0, level:0, up:0, down:0, round:0, settings:{auto:true, mem:"level", peek:true}, log:[]}; }
+function t(k,v){ var s=T[S.lang][k]; if(s==null) s=T.pt[k]; if(s==null) s=k; if(v) for(var x in v) s=s.split("{"+x+"}").join(v[x]); return s; }
+function itemName(i){ return ITEMS[i][S.lang]; }
+function stratName(id){ for(var i=0;i<STRATS.length;i++) if(STRATS[i].id===id) return STRATS[i][S.lang]; return id; }
+
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function locale(){ return S.lang==="pt"?"pt-BR":"en-GB"; }
+function fmtDate(ms){ return new Date(ms).toLocaleDateString(locale()); }
+
+/* ---------- prefs ---------- */
+function loadPrefs(){ try{ return JSON.parse(localStorage.getItem("mapa_explorador_prefs")||"{}")||{}; }catch(e){ return {}; } }
+function savePrefs(){ try{ localStorage.setItem("mapa_explorador_prefs", JSON.stringify({lang:S.lang, avatar:S.avatar})); }catch(e){} }
+
+/* ---------- patients + sessions (saved in this browser only) ---------- */
+var STORE="mapa_explorador_v1", SESSION_GAP=2*60*60*1000;
+var DB={profiles:[], current:null}, storageOK=true, P=null, SES=null, newAv=0;
+function defaultSettings(){ return {auto:true, mem:"level", peek:true}; }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function loadDB(){
+  try{
+    var raw=localStorage.getItem(STORE);
+    if(raw){ var d=JSON.parse(raw); if(d && Array.isArray(d.profiles)) DB={profiles:d.profiles.map(cleanProfile).filter(Boolean), current:d.current||null}; }
+  }catch(e){ storageOK=false; }
+}
+function saveDB(){ try{ localStorage.setItem(STORE, JSON.stringify(DB)); storageOK=true; }catch(e){ storageOK=false; } }
+function cleanProfile(p){
+  if(!p || typeof p.id!=="string" || typeof p.name!=="string" || !Array.isArray(p.sessions)) return null;
+  return {id:p.id, name:p.name.slice(0,30), avatar:AVATARS[p.avatar]?p.avatar:0, created:+p.created||Date.now(),
+    level:Math.max(0, Math.min(LEVELS.length-1, parseInt(p.level,10)||0)),
+    settings:Object.assign(defaultSettings(), p.settings||{}),
+    sessions:p.sessions.filter(function(s){ return s && Array.isArray(s.log); }).map(function(s){
+      return {id:String(s.id||uid()), start:+s.start||Date.now(), last:+s.last||+s.start||Date.now(), levelStart:+s.levelStart||1, levelEnd:+s.levelEnd||+s.levelStart||1,
+        log:s.log.filter(function(e){ return e && typeof e==="object"; }).map(function(e){ return Object.assign({}, e, {strategies:Array.isArray(e.strategies)?e.strategies:[]}); })};
+    })};
+}
+function playedSessions(p){ return p.sessions.filter(function(s){ return s.log.length; }); }
+// Reuse the last session if it's empty or the patient came back within SESSION_GAP; otherwise start a new one.
+function openSession(p, forceNew){
+  var last=p.sessions[p.sessions.length-1], now=Date.now();
+  if(last && !last.log.length){ last.start=last.last=now; last.levelStart=last.levelEnd=p.level+1; return last; }
+  if(last && !forceNew && now-last.last<SESSION_GAP) return last;
+  var s={id:uid(), start:now, last:now, levelStart:p.level+1, levelEnd:p.level+1, log:[]};
+  p.sessions.push(s); return s;
+}
+function usePatient(p, forceNew){
+  P=p||null;
+  if(P){ SES=openSession(P, forceNew); DB.current=P.id; S.level=P.level; S.settings=P.settings; S.avatar=P.avatar; }
+  else { SES={start:Date.now(), log:[]}; DB.current=null; S.level=0; S.settings=defaultSettings(); }
+  S.log=SES.log; S.round=SES.log.length; S.up=0; S.down=0;
+  saveDB(); newRound(false);
+}
+function persist(){
+  if(!P) return;
+  P.level=S.level; P.avatar=S.avatar;
+  SES.last=Date.now(); SES.levelEnd=S.level+1;
+  saveDB();
+}
+function sessionNo(){ return P ? P.sessions.indexOf(SES)+1 : 1; }
+function patientLabel(){ return P ? P.name : t("guestName"); }
+function createPatient(){
+  var inp=$("#newName"), name=(inp && inp.value || "").trim();
+  if(!name){ showHint("nameMissing"); if(inp) inp.focus(); return; }
+  var p={id:uid(), name:name.slice(0,30), avatar:newAv, created:Date.now(), level:0, settings:defaultSettings(), sessions:[]};
+  DB.profiles.push(p); usePatient(p, true);
+}
+function goWho(){
+  newRound(false); R.phase="who"; renderAll();
+}
+function doExport(){
+  var blob=new Blob([JSON.stringify({app:"mapa-do-explorador", version:1, exported:new Date().toISOString(), profiles:DB.profiles}, null, 2)], {type:"application/json"});
+  var a=document.createElement("a"), url=URL.createObjectURL(blob);
+  a.href=url; a.download="mapa-explorador-backup-"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+}
+function doImport(file){
+  var fr=new FileReader(), msg=function(s){ var el=$("#dataMsg"); if(el) el.textContent=s; };
+  fr.onload=function(){
+    var n=0;
+    try{
+      var d=JSON.parse(fr.result); if(!d || !Array.isArray(d.profiles)) throw new Error("bad");
+      d.profiles.forEach(function(raw){
+        var p=cleanProfile(raw); if(!p) return;
+        var i=DB.profiles.findIndex(function(x){ return x.id===p.id; });
+        if(i>=0) DB.profiles[i]=p; else DB.profiles.push(p);
+        n++;
+      });
+      if(!n) throw new Error("empty");
+    }catch(e){ msg(t("importFail")); return; }
+    saveDB();
+    if(P){ var cur=DB.profiles.find(function(x){ return x.id===P.id; }); if(cur!==P) usePatient(cur,false); }
+    else if(R.phase==="who") renderDock();
+    renderPanel(); msg(t("imported",{n:n}));
+  };
+  fr.onerror=function(){ msg(t("importFail")); };
+  fr.readAsText(file);
+}
+
+/* ---------- grid maths ---------- */
+function rc(i,n){ return [i%n, Math.floor(i/n)]; }
+function adj(a,b,n){ var p=rc(a,n), q=rc(b,n); return Math.abs(p[0]-q[0])+Math.abs(p[1]-q[1])===1; }
+function neighbors(i,n){ var p=rc(i,n), o=[]; if(p[0]>0)o.push(i-1); if(p[0]<n-1)o.push(i+1); if(p[1]>0)o.push(i-n); if(p[1]<n-1)o.push(i+n); return o; }
+function bfs(n,from,to,blocked){
+  if(from===to) return 0;
+  var dist={}; dist[from]=0; var q=[from];
+  while(q.length){
+    var c=q.shift(), nb=neighbors(c,n);
+    for(var k=0;k<nb.length;k++){
+      var x=nb[k]; if(dist[x]!=null || blocked.has(x)) continue;
+      dist[x]=dist[c]+1; if(x===to) return dist[x]; q.push(x);
+    }
+  }
+  return null;
+}
+// Shortest route that collects targets in order without stepping on distractors or future targets.
+function optimal(m){
+  var total=0, cur=m.start;
+  for(var i=0;i<m.targets.length;i++){
+    var blocked=new Set(m.obstacles);
+    m.decoys.forEach(function(d){ blocked.add(d.cell); });
+    for(var j=i+1;j<m.targets.length;j++) blocked.add(m.targets[j].cell);
+    var d=bfs(m.n,cur,m.targets[i].cell,blocked);
+    if(d==null) return null;
+    total+=d; cur=m.targets[i].cell;
+  }
+  return total;
+}
+function genMap(lvl){
+  var L=LEVELS[lvl];
+  for(var tries=0;tries<300;tries++){
+    var cs=shuffle(range(L.n*L.n)), k=0;
+    var m={n:L.n, lvl:lvl, start:cs[k++], obstacles:new Set(), targets:[], decoys:[], itemAt:new Map()};
+    for(var o=0;o<L.obs;o++) m.obstacles.add(cs[k++]);
+    var pool=shuffle(range(ITEMS.length));
+    for(var i=0;i<L.seq;i++) m.targets.push({cell:cs[k++], item:pool[i], idx:i});
+    for(var d=0;d<L.dec;d++) m.decoys.push({cell:cs[k++], item:pool[L.seq+d]});
+    var opt=optimal(m);
+    if(opt==null || opt<L.seq+1) continue;
+    m.opt=opt; m.budget=opt+L.slack;
+    m.targets.forEach(function(x){ m.itemAt.set(x.cell,{item:x.item, kind:"target", idx:x.idx}); });
+    m.decoys.forEach(function(x){ m.itemAt.set(x.cell,{item:x.item, kind:"decoy"}); });
+    return m;
+  }
+  return null;
+}
+
+/* ---------- rounds ---------- */
+function newRound(retry){
+  clearTimeout(memT); clearTimeout(peekT); clearTimeout(hintT);
+  var map = (retry && R) ? R.map : genMap(S.level);
+  S.round++;
+  R={map:map, phase:"ready", path:[map.start], peeks:0, peeking:false, collected:[], got:new Set(), retry:!!retry, result:null, hint:""};
+  $("#timer").hidden=true;
+  renderBoard(); renderAll();
+}
+function startMemorize(){
+  R.phase="memorize"; renderAll();
+  if(S.settings.mem==="free") return;
+  var secs=LEVELS[R.map.lvl].mem*(S.settings.mem==="more"?1.5:1);
+  var timer=$("#timer"), fill=$("#timerFill");
+  timer.hidden=false;
+  fill.style.transition="none"; fill.style.width="100%"; void fill.offsetWidth;
+  fill.style.transition="width "+secs+"s linear"; fill.style.width="0%";
+  memT=setTimeout(startPlan, secs*1000);
+}
+function startPlan(){
+  clearTimeout(memT); $("#timer").hidden=true;
+  if(R.phase!=="memorize") return;
+  R.phase="plan"; renderAll();
+}
+function doPeek(){
+  if(R.phase!=="plan" || R.peeking) return;
+  R.peeking=true; R.peeks++; updateMission(); renderDock();
+  var token=R;
+  peekT=setTimeout(function(){ if(R!==token) return; R.peeking=false; updateMission(); renderDock(); }, 1800);
+}
+function walk(){
+  clearTimeout(peekT); R.peeking=false;
+  R.phase="walk"; renderAll();
+  var token=R, m=R.map, next=0, k=1;
+  (function stepLoop(){
+    if(R!==token) return;
+    if(k>=R.path.length){ sleep(400).then(function(){ if(R===token) finish(); }); return; }
+    var c=R.path[k++];
+    movePiece(c,false);
+    var it=m.itemAt.get(c);
+    if(it && !R.got.has(c)){
+      R.got.add(c);
+      var ok = it.kind==="target" && it.idx===next;
+      if(ok) next++;
+      R.collected.push({item:it.item, ok:ok});
+      var el=cells[c].querySelector(".item"); if(el) el.classList.add("got");
+      updateMission(true);
+    }
+    setTimeout(stepLoop, reduced?140:280);
+  })();
+}
+function finish(){
+  var m=R.map, steps=R.path.length-1;
+  var success = R.collected.length===m.targets.length && R.collected.every(function(c){ return c.ok; });
+  var eff = steps<=m.opt+1;
+  var stars = success ? 1+(R.peeks===0?1:0)+(eff?1:0) : 0;
+  var entry={level:m.lvl+1, items:m.targets.length, success:success, steps:steps, opt:m.opt, peeks:R.peeks, strategies:[], retry:R.retry};
+  S.log.push(entry);
+  var lvlMsg=null;
+  if(S.settings.auto){
+    if(success){ S.up++; S.down=0; if(S.up>=2 && S.level<LEVELS.length-1){ S.level++; S.up=0; lvlMsg={k:"levelUp", l:S.level+1}; } }
+    else { S.down++; S.up=0; if(S.down>=2 && S.level>0){ S.level--; S.down=0; lvlMsg={k:"levelDown", l:S.level+1}; } }
+  }
+  persist();
+  R.result={success:success, stars:stars, steps:steps, eff:eff, entry:entry, lvlMsg:lvlMsg, q:(S.log.length-1)%QUESTIONS.pt.length};
+  R.phase="result"; renderAll();
+  if(window.innerWidth<900){ var d=$("#dockBody"); if(d.scrollIntoView) d.scrollIntoView({behavior:reduced?"auto":"smooth", block:"nearest"}); }
+}
+
+/* ---------- planning input ---------- */
+function stepTo(c){
+  var m=R.map, p=R.path;
+  if(p.length>=2 && c===p[p.length-2]){ p.pop(); return "ok"; }
+  if(m.obstacles.has(c)) return "tree";
+  if(p.length-1>=m.budget) return "energy";
+  p.push(c); return "ok";
+}
+function tryCell(c, fromDrag){
+  if(R.phase!=="plan") return "off";
+  var m=R.map, p=R.path, last=p[p.length-1], res;
+  if(c===last) return "same";
+  if(adj(last,c,m.n)) res=stepTo(c);
+  else if(!fromDrag && p.lastIndexOf(c)>=0){ p.length=p.lastIndexOf(c)+1; res="ok"; }
+  else {
+    var a=rc(last,m.n), b=rc(c,m.n);
+    if(a[0]===b[0] || a[1]===b[1]){
+      var dx=Math.sign(b[0]-a[0]), dy=Math.sign(b[1]-a[1]), cur=last; res="ok";
+      while(cur!==c){
+        var q=rc(cur,m.n), nc=(q[1]+dy)*m.n+(q[0]+dx);
+        res=stepTo(nc); if(res!=="ok"){ c=nc; break; }
+        cur=R.path[R.path.length-1]; if(cur!==nc) break;
+      }
+    } else res="adj";
+  }
+  if(res==="ok"){ clearHint(); updateRoute(); updatePlan(); }
+  else {
+    if(res==="tree"){ shake(cells[c]); showHint("hintTree"); }
+    else if(res==="energy"){ shake($("#energy")); showHint("hintEnergy"); }
+    else if(!fromDrag) showHint("hintAdj");
+    if(res!=="ok"){ updateRoute(); updatePlan(); }
+  }
+  return res;
+}
+function shake(el){ if(!el) return; el.classList.remove("shake","flash"); void el.offsetWidth; el.classList.add(el.id==="energy"?"flash":"shake"); }
+function showHint(k){ clearTimeout(hintT); R.hint=k; setStatus(); hintT=setTimeout(function(){ if(R){ R.hint=""; setStatus(); } }, 3200); }
+function clearHint(){ if(R.hint){ clearTimeout(hintT); R.hint=""; setStatus(); } }
+
+/* ---------- rendering ---------- */
+function renderBoard(){
+  var m=R.map, b=$("#board"), h="";
+  b.style.setProperty("--n", m.n);
+  for(var i=0;i<m.n*m.n;i++){
+    var p=rc(i,m.n), cls="cell"+((p[0]+p[1])%2?" alt":""), inner="";
+    if(m.obstacles.has(i)){ cls+=" tree"; inner=(i%2?"🌲":"🌳"); }
+    else if(m.itemAt.has(i)){ var it=m.itemAt.get(i); inner='<span class="item" role="img" aria-label="'+itemName(it.item)+'">'+ITEMS[it.item].e+'</span>'; }
+    if(i===m.start) inner='<span class="tent" aria-hidden="true">⛺</span>';
+    h+='<div class="'+cls+'" data-i="'+i+'">'+inner+'</div>';
+  }
+  h+='<svg class="route" viewBox="0 0 '+m.n+' '+m.n+'" preserveAspectRatio="none" aria-hidden="true"><polyline id="routeLine" points=""></polyline><circle id="routeEnd" r=".16" cx="0" cy="0"></circle></svg>';
+  h+='<div class="piece" id="piece" aria-hidden="true">'+AVATARS[S.avatar]+'</div>';
+  b.innerHTML=h;
+  cells=Array.prototype.slice.call(b.querySelectorAll(".cell"));
+  movePiece(m.start,true);
+}
+function movePiece(c,instant){
+  var p=$("#piece"), q=rc(c,R.map.n);
+  if(instant) p.style.transition="none";
+  p.style.setProperty("--x",q[0]); p.style.setProperty("--y",q[1]);
+  if(instant){ void p.offsetWidth; p.style.transition=""; }
+}
+function updateRoute(){
+  var m=R.map, line=$("#routeLine"), end=$("#routeEnd");
+  line.setAttribute("points", R.path.map(function(c){ var q=rc(c,m.n); return (q[0]+.5)+","+(q[1]+.5); }).join(" "));
+  var last=R.path[R.path.length-1], q=rc(last,m.n);
+  end.setAttribute("cx",q[0]+.5); end.setAttribute("cy",q[1]+.5);
+  end.style.display=(R.path.length>1 && R.phase==="plan")?"":"none";
+  cells.forEach(function(el){ el.classList.remove("next"); });
+  if(R.phase==="plan" && R.path.length-1<m.budget){
+    var prev=R.path.length>1?R.path[R.path.length-2]:-1;
+    neighbors(last,m.n).forEach(function(nb){ if(!m.obstacles.has(nb) && nb!==prev) cells[nb].classList.add("next"); });
+  }
+  $("#board").classList.toggle("planning", R.phase==="plan");
+}
+function slotHtml(s){
+  if(s.q) return '<div class="slot q"><span class="num">'+s.num+'</span><span class="em">?</span><span class="nm">&nbsp;</span></div>';
+  return '<div class="slot '+(s.cls||"")+'"><span class="num">'+s.num+'</span><span class="em" aria-hidden="true">'+ITEMS[s.item].e+'</span><span class="nm">'+itemName(s.item)+'</span></div>';
+}
+function updateMission(popLast){
+  var m=R.map, ph=R.phase, slots=[];
+  $(".mission-box").hidden = ph==="who";
+  if(ph==="who") return;
+  var lk={ready:"mReady",memorize:"mMem",plan:"mPlan",walk:"mWalk",result:"mResult"}[ph];
+  $("#mLabel").textContent=t(lk,{n:m.targets.length});
+  if(ph==="walk"){
+    var count=Math.max(m.targets.length, R.collected.length);
+    for(var i=0;i<count;i++){ var c=R.collected[i]; slots.push(c?{item:c.item, cls:c.ok?"ok":"bad", num:i+1}:{q:true, num:i+1}); }
+  } else {
+    var show = ph==="memorize" || ph==="result" || (ph==="plan" && R.peeking);
+    m.targets.forEach(function(tg,i){ slots.push(show?{item:tg.item, num:i+1, cls:(ph==="result" && R.result.success)?"ok":""}:{q:true, num:i+1}); });
+  }
+  var box=$("#mission"); box.innerHTML=slots.map(slotHtml).join("");
+  if(popLast && R.collected.length){ var el=box.children[R.collected.length-1]; if(el) el.classList.add("pop"); }
+}
+function setStatus(){
+  var st=$("#status"), k="";
+  if(R.hint){ st.textContent=t(R.hint); st.classList.add("hint"); return; }
+  st.classList.remove("hint");
+  if(R.phase==="memorize") k=S.settings.mem==="free"?"stMemFree":"stMem";
+  else if(R.phase==="plan") k="stPlan";
+  else if(R.phase==="walk") k="stWalk";
+  st.textContent=k?t(k):"";
+}
+function starSvg(on){ return '<svg class="'+(on?"on":"")+'" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,2 15,9 22,9.3 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.3 9,9"/></svg>'; }
+function renderDock(){
+  var d=$("#dockBody"), m=R.map, h="";
+  if(R.phase==="who"){
+    h='<div class="card"><h2>'+t("who")+'</h2>';
+    if(DB.profiles.length){
+      h+='<div class="plist">'+DB.profiles.map(function(p){
+        var n=playedSessions(p).length;
+        return '<button type="button" class="pbtn" data-act="pick" data-v="'+esc(p.id)+'"><span class="pav" aria-hidden="true">'+AVATARS[p.avatar]+'</span><span><b>'+esc(p.name)+'</b><small>'+t(n===1?"profMeta1":"profMeta",{l:p.level+1, s:n})+'</small></span></button>';
+      }).join("")+'</div>';
+    } else h+='<p class="rule">'+t("whoNone")+'</p>';
+    h+='<div class="newp"><div class="lbl">'+t("newExplorer")+'</div>'+
+       '<label class="fl" for="newName">'+t("nameLabel")+'</label><input type="text" id="newName" maxlength="30" autocomplete="off" spellcheck="false" placeholder="'+esc(t("namePh"))+'">'+
+       '<div class="avatars">'+AVATARS.map(function(a,i){ return '<button type="button" class="av'+(i===newAv?" on":"")+'" data-act="newav" data-v="'+i+'" aria-pressed="'+(i===newAv)+'">'+a+'</button>'; }).join("")+'</div>'+
+       '<p class="fine">'+t("nameNote")+'</p>'+
+       '<button type="button" class="btn primary big" data-act="create">'+t("create")+' ▶</button></div>'+
+       '<button type="button" class="btn ghost" data-act="guest">'+t("guest")+'</button></div>';
+  } else if(R.phase==="ready"){
+    h='<div class="card"><h2>'+t("readyTitle",{r:S.round})+'</h2>'+
+      '<p class="who-line">'+(P?t("playing",{p:esc(P.name), s:sessionNo()}):t("guestPlaying"))+' · <button type="button" class="linkbtn" data-act="switch">'+t("switchP")+'</button></p>'+
+      '<p>'+t(R.retry?"readyRetry":"readyBody",{n:m.targets.length})+'</p>'+
+      '<p class="rule">'+t("readyRule")+'</p>'+
+      '<div class="lbl">'+t("chooseAvatar")+'</div><div class="avatars">'+
+      AVATARS.map(function(a,i){ return '<button type="button" class="av'+(i===S.avatar?" on":"")+'" data-act="avatar" data-v="'+i+'" aria-pressed="'+(i===S.avatar)+'">'+a+'</button>'; }).join("")+
+      '</div><button type="button" class="btn primary big" data-act="show">'+t("showMission")+' ▶</button></div>';
+  } else if(R.phase==="memorize"){
+    h='<div class="card"><button type="button" class="btn primary big" data-act="gotit">'+t("gotIt")+'</button></div>';
+  } else if(R.phase==="plan"){
+    h='<div class="card"><div class="energy" id="energy"><div class="elabel"><span aria-hidden="true">👣</span> <span id="eText"></span></div><div class="ebar"><i id="eBar"></i></div></div>'+
+      '<div class="ctrls"><button type="button" class="btn" data-act="undo" id="bUndo">↶ '+t("undo")+'</button>'+
+      '<button type="button" class="btn" data-act="clear" id="bClear">'+t("clear")+'</button>'+
+      (S.settings.peek?'<button type="button" class="btn" data-act="peek" id="bPeek"'+(R.peeking?" disabled":"")+'>👀 '+t("peek")+'</button>':'')+
+      '</div><button type="button" class="btn primary big" data-act="go" id="bGo">'+t("go")+' ▶</button></div>';
+  } else if(R.phase==="result"){
+    h=resultHtml();
+  }
+  d.innerHTML=h;
+  if(R.phase==="plan") updatePlan();
+}
+function updatePlan(){
+  if(R.phase!=="plan") return;
+  var m=R.map, s=R.path.length-1, b=m.budget, e=$("#energy");
+  if(!e) return;
+  $("#eText").innerHTML=t("steps",{s:"<b>"+s+"</b>", b:b});
+  $("#eBar").style.width=Math.min(100, s/b*100)+"%";
+  e.classList.toggle("low", s>=b*.75 && s<b); e.classList.toggle("full", s>=b);
+  $("#bUndo").disabled=!s; $("#bClear").disabled=!s; $("#bGo").disabled=!s;
+}
+function resultHtml(){
+  var r=R.result, m=R.map, h='<div class="card result">';
+  if(r.success){
+    h+='<div class="stars" role="img" aria-label="'+r.stars+'/3">'+starSvg(true)+starSvg(R.peeks===0)+starSvg(r.eff)+'</div>';
+    h+='<h2>'+t("winTitle")+'</h2><ul class="checks">'+
+       '<li>'+t("star1")+'</li>'+
+       '<li class="'+(R.peeks===0?"":"off")+'">'+t("star2")+'</li>'+
+       '<li class="'+(r.eff?"":"off")+'">'+t(r.eff?"star3":"star3no",{s:r.steps, o:m.opt})+'</li></ul>';
+  } else {
+    h+='<h2>'+t("failTitle")+'</h2><div class="cmp">'+
+       '<div class="row2"><span class="k">'+t("youGot")+'</span>'+(R.collected.length?R.collected.map(function(c){ return '<span class="mini '+(c.ok?"ok":"bad")+'" role="img" aria-label="'+itemName(c.item)+'">'+ITEMS[c.item].e+'</span>'; }).join(""):'<span>'+t("nothing")+'</span>')+'</div>'+
+       '<div class="row2"><span class="k">'+t("wasMission")+'</span>'+m.targets.map(function(tg){ return '<span class="mini" role="img" aria-label="'+itemName(tg.item)+'">'+ITEMS[tg.item].e+'</span>'; }).join("")+'</div>'+
+       '</div><p class="rule">'+t("failWhy")+'</p>';
+  }
+  if(r.lvlMsg) h+='<p class="lvlmsg">'+t(r.lvlMsg.k,{l:r.lvlMsg.l})+'</p>';
+  h+='<div class="lbl">'+t("strategyQ")+'</div><div class="chips">'+
+     STRATS.map(function(s){ var on=r.entry.strategies.indexOf(s.id)>=0; return '<button type="button" class="chip'+(on?" on":"")+'" data-act="strat" data-v="'+s.id+'" aria-pressed="'+on+'">'+s.e+' '+s[S.lang]+'</button>'; }).join("")+'</div>';
+  h+='<div class="talk"><b>'+t("talk")+'</b>'+(r.success?QUESTIONS[S.lang][r.q]:t("failWhy"))+'</div>';
+  h+='<div class="btnrow"><button type="button" class="btn" data-act="retry">↻ '+t("retry")+'</button><button type="button" class="btn primary" data-act="next">'+t("next")+' ▶</button></div></div>';
+  return h;
+}
+function renderAll(){
+  $("#hSub").textContent = R.phase==="who" ? "" : t("sub",{l:R.map.lvl+1, r:S.round})+(P?" · "+P.name:"");
+  updateMission(); updateRoute(); renderDock(); setStatus();
+}
+
+/* ---------- therapist panel ---------- */
+function levelDesc(L){ return t("levelDesc",{n:L.n, s:L.seq, d:L.dec===0?t("dec0"):L.dec===1?t("dec1"):t("decN",{d:L.dec})}); }
+function tally(){
+  var c={}; S.log.forEach(function(e){ e.strategies.forEach(function(id){ c[id]=(c[id]||0)+1; }); });
+  return STRATS.filter(function(s){ return c[s.id]; }).sort(function(a,b){ return c[b.id]-c[a.id]; }).map(function(s){ return s[S.lang]+" ("+c[s.id]+")"; }).join(", ");
+}
+function stats(){
+  var log=S.log, wins=log.filter(function(e){ return e.success; });
+  return {m:log.length, w:wins.length, p:log.length?Math.round(wins.length/log.length*100):0,
+          span:wins.length?Math.max.apply(null, wins.map(function(e){ return e.items; })):0,
+          peeks:log.reduce(function(a,e){ return a+e.peeks; },0)};
+}
+function renderPanel(){
+  var st=stats(), tl=tally(), h="";
+  h+='<p class="intro">'+t("panelIntro")+'</p>';
+  if(!storageOK) h+='<p class="confirm">'+t("noStorage")+'</p>';
+  h+='<h3>'+t("patient")+'</h3>';
+  h+='<p><b>'+(P?AVATARS[P.avatar]+' '+esc(P.name):t("guestPlaying"))+'</b> · '+t("sessionOf",{s:sessionNo(), d:fmtDate(SES.start)})+'</p>';
+  h+='<div class="btnrow"><button type="button" class="btn" data-act="switch">'+t(P?"switchPatient":"choosePatient")+'</button><button type="button" class="btn" data-act="new">'+t("newSession")+'</button></div>';
+  h+='<div class="confirm" id="confirmBox" hidden><p>'+(P?t("confirmNew",{p:esc(P.name)}):t("confirmNewGuest"))+'</p><div class="btnrow"><button type="button" class="btn primary" data-act="newYes">'+t("confirmYes")+'</button><button type="button" class="btn" data-act="newNo">'+t("cancel")+'</button></div></div>';
+  if(P) h+='<p class="fine">'+t("sessionAuto")+'</p>';
+  h+='<h3>'+t("difficulty")+'</h3><div class="levels">'+LEVELS.map(function(L,i){
+      return '<button type="button" class="lvl'+(i===S.level?" on":"")+'" data-act="level" data-v="'+i+'" aria-pressed="'+(i===S.level)+'"><b>'+t("levelN",{l:i+1})+'</b><small>'+levelDesc(L)+'</small></button>'; }).join("")+'</div>';
+  if(R.phase!=="ready") h+='<p class="fine">'+t("nextOnly")+'</p>';
+  h+='<label class="toggle"><input type="checkbox" id="optAuto"'+(S.settings.auto?" checked":"")+'><span>'+t("auto")+'</span></label>';
+  h+='<h3>'+t("memTime")+'</h3><div class="seg wide" role="group">'+["level","more","free"].map(function(k){
+      var on=S.settings.mem===k; return '<button type="button" data-act="mem" data-v="'+k+'" aria-pressed="'+on+'">'+t({level:"memLevel",more:"memMore",free:"memFree"}[k])+'</button>'; }).join("")+'</div>';
+  h+='<label class="toggle"><input type="checkbox" id="optPeek"'+(S.settings.peek?" checked":"")+'><span>'+t("allowPeek")+'</span></label>';
+  h+='<h3>'+t("summary")+'</h3><div class="stats">'+
+     '<div class="stat"><b>'+st.m+'</b><span>'+t("sMissions")+'</span></div>'+
+     '<div class="stat"><b>'+st.w+(st.m?' <small style="font-size:.9rem">('+st.p+'%)</small>':'')+'</b><span>'+t("sWins")+'</span></div>'+
+     '<div class="stat"><b>'+(st.span||"—")+'</b><span>'+t("sSpan")+'</span></div>'+
+     '<div class="stat"><b>'+st.peeks+'</b><span>'+t("sPeeks")+'</span></div></div>';
+  h+='<h4>'+t("strategies")+'</h4><p>'+(tl||'<span class="fine">'+t("noStrat")+'</span>')+'</p>';
+  if(S.log.length){
+    h+='<div class="tbl"><table><thead><tr><th>#</th><th>'+t("cLevel")+'</th><th>'+t("cItems")+'</th><th>'+t("cResult")+'</th><th>'+t("cSteps")+'</th><th>'+t("cPeeks")+'</th><th>'+t("cStrat")+'</th></tr></thead><tbody>'+
+       S.log.map(function(e,i){ return '<tr><td>'+(i+1)+'</td><td>'+e.level+'</td><td>'+e.items+'</td><td><span class="pill '+(e.success?"win":"fail")+'">'+t(e.success?"resWin":"resFail")+'</span>'+(e.retry?' <span class="fine">'+t("retryTag")+'</span>':'')+'</td><td>'+e.steps+' ('+e.opt+')</td><td>'+e.peeks+'</td><td>'+(e.strategies.map(stratName).join(", ")||"—")+'</td></tr>'; }).join("")+
+       '</tbody></table></div>';
+  } else h+='<p class="fine">'+t("noneYet")+'</p>';
+  h+='<div class="btnrow"><button type="button" class="btn" data-act="copy">'+t("copy")+'</button></div>';
+  h+='<p class="fine" id="copyMsg" role="status"></p><textarea id="copyBox" rows="8" readonly hidden></textarea>';
+  if(P){
+    var past=P.sessions.filter(function(s){ return s.log.length || s===SES; });
+    h+='<h3>'+t("history")+'</h3><div class="tbl"><table><thead><tr><th>'+t("hSession")+'</th><th>'+t("hDate")+'</th><th>'+t("hMissions")+'</th><th>'+t("hWins")+'</th><th>'+t("hLevel")+'</th><th>'+t("hSpan")+'</th></tr></thead><tbody>'+
+       past.slice().reverse().map(function(s){
+         var n=P.sessions.indexOf(s)+1, w=s.log.filter(function(e){ return e.success; }), pc=s.log.length?Math.round(w.length/s.log.length*100):0;
+         var span=w.length?Math.max.apply(null, w.map(function(e){ return e.items; })):0;
+         return '<tr><td>'+n+(s===SES?' <span class="fine">('+t("current")+')</span>':'')+'</td><td>'+fmtDate(s.start)+'</td><td>'+s.log.length+'</td><td>'+w.length+(s.log.length?' ('+pc+'%)':'')+'</td><td>'+s.levelStart+(s.levelEnd!==s.levelStart?' → '+s.levelEnd:'')+'</td><td>'+(span||"—")+'</td></tr>';
+       }).join("")+'</tbody></table></div>';
+  }
+  h+='<h3>'+t("data")+'</h3><p class="fine">'+t("dataNote")+'</p>';
+  h+='<div class="btnrow"><button type="button" class="btn" data-act="export"'+(DB.profiles.length?'':' disabled')+'>'+t("exportB")+'</button><button type="button" class="btn" data-act="import">'+t("importB")+'</button>'+
+     (P?'<button type="button" class="btn ghost" data-act="del">'+t("deleteP")+'</button>':'')+'</div>';
+  h+='<input type="file" id="importFile" accept="application/json,.json" hidden><p class="fine" id="dataMsg" role="status"></p>';
+  if(P) h+='<div class="confirm" id="delBox" hidden><p>'+t("confirmDel",{p:esc(P.name)})+'</p><div class="btnrow"><button type="button" class="btn danger" data-act="delYes">'+t("confirmDelYes")+'</button><button type="button" class="btn" data-act="delNo">'+t("cancel")+'</button></div></div>';
+  $("#panelBody").innerHTML=h;
+}
+function summaryText(){
+  var st=stats(), tl=tally();
+  var lines=[
+    t("sumHead",{p:patientLabel(), s:sessionNo(), d:fmtDate(SES.start)}),
+    t("sumLine1",{m:st.m, w:st.w, p:st.p}),
+    t("sumLine2",{l:S.level+1, s:st.span?t("spanUnit",{n:st.span}):"—"}),
+    t("sumLine3",{k:st.peeks}),
+    t("sumLine4",{x:tl||"—"}), ""
+  ];
+  S.log.forEach(function(e,i){
+    lines.push((i+1)+". "+t("levelN",{l:e.level})+" · "+t("spanUnit",{n:e.items})+" · "+t(e.success?"resWin":"resFail")+(e.retry?" ("+t("retryTag")+")":"")+
+      " · "+t("stepsLine",{s:e.steps, o:e.opt})+" · "+t("peeksLine",{k:e.peeks})+(e.strategies.length?" · "+e.strategies.map(stratName).join(", "):""));
+  });
+  return lines.join("\n");
+}
+function doCopy(){
+  var txt=summaryText(), msg=$("#copyMsg"), box=$("#copyBox");
+  function fallback(){ box.hidden=false; box.value=txt; box.focus(); box.select(); msg.textContent=t("copyFail"); }
+  try{ navigator.clipboard.writeText(txt).then(function(){ msg.textContent=t("copied"); box.hidden=true; }, fallback); }catch(e){ fallback(); }
+}
+
+/* ---------- theme + language ---------- */
+function isDark(){ var a=document.documentElement.getAttribute("data-theme"); if(a) return a==="dark"; try{ return window.matchMedia("(prefers-color-scheme: dark)").matches; }catch(e){ return false; } }
+function applyTheme(){
+  var th=null; try{ th=localStorage.getItem("mapa_theme"); }catch(e){}
+  if(th) document.documentElement.setAttribute("data-theme",th);
+  $("#themeBtn").textContent=isDark()?"☀️":"🌙";
+}
+function toggleTheme(){
+  var v=isDark()?"light":"dark";
+  document.documentElement.setAttribute("data-theme",v);
+  try{ localStorage.setItem("mapa_theme",v); }catch(e){}
+  $("#themeBtn").textContent=isDark()?"☀️":"🌙";
+}
+function applyLang(){
+  document.documentElement.lang=S.lang==="pt"?"pt-BR":"en";
+  Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function(el){ el.textContent=t(el.getAttribute("data-t")); });
+  $("#hTitle").textContent=t("title");
+  $("#themeBtn").setAttribute("aria-label",t("themeAria"));
+  $("#panelBtn").setAttribute("aria-label",t("panelTitle"));
+  $("#panelClose").setAttribute("aria-label",t("close"));
+  $("#langSeg").setAttribute("aria-label",t("langAria"));
+  $("#lPT").setAttribute("aria-pressed", S.lang==="pt"); $("#lEN").setAttribute("aria-pressed", S.lang==="en");
+  $("#board").setAttribute("aria-label", t("boardAria",{n:R.map.n}));
+  cells.forEach(function(el){ var it=el.querySelector(".item"); if(it){ var x=R.map.itemAt.get(+el.dataset.i); it.setAttribute("aria-label", itemName(x.item)); } });
+  renderAll();
+  if($("#panel").open) renderPanel();
+}
+function setLang(l){ if(S.lang===l) return; S.lang=l; savePrefs(); applyLang(); }
+
+/* ---------- events ---------- */
+function bind(){
+  $("#lPT").addEventListener("click", function(){ setLang("pt"); });
+  $("#lEN").addEventListener("click", function(){ setLang("en"); });
+  $("#themeBtn").addEventListener("click", toggleTheme);
+  var panel=$("#panel");
+  $("#panelBtn").addEventListener("click", function(){ renderPanel(); if(panel.showModal) panel.showModal(); else panel.setAttribute("open",""); });
+  $("#panelClose").addEventListener("click", function(){ panel.close(); });
+  panel.addEventListener("click", function(e){ if(e.target===panel) panel.close(); });
+
+  $("#dockBody").addEventListener("click", function(e){
+    var b=e.target.closest("[data-act]"); if(!b || b.disabled) return;
+    var act=b.getAttribute("data-act"), v=b.getAttribute("data-v");
+    if(act==="avatar"){ S.avatar=+v; savePrefs(); persist(); $("#piece").textContent=AVATARS[S.avatar]; renderDock(); }
+    else if(act==="pick"){ var p=DB.profiles.find(function(x){ return x.id===v; }); if(p) usePatient(p,false); }
+    else if(act==="newav"){ newAv=+v; Array.prototype.forEach.call(document.querySelectorAll('[data-act="newav"]'), function(el){ var on=+el.getAttribute("data-v")===newAv; el.classList.toggle("on",on); el.setAttribute("aria-pressed",on); }); }
+    else if(act==="create") createPatient();
+    else if(act==="guest") usePatient(null);
+    else if(act==="switch") goWho();
+    else if(act==="show") startMemorize();
+    else if(act==="gotit") startPlan();
+    else if(act==="undo"){ if(R.path.length>1){ R.path.pop(); clearHint(); updateRoute(); updatePlan(); } }
+    else if(act==="clear"){ R.path.length=1; clearHint(); updateRoute(); updatePlan(); }
+    else if(act==="peek") doPeek();
+    else if(act==="go"){ if(R.path.length>1) walk(); }
+    else if(act==="strat"){
+      var list=R.result.entry.strategies, i=list.indexOf(v);
+      if(i>=0) list.splice(i,1); else list.push(v);
+      b.classList.toggle("on", i<0); b.setAttribute("aria-pressed", i<0);
+      persist();
+    }
+    else if(act==="retry") newRound(true);
+    else if(act==="next") newRound(false);
+  });
+
+  $("#panelBody").addEventListener("click", function(e){
+    var b=e.target.closest("[data-act]"); if(!b) return;
+    var act=b.getAttribute("data-act"), v=b.getAttribute("data-v");
+    if(act==="level"){ S.level=+v; S.up=0; S.down=0; persist(); if(R.phase==="ready"){ S.round--; newRound(false); } renderPanel(); }
+    else if(act==="mem"){ S.settings.mem=v; persist(); renderPanel(); setStatus(); }
+    else if(act==="copy") doCopy();
+    else if(act==="new"){ $("#confirmBox").hidden=false; }
+    else if(act==="newNo"){ $("#confirmBox").hidden=true; }
+    else if(act==="newYes"){ usePatient(P, true); renderPanel(); }
+    else if(act==="switch"){ panel.close(); goWho(); }
+    else if(act==="export") doExport();
+    else if(act==="import") $("#importFile").click();
+    else if(act==="del"){ $("#delBox").hidden=false; }
+    else if(act==="delNo"){ $("#delBox").hidden=true; }
+    else if(act==="delYes"){
+      var id=P.id; DB.profiles=DB.profiles.filter(function(x){ return x.id!==id; });
+      P=null; DB.current=null; saveDB(); panel.close(); goWho();
+    }
+  });
+  $("#panelBody").addEventListener("change", function(e){
+    if(e.target.id==="optAuto"){ S.settings.auto=e.target.checked; persist(); }
+    else if(e.target.id==="optPeek"){ S.settings.peek=e.target.checked; persist(); if(R.phase==="plan") renderDock(); }
+    else if(e.target.id==="importFile" && e.target.files && e.target.files[0]){ doImport(e.target.files[0]); e.target.value=""; }
+  });
+  $("#dockBody").addEventListener("keydown", function(e){
+    if(e.target.id==="newName" && e.key==="Enter"){ e.preventDefault(); createPatient(); }
+  });
+
+  var board=$("#board"), dragging=false, lastCell=null;
+  function cellAt(e){ var el=document.elementFromPoint(e.clientX,e.clientY); el=el && el.closest ? el.closest(".cell") : null; return el && board.contains(el) ? +el.getAttribute("data-i") : null; }
+  board.addEventListener("pointerdown", function(e){
+    if(R.phase!=="plan") return;
+    e.preventDefault(); dragging=true; lastCell=null;
+    try{ board.setPointerCapture(e.pointerId); }catch(err){}
+    var c=cellAt(e); if(c==null) return;
+    tryCell(c,false); lastCell=c;
+  });
+  board.addEventListener("pointermove", function(e){
+    if(!dragging || R.phase!=="plan") return;
+    var c=cellAt(e); if(c==null || c===lastCell) return;
+    var res=tryCell(c,true);
+    if(res!=="adj") lastCell=c;
+  });
+  function stop(){ dragging=false; lastCell=null; }
+  board.addEventListener("pointerup", stop); board.addEventListener("pointercancel", stop);
+
+  document.addEventListener("keydown", function(e){
+    if(panel.open || !R || R.phase!=="plan") return;
+    var tag=(e.target && e.target.tagName)||""; if(tag==="INPUT"||tag==="TEXTAREA") return;
+    var m=R.map, last=R.path[R.path.length-1], q=rc(last,m.n), nc=null;
+    if(e.key==="ArrowLeft" && q[0]>0) nc=last-1;
+    else if(e.key==="ArrowRight" && q[0]<m.n-1) nc=last+1;
+    else if(e.key==="ArrowUp" && q[1]>0) nc=last-m.n;
+    else if(e.key==="ArrowDown" && q[1]<m.n-1) nc=last+m.n;
+    else if(e.key==="Backspace"){ e.preventDefault(); if(R.path.length>1){ R.path.pop(); clearHint(); updateRoute(); updatePlan(); } return; }
+    else if(e.key==="Enter" && tag!=="BUTTON"){ if(R.path.length>1){ e.preventDefault(); walk(); } return; }
+    else return;
+    e.preventDefault();
+    if(nc!=null) tryCell(nc,false);
+  });
+}
+
+/* ---------- boot ---------- */
+function start(){
+  S=defaults();
+  var prefs=loadPrefs();
+  if(prefs.lang==="pt"||prefs.lang==="en") S.lang=prefs.lang;
+  if(typeof prefs.avatar==="number" && AVATARS[prefs.avatar]) S.avatar=prefs.avatar;
+  newAv=S.avatar;
+  loadDB(); bind(); applyTheme();
+  SES={start:Date.now(), log:S.log};
+  // One saved patient on this device (e.g. a child's own tablet): resume them. Several: ask who's playing.
+  if(DB.profiles.length===1) usePatient(DB.profiles[0], false);
+  else goWho();
+  applyLang();
+}
+start();
+})();
+</script>
