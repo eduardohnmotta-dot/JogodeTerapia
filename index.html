@@ -659,7 +659,6 @@ function finish(){
 /* ---------- planning input ---------- */
 function stepTo(c){
   var m=R.map, p=R.path;
-  if(p.length>=2 && c===p[p.length-2]){ p.pop(); return "ok"; }
   if(m.obstacles.has(c)) return "tree";
   if(p.length-1>=m.budget) return "energy";
   p.push(c); return "ok";
@@ -668,8 +667,9 @@ function tryCell(c, fromDrag){
   if(R.phase!=="plan") return "off";
   var m=R.map, p=R.path, last=p[p.length-1], res;
   if(c===last) return "same";
+  // Every tap/drag adds steps, including walking back the way you came (needed to leave dead ends).
+  // Removing steps is only done with Undo / Clear / Backspace.
   if(adj(last,c,m.n)) res=stepTo(c);
-  else if(!fromDrag && p.lastIndexOf(c)>=0){ p.length=p.lastIndexOf(c)+1; res="ok"; }
   else {
     var a=rc(last,m.n), b=rc(c,m.n);
     if(a[0]===b[0] || a[1]===b[1]){
@@ -725,8 +725,7 @@ function updateRoute(){
   end.style.display=(R.path.length>1 && R.phase==="plan")?"":"none";
   cells.forEach(function(el){ el.classList.remove("next"); });
   if(R.phase==="plan" && R.path.length-1<m.budget){
-    var prev=R.path.length>1?R.path[R.path.length-2]:-1;
-    neighbors(last,m.n).forEach(function(nb){ if(!m.obstacles.has(nb) && nb!==prev) cells[nb].classList.add("next"); });
+    neighbors(last,m.n).forEach(function(nb){ if(!m.obstacles.has(nb)) cells[nb].classList.add("next"); });
   }
   $("#board").classList.toggle("planning", R.phase==="plan");
 }
