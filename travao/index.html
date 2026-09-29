@@ -211,6 +211,17 @@
   .pbody ul{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px}
   .pbody .goal{font-weight:700}
 
+  /* voice meter: shows the young person their voice is getting through (volume only, nothing is recorded) */
+  .icon[aria-pressed="true"]{background:var(--go); border-color:var(--go)}
+  .micmsg{margin:0; padding:10px 14px; border-radius:14px; background:color-mix(in srgb, var(--violet) 10%, var(--surface)); border:1.5px solid color-mix(in srgb, var(--violet) 40%, transparent); font-weight:700; font-size:.92rem}
+  .voice{display:inline-flex; align-items:center; gap:12px; padding:8px 16px; border-radius:999px; background:var(--surface-2); border:1.5px solid var(--border); font-weight:700; color:var(--ink-soft); --v:0}
+  .voice .bars{display:flex; align-items:center; gap:4px; height:32px}
+  .voice .bars i{width:7px; border-radius:99px; background:var(--ink-soft); height:calc(6px + var(--v) * 26px); transition:height .08s linear}
+  .voice .bars i:nth-child(2), .voice .bars i:nth-child(4){height:calc(6px + var(--v) * 18px)}
+  .voice .bars i:nth-child(1), .voice .bars i:nth-child(5){height:calc(6px + var(--v) * 10px)}
+  .voice.live{border-color:var(--go); color:var(--go)}
+  .voice.live .bars i{background:var(--go)}
+
   @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
   @keyframes breath{0%,100%{transform:scale(.62)}50%{transform:scale(1)}}
   @media (prefers-reduced-motion: reduce){
@@ -234,10 +245,12 @@
         <button id="lEN" type="button">EN</button>
       </div>
       <button class="icon" id="themeBtn" type="button">🌙</button>
+      <button class="icon" id="micBtn" type="button" aria-pressed="false" hidden>🎤</button>
       <button class="btn small" id="guideBtn" type="button"><span aria-hidden="true">📋</span><span class="hide-narrow" data-t="guide">Guião</span></button>
     </div>
   </header>
   <nav class="steps" id="steps"></nav>
+  <p class="micmsg" id="micMsg" role="status" hidden></p>
   <div class="clock" id="clock"><span id="clockTxt"></span><div class="cbar"><i id="clockBar"></i></div></div>
   <main class="stage" id="stage" aria-live="polite"></main>
   <section class="dock" id="dock"></section>
@@ -336,6 +349,11 @@ var T={
     seeYou:"Até à próxima sessão!",
     copy:"Copiar resumo", copied:"Resumo copiado.", copyFail:"Não deu para copiar diretamente. Seleciona o texto abaixo e copia.",
     newSession:"Nova sessão", confirmNew:"Isto apaga esta sessão deste navegador. Já copiaste o resumo?", confirmYes:"Sim, começar outra", cancel:"Cancelar",
+    micOn:"Ligar o microfone", micOff:"Desligar o microfone", micHear:"A ouvir-te…", micLive:"Estou a ouvir!",
+    micDenied:"O navegador não deu acesso ao microfone. Permite o acesso nas definições do site e tenta outra vez.",
+    micNone:"Este navegador não consegue usar o microfone aqui.",
+    micTitle:"Microfone",
+    micNote:"O botão 🎤 liga o microfone deste aparelho. Nos momentos de falar (frase de reinício, Regra Reversa, resposta do Agir, reflexão) aparece um medidor que mexe com a voz. Só mede o volume: nada é gravado nem enviado. Neste computador reage a quem falar perto e à voz do jovem nas colunas (com auscultadores não a ouve). Se o jovem abrir o link no seu próprio aparelho, reage à voz dele.",
     shortcuts:"Atalhos de teclado",
     keys:["<kbd>Espaço</kbd> travão OK · passo seguinte","<kbd>X</kbd> falhou","<kbd>↑</kbd> verde · <kbd>↓</kbd> vermelho · <kbd>F</kbd> sinal falso","<kbd>A</kbd> automático · <kbd>M</kbd> micro-urgência","<kbd>1</kbd>–<kbd>5</kbd> medidor do motor"],
     sumHead:"Músculo do Travão · {p} · {d}",
@@ -383,6 +401,11 @@ var T={
     seeYou:"See you next session!",
     copy:"Copy summary", copied:"Summary copied.", copyFail:"Couldn't copy directly. Select the text below and copy it.",
     newSession:"New session", confirmNew:"This deletes this session from this browser. Have you copied the summary?", confirmYes:"Yes, start another", cancel:"Cancel",
+    micOn:"Turn microphone on", micOff:"Turn microphone off", micHear:"Listening…", micLive:"I can hear you!",
+    micDenied:"The browser didn't allow the microphone. Allow it in the site settings and try again.",
+    micNone:"This browser can't use the microphone here.",
+    micTitle:"Microphone",
+    micNote:"The 🎤 button turns on this device's microphone. When it's time to speak (the restart phrase, Reverse Rule, the Act answer, reflection) a meter moves with the voice. It only measures volume: nothing is recorded or sent. On this computer it reacts to whoever speaks nearby and to the young person's voice from the speakers (with headphones it won't hear it). If the young person opens the link on their own device, it reacts to their voice.",
     shortcuts:"Keyboard shortcuts",
     keys:["<kbd>Space</kbd> brake OK · next step","<kbd>X</kbd> slipped","<kbd>↑</kbd> green · <kbd>↓</kbd> red · <kbd>F</kbd> fake signal","<kbd>A</kbd> automatic · <kbd>M</kbd> micro-urge","<kbd>1</kbd>–<kbd>5</kbd> engine gauge"],
     sumHead:"Brake Muscle · {p} · {d}",
@@ -541,7 +564,7 @@ function renderAll(){
   var on=view==="session";
   $("#hTitle").textContent=t("title");
   $("#hSub").textContent=t("tagline")+(on?" · "+S.name:"");
-  $("#steps").hidden=!on; $("#clock").hidden=!on; $("#dock").hidden=!on;
+  $("#steps").hidden=!on; $("#clock").hidden=!on; $("#dock").hidden=!on; $("#micBtn").hidden=!on;
   $("#steps").setAttribute("aria-label",t("stepsAria")); $("#dock").setAttribute("aria-label",t("dockAria"));
   if(on){ renderSteps(); tick(); }
   renderStage(); renderDock();
@@ -565,7 +588,54 @@ function meterHtml(){
   return '<div class="meter'+cls+'"><span aria-hidden="true">💪</span><span>'+t("strength")+'</span><b>'+n+'</b><div class="mbar" aria-hidden="true"><i style="width:'+(n%10*10)+'%"></i></div><small>'+t("brakeLvl",{l:Math.floor(n/10)+1})+'</small></div>';
 }
 function resetHtml(strip){
-  return '<div class="reset'+(strip?" strip":"")+'" role="status"><span class="e" aria-hidden="true">🔄</span><div>'+(strip?'':'<small>'+t("failSay")+'</small><br>')+'<b>'+t("failPhrase")+'</b></div></div>';
+  return '<div class="reset'+(strip?" strip":"")+'" role="status"><span class="e" aria-hidden="true">🔄</span><div>'+(strip?'':'<small>'+t("failSay")+'</small><br>')+'<b>'+t("failPhrase")+'</b></div></div>'+voiceHtml();
+}
+function voiceHtml(){
+  if(!MIC.on) return "";
+  return '<div class="voice" aria-hidden="true"><span>🎤</span><span class="bars"><i></i><i></i><i></i><i></i><i></i></span><span class="vt">'+t("micHear")+'</span></div>';
+}
+
+/* ---------- microphone: volume only, processed in the browser, never recorded or sent ---------- */
+var MIC={on:false, stream:null, ctx:null, raf:0};
+var micKey="";
+function micMsg(k){ var el=$("#micMsg"); micKey=k; el.textContent=k?t(k):""; el.hidden=!k; }
+function micStart(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !(window.AudioContext||window.webkitAudioContext)){ micMsg("micNone"); return; }
+  // Create the audio context inside the click itself: Safari keeps it muted if it's created after the permission prompt.
+  var ctx=new (window.AudioContext||window.webkitAudioContext)();
+  if(ctx.resume) ctx.resume();
+  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true}}).then(function(stream){
+    var an=ctx.createAnalyser(), buf;
+    an.fftSize=1024; buf=new Uint8Array(an.fftSize);
+    ctx.createMediaStreamSource(stream).connect(an);
+    MIC={on:true, stream:stream, ctx:ctx, raf:0};
+    micMsg(""); micButton(); renderStage();
+    var level=0;
+    (function loop(){
+      if(!MIC.on) return;
+      an.getByteTimeDomainData(buf);
+      var sum=0; for(var i=0;i<buf.length;i++){ var x=(buf[i]-128)/128; sum+=x*x; }
+      // RMS of normal speech sits around .02–.2; scale so talking fills most of the meter.
+      var v=Math.min(1, Math.sqrt(sum/buf.length)*6);
+      level = v>level ? v : level*.85+v*.15;
+      var live=level>.18;
+      Array.prototype.forEach.call(document.querySelectorAll(".voice"), function(el){
+        el.style.setProperty("--v", level.toFixed(3));
+        if(live!==el.classList.contains("live")){ el.classList.toggle("live", live); el.querySelector(".vt").textContent=t(live?"micLive":"micHear"); }
+      });
+      MIC.raf=requestAnimationFrame(loop);
+    })();
+  }, function(){ ctx.close(); micMsg("micDenied"); });
+}
+function micStop(){
+  cancelAnimationFrame(MIC.raf);
+  if(MIC.stream) MIC.stream.getTracks().forEach(function(tr){ tr.stop(); });
+  if(MIC.ctx) MIC.ctx.close();
+  MIC={on:false, stream:null, ctx:null, raf:0};
+  micButton(); renderStage();
+}
+function micButton(){
+  var b=$("#micBtn"); b.setAttribute("aria-pressed", MIC.on); b.setAttribute("aria-label", t(MIC.on?"micOff":"micOn")); b.title=t(MIC.on?"micOff":"micOn");
 }
 function gaugeHtml(v){
   function pt(a){ var r=a*Math.PI/180; return (100+80*Math.cos(r)).toFixed(1)+" "+(100-80*Math.sin(r)).toFixed(1); }
@@ -603,11 +673,11 @@ function renderStage(){
     } else if(r.show){
       if(!U.word) newWord();
       var w=PAIRS[U.word.p][U.word.s];
-      h+='<div class="prompt"><span class="e" aria-hidden="true">'+w.e+'</span><span class="w">'+w[L]+'</span></div><p class="say">'+t("sayOpp")+'</p>'+pairsHtml();
+      h+='<div class="prompt"><span class="e" aria-hidden="true">'+w.e+'</span><span class="w">'+w[L]+'</span></div><p class="say">'+t("sayOpp")+'</p>'+voiceHtml()+pairsHtml();
     } else {
       h+='<h2>'+t("listen")+'</h2><div class="rules">'+PAIRS.slice(0,r.pairs).map(function(pr){
         return '<div class="rule"><div class="side"><span class="e" aria-hidden="true">'+pr[0].e+'</span>'+pr[0][L]+'</div><span class="arrow" aria-hidden="true">⇄</span><div class="side"><span class="e" aria-hidden="true">'+pr[1].e+'</span>'+pr[1][L]+'</div></div>';
-      }).join("")+'</div>';
+      }).join("")+'</div>'+voiceHtml();
     }
   } else if(p===2){
     var cur=S.sem.cur;
@@ -628,13 +698,13 @@ function renderStage(){
       return '<div class="pstep'+cls+'"><span class="e" aria-hidden="true">'+s.e+'</span><b>'+s[L][0]+'</b><small>'+s[L][1]+'</small></div>';
     }).join("")+'</div>';
     if(pp.step===2) h+='<div class="breath" aria-hidden="true"><span id="breathTxt">'+t("breatheIn")+'</span></div><p class="question">'+t("ppaQ")+'</p>';
-    else if(pp.step===3) h+='<p class="question">'+t("actQ")+'</p>';
+    else if(pp.step===3) h+='<p class="question">'+t("actQ")+'</p>'+voiceHtml();
   } else if(p===4){
     var ms=S.mstep;
     if(ms===0){
       h='<h2>'+t("gaugeQ2")+'</h2>'+gaugeHtml(S.m1)+motorsHtml(S.m1);
       if(S.m0 && S.m1) h+='<p class="cmp">'+t("startEnd",{a:S.m0, b:S.m1})+'</p>';
-      h+='<div class="talk"><span class="e" aria-hidden="true">💬</span>'+REFLECT[L][S.m1?1:0]+'</div>';
+      h+='<div class="talk"><span class="e" aria-hidden="true">💬</span>'+REFLECT[L][S.m1?1:0]+'</div>'+voiceHtml();
     } else if(ms===1){
       h='<h2>'+t("missionLbl")+'</h2><div class="choices" role="group">'+MISSIONS.map(function(m){
         return '<button type="button" class="choice" data-act="mission" data-v="'+m.id+'" aria-pressed="'+(S.mis.pick===m.id)+'">'+m[L]+'</button>';
@@ -739,6 +809,7 @@ function renderGuide(){
   var g=GUIDE[L][view==="session"?S.phase:0];
   $("#gTitle").textContent=t("guide")+(view==="session"?" · "+t("phases")[S.phase]:"");
   $("#guideBody").innerHTML='<p class="goal">'+g.g+'</p><ul>'+g.l.map(function(x){ return '<li>'+x+'</li>'; }).join("")+'</ul>'+
+    '<h3>'+t("micTitle")+'</h3><p>'+t("micNote")+'</p>'+
     '<h3>'+t("shortcuts")+'</h3><ul>'+t("keys").map(function(x){ return '<li>'+x+'</li>'; }).join("")+'</ul>';
 }
 function isDark(){ var a=document.documentElement.getAttribute("data-theme"); if(a) return a==="dark"; try{ return window.matchMedia("(prefers-color-scheme: dark)").matches; }catch(e){ return false; } }
@@ -759,6 +830,7 @@ function applyLang(){
   Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function(el){ el.textContent=t(el.getAttribute("data-t")); });
   $("#themeBtn").setAttribute("aria-label",t("themeAria"));
   $("#guideBtn").setAttribute("aria-label",t("guide"));
+  micButton(); micMsg(micKey);
   $("#guideClose").setAttribute("aria-label",t("close"));
   $("#langSeg").setAttribute("aria-label",t("langAria"));
   $("#lPT").setAttribute("aria-pressed", L==="pt"); $("#lEN").setAttribute("aria-pressed", L==="en");
@@ -792,12 +864,13 @@ function act(a, v){
   else if(a==="copy") doCopy();
   else if(a==="newS"){ U.confirm=true; renderDock(); }
   else if(a==="newNo"){ U.confirm=false; renderDock(); }
-  else if(a==="newYes"){ try{ localStorage.removeItem(KEY); }catch(e){} S=null; saved=null; view="start"; U.confirm=false; renderAll(); }
+  else if(a==="newYes"){ if(MIC.on) micStop(); try{ localStorage.removeItem(KEY); }catch(e){} S=null; saved=null; view="start"; U.confirm=false; renderAll(); }
 }
 function bind(){
   $("#lPT").addEventListener("click", function(){ setLang("pt"); });
   $("#lEN").addEventListener("click", function(){ setLang("en"); });
   $("#themeBtn").addEventListener("click", toggleTheme);
+  $("#micBtn").addEventListener("click", function(){ if(MIC.on) micStop(); else micStart(); });
   var guide=$("#guide");
   $("#guideBtn").addEventListener("click", function(){ renderGuide(); if(guide.showModal) guide.showModal(); else guide.setAttribute("open",""); });
   $("#guideClose").addEventListener("click", function(){ guide.close(); });

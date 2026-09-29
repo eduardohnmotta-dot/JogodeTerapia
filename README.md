@@ -17,4 +17,6 @@ Sessão online de 50 minutos (PT-PT/EN) de treino do controlo inibitório para 1
 - 5 fases com tempo visível: Aquecimento (medidor do motor 1–5), Regra Reversa, Semáforo (com sinais falsos e modo automático), Parar-Pensar-Agir (dilemas + respiração guiada) e Desafio da Semana, com resumo para copiar no fim.
 - Interface pensada para PHDA: uma tarefa por ecrã, tempo sempre visível, feedback imediato e sem culpa (o erro é um "reiniciar", nunca um alarme vermelho), progresso que só sobe, sinais que não dependem só da cor (forma + palavra), sem animações a piscar e com `prefers-reduced-motion`.
 
+- Microfone opcional (botão 🎤): nos momentos de falar aparece um medidor de voz. Só mede o volume, dentro do navegador: nada é gravado nem enviado.
+
 A sessão em curso fica guardada só neste navegador, para sobreviver a um recarregamento da página.
