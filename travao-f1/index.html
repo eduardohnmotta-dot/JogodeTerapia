@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Travão F1</title>
+<meta name="description" content="Jogo de controlo inibitório para 12 anos (Semáforo, O Simão diz ao contrário, Estátua) com relatório para o terapeuta.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+  /* ADHD-friendly: one game and one rule card at a time, short rounds, instant feedback,
+     mistakes shown as a calm "restart" (never alarm red), go/stop never told apart by colour alone, no flashing. */
+  :root{
+    --bg:#F5F3EE; --surface:#FFFFFF; --surface-2:#ECE8E0; --ink:#1F2A33; --ink-soft:#5A6570; --border:#DED8CC;
+    --primary:#2F5BD3; --on-primary:#FFFFFF; --accent:#E8743B; --violet:#6B60C9; --gold:#D9A21B;
+    --go:#1E8A4C; --stop:#C8372D; --lamp-off:#3A4550; --housing:#1F2A33; --track:#4A5561; --track-line:#E9E4D8;
+    --shadow:0 6px 18px rgba(31,42,51,.08); --shadow-lg:0 16px 40px rgba(31,42,51,.14);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12171D; --surface:#1A2129; --surface-2:#232C36; --ink:#EEF2F5; --ink-soft:#A5B0BA; --border:#2F3A46;
+      --primary:#86A6FF; --on-primary:#0E1520; --accent:#F4A064; --violet:#A89EF2; --gold:#E9BE55;
+      --lamp-off:#2B343E; --housing:#0B0F14; --track:#2E3842; --track-line:#8C96A0;
+      --shadow:0 6px 18px rgba(0,0,0,.35); --shadow-lg:0 16px 40px rgba(0,0,0,.5);
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12171D; --surface:#1A2129; --surface-2:#232C36; --ink:#EEF2F5; --ink-soft:#A5B0BA; --border:#2F3A46;
+    --primary:#86A6FF; --on-primary:#0E1520; --accent:#F4A064; --violet:#A89EF2; --gold:#E9BE55;
+    --lamp-off:#2B343E; --housing:#0B0F14; --track:#2E3842; --track-line:#8C96A0;
+    --shadow:0 6px 18px rgba(0,0,0,.35); --shadow-lg:0 16px 40px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{margin:0}
+  body{background:var(--bg); color:var(--ink); font-family:"Nunito",system-ui,-apple-system,sans-serif; font-size:17px; line-height:1.5; -webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:"Fredoka","Nunito",system-ui,sans-serif; font-weight:600; text-wrap:balance; margin:0}
+  p{margin:0}
+  button,input{font:inherit; color:inherit}
+  :focus-visible{outline:3px solid var(--primary); outline-offset:2px}
+
+  .app{max-width:1000px; margin:0 auto; padding-inline:16px; padding-block:12px 32px; display:flex; flex-direction:column; gap:14px}
+  .top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .brand{display:flex; align-items:center; gap:12px; min-width:0}
+  .badge{width:48px; height:48px; flex:0 0 auto; border-radius:15px; background:var(--stop); display:grid; place-items:center; font-size:1.6rem; box-shadow:var(--shadow)}
+  .brand h1{font-size:1.4rem; line-height:1.15}
+  .brand .sub{color:var(--ink-soft); font-weight:700; font-size:.88rem}
+  .tools{display:flex; align-items:center; gap:8px}
+  .seg{display:inline-flex; background:var(--surface-2); border:1px solid var(--border); border-radius:13px; padding:3px; gap:3px}
+  .seg button{border:0; background:transparent; border-radius:10px; padding:7px 12px; font-family:"Fredoka",sans-serif; font-weight:600; font-size:.9rem; cursor:pointer; color:var(--ink-soft)}
+  .seg button[aria-pressed="true"]{background:var(--primary); color:var(--on-primary)}
+  .icon{border:1px solid var(--border); background:var(--surface); width:42px; height:42px; border-radius:12px; font-size:1rem; cursor:pointer; box-shadow:var(--shadow); display:grid; place-items:center}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:50px; padding:0 18px; border:1px solid var(--border); background:var(--surface); color:var(--ink); border-radius:14px; font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.02rem; cursor:pointer; box-shadow:var(--shadow)}
+  .btn.primary{background:var(--primary); border-color:var(--primary); color:var(--on-primary)}
+  .btn.small{min-height:42px; font-size:.92rem; padding:0 14px}
+  .hide-narrow{display:inline}
+  @media (max-width:560px){ .hide-narrow{display:none} }
+  kbd{display:inline-block; font-family:"Fredoka",sans-serif; font-weight:700; font-size:.95em; padding:2px 10px; border-radius:8px; border:2px solid currentColor; border-bottom-width:4px; line-height:1.3}
+
+  /* one screen at a time */
+  .screen{background:var(--surface); border:1px solid var(--border); border-radius:26px; box-shadow:var(--shadow-lg); padding:clamp(18px, 3.5vw, 36px); min-height:min(70vh, 640px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; text-align:center; position:relative; overflow:hidden}
+  .screen h2{font-size:clamp(1.5rem, 3.6vw, 2.3rem)}
+  .lead{font-size:clamp(1.05rem, 2.2vw, 1.25rem); max-width:44ch; color:var(--ink-soft); font-weight:600}
+  .fine{color:var(--ink-soft); font-size:.88rem}
+  .press{font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.2rem; color:var(--primary)}
+  .press kbd{color:var(--primary)}
+  .quote{font-family:"Fredoka",sans-serif; font-weight:600; font-size:clamp(1.3rem, 3.2vw, 1.9rem); line-height:1.25; max-width:30ch}
+  .quote::before{content:"“"} .quote::after{content:"”"}
+
+  .form{width:100%; max-width:440px; display:flex; flex-direction:column; gap:10px; text-align:left}
+  .fl{font-weight:800; font-size:.95rem}
+  input[type="text"]{width:100%; min-height:52px; font-size:1.05rem; padding:0 14px; border-radius:14px; border:1.5px solid var(--border); background:var(--surface-2); color:var(--ink)}
+  input[type="text"]:focus{border-color:var(--primary); outline:none}
+
+  /* engine gauge */
+  .gauge{width:min(290px, 70%); height:auto; overflow:visible}
+  .gauge path{fill:none; stroke-width:20}
+  .gauge.set path{opacity:.3} .gauge.set path.on{opacity:1}
+  .gauge .needle{transform-origin:100px 100px}
+  .gauge .needle line{stroke:var(--ink); stroke-width:6; stroke-linecap:round}
+  .gauge.unset .needle{opacity:.2}
+  .gauge circle{fill:var(--ink)}
+  .motors{display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:8px; width:100%; max-width:620px}
+  .mbtn{display:flex; flex-direction:column; align-items:center; gap:2px; padding:10px 4px; border-radius:16px; border:2px solid var(--border); background:var(--surface-2); cursor:pointer; min-height:96px; justify-content:center}
+  .mbtn .e{font-size:1.9rem; line-height:1.1}
+  .mbtn b{font-family:"Fredoka",sans-serif; font-size:1.15rem}
+  .mbtn small{font-weight:700; font-size:.8rem; color:var(--ink-soft); line-height:1.15}
+  .mbtn[aria-pressed="true"]{border-color:var(--primary); background:color-mix(in srgb, var(--primary) 14%, var(--surface))}
+
+  /* championship map: where am I, what's left */
+  .events{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; width:100%}
+  @media (max-width:700px){ .events{grid-template-columns:1fr} }
+  .ev{display:flex; flex-direction:column; align-items:center; gap:6px; padding:18px 14px; border-radius:20px; border:2px solid var(--border); background:var(--surface-2); cursor:pointer; text-align:center}
+  .ev .e{font-size:2.6rem; line-height:1}
+  .ev b{font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.15rem; line-height:1.2}
+  .ev small{color:var(--ink-soft); font-weight:700; font-size:.88rem}
+  .ev.next{border-color:var(--primary); background:color-mix(in srgb, var(--primary) 10%, var(--surface))}
+  .ev.done{opacity:.8}
+  .ev .n{font-family:"Fredoka",sans-serif; font-weight:700; font-size:.85rem; color:var(--ink-soft)}
+  .stars{display:flex; gap:4px; justify-content:center; font-size:1.3rem; letter-spacing:.05em}
+  .stars .off{filter:grayscale(1); opacity:.3}
+
+  .rules{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; width:100%; max-width:600px; text-align:left}
+  .rules li{display:flex; gap:12px; align-items:flex-start; padding:12px 16px; border-radius:16px; background:var(--surface-2); font-weight:700; font-size:1.05rem}
+  .rules li .k{flex:0 0 30px; height:30px; border-radius:50%; display:grid; place-items:center; background:var(--primary); color:var(--on-primary); font-family:"Fredoka",sans-serif; font-size:.95rem}
+  .count{font-family:"Fredoka",sans-serif; font-weight:700; font-size:clamp(5rem, 18vw, 10rem); line-height:1; color:var(--primary)}
+
+  /* in-game */
+  .play{justify-content:flex-start; gap:18px}
+  .hud{align-self:stretch; display:flex; align-items:center; gap:14px; flex-wrap:wrap}
+  .hud b{font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.05rem}
+  .prog{flex:1 1 160px; height:10px; border-radius:99px; background:var(--surface-2); border:1px solid var(--border); overflow:hidden}
+  .prog i{display:block; height:100%; width:0; background:var(--primary); border-radius:99px}
+  .hud .esc{color:var(--ink-soft); font-weight:700; font-size:.85rem}
+  .hud .esc kbd{font-size:.8rem; padding:0 6px; border-width:1.5px; border-bottom-width:3px}
+  .reminder{font-weight:800; color:var(--ink-soft); font-size:1.05rem}
+  .fx{min-height:58px; display:flex; align-items:center; justify-content:center}
+  .chip{display:inline-flex; align-items:center; gap:10px; padding:10px 20px; border-radius:999px; font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.25rem}
+  .chip.good{background:color-mix(in srgb, var(--go) 14%, var(--surface)); color:var(--go); border:2px solid color-mix(in srgb, var(--go) 45%, transparent)}
+  .chip.reset{background:color-mix(in srgb, var(--violet) 12%, var(--surface)); color:var(--violet); border:2px solid color-mix(in srgb, var(--violet) 45%, transparent)}
+  .chip.calm{background:var(--surface-2); color:var(--ink-soft); border:2px solid var(--border)}
+
+  /* Red light, green light */
+  .light{display:flex; align-items:center; gap:18px; padding:14px 22px; border-radius:26px; background:var(--housing)}
+  .lamp{width:clamp(64px, 11vw, 96px); aspect-ratio:1; border-radius:50%; background:var(--lamp-off); display:grid; place-items:center; color:rgba(255,255,255,.18)}
+  .lamp svg{width:48%; height:auto}
+  .lamp.r.on{background:var(--stop); color:#fff}
+  .lamp.g.on{background:var(--go); color:#fff}
+  .lword{min-width:5.2ch; font-family:"Fredoka",sans-serif; font-weight:700; font-size:clamp(2rem, 6vw, 3.4rem); color:#fff; letter-spacing:.03em}
+  .track{position:relative; align-self:stretch; height:clamp(110px, 18vw, 150px); border-radius:22px; background:var(--track); overflow:hidden}
+  .track::before{content:""; position:absolute; left:3%; right:3%; top:50%; border-top:4px dashed var(--track-line); opacity:.5}
+  .finish{position:absolute; right:0; top:0; bottom:0; width:4%; background:repeating-conic-gradient(#fff 0 25%, #1F2A33 0 50%) 0 0/16px 16px}
+  .car{position:absolute; top:50%; left:calc(3% + var(--p, 0) * .86%); transform:translate(-50%, -50%) scaleX(-1); font-size:clamp(3rem, 8vw, 4.6rem); line-height:1; filter:drop-shadow(0 4px 4px rgba(0,0,0,.35))}
+  .skid{position:absolute; top:calc(50% + 1.4rem); height:8px; border-radius:99px; background:#11161b; opacity:.55}
+  .hint{font-weight:700; color:var(--ink-soft)}
+
+  /* Simon says, reversed */
+  .radio{display:flex; flex-direction:column; align-items:center; gap:6px; min-height:230px; justify-content:center}
+  .radio small{font-weight:800; color:var(--ink-soft); letter-spacing:.04em; text-transform:uppercase; font-size:.85rem}
+  .simon{font-family:"Fredoka",sans-serif; font-weight:600; font-size:clamp(1.4rem, 3.6vw, 2rem); color:var(--accent); min-height:1.3em}
+  .cmd{display:flex; align-items:center; gap:14px}
+  .cmd .e{font-size:clamp(3.4rem, 10vw, 5.5rem); line-height:1}
+  .cmd .w{font-family:"Fredoka",sans-serif; font-weight:700; font-size:clamp(2.6rem, 8vw, 4.6rem); line-height:1}
+  .keys{display:grid; grid-template-columns:repeat(3, 64px); grid-template-rows:repeat(2, 64px); gap:8px}
+  .key{border-radius:14px; border:2px solid var(--border); border-bottom-width:5px; background:var(--surface-2); display:grid; place-items:center; font-size:1.6rem; transition:background .1s}
+  .key.up{grid-column:2; grid-row:1} .key.left{grid-column:1; grid-row:2} .key.down{grid-column:2; grid-row:2} .key.right{grid-column:3; grid-row:2}
+  .key.ok{background:color-mix(in srgb, var(--go) 30%, var(--surface)); border-color:var(--go)}
+  .key.bad{background:color-mix(in srgb, var(--violet) 22%, var(--surface)); border-color:var(--violet)}
+
+  /* Statues + Mother may I */
+  .stage3{position:relative; align-self:stretch; min-height:300px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; border-radius:22px; background:var(--surface-2)}
+  .eq{display:flex; align-items:flex-end; gap:6px; height:60px}
+  .eq i{width:12px; height:30%; border-radius:6px; background:var(--primary)}
+  .music .eq i{animation:eq 1s ease-in-out infinite}
+  .music .eq i:nth-child(2){animation-delay:-.2s} .music .eq i:nth-child(3){animation-delay:-.5s} .music .eq i:nth-child(4){animation-delay:-.7s} .music .eq i:nth-child(5){animation-delay:-.35s}
+  .dancer{font-size:4.4rem; line-height:1; transform:scaleX(-1); transition:transform .12s}
+  .dancer.hop{transform:scaleX(-1) translateY(-14px) rotate(-8deg)}
+  .freezeW{font-family:"Fredoka",sans-serif; font-weight:700; font-size:clamp(2.6rem, 8vw, 4.4rem); color:var(--ink); display:flex; align-items:center; gap:12px}
+  .perm{min-height:64px; display:flex; align-items:center; justify-content:center}
+  .say{padding:12px 20px; border-radius:18px; font-family:"Fredoka",sans-serif; font-weight:600; font-size:clamp(1.15rem, 3vw, 1.5rem); border:2px solid}
+  .say.real{background:color-mix(in srgb, var(--go) 12%, var(--surface)); border-color:var(--go); color:var(--go)}
+  .say.fake{background:var(--surface); border-color:var(--border); color:var(--ink-soft)}
+  .distract{position:absolute; display:flex; flex-direction:column; align-items:center; gap:2px; font-weight:800; font-size:1rem; color:var(--ink); animation:rise 1.4s ease-out forwards; pointer-events:none}
+  .distract .e{font-size:2.6rem; line-height:1}
+
+  /* results + report */
+  .big-stars{font-size:3rem; letter-spacing:.1em}
+  .big-stars .off{filter:grayscale(1); opacity:.25}
+  .kidstats{display:flex; flex-direction:column; gap:8px; font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.3rem}
+  .report{align-items:stretch; text-align:left; justify-content:flex-start}
+  .report h2{text-align:left}
+  .rmeta{color:var(--ink-soft); font-weight:700}
+  .hl{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
+  .hl li{padding:10px 14px; border-radius:14px; background:color-mix(in srgb, var(--primary) 8%, var(--surface)); border-left:4px solid var(--primary); font-weight:600}
+  .rsec{border:1px solid var(--border); border-radius:18px; padding:14px 16px; display:flex; flex-direction:column; gap:8px}
+  .rsec h3{font-size:1.1rem; display:flex; align-items:center; gap:8px}
+  .kv{display:grid; grid-template-columns:1fr auto; gap:4px 16px; margin:0}
+  .kv dt{color:var(--ink-soft); font-weight:600}
+  .kv dd{margin:0; font-weight:800; font-variant-numeric:tabular-nums; text-align:right}
+  .kv dt.sub{padding-left:14px}
+  .half{font-weight:700; font-size:.9rem; color:var(--ink-soft)}
+  .rgrid{display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:12px}
+  .row{display:flex; flex-wrap:wrap; gap:8px}
+  .row .btn{flex:1 1 170px}
+  .confirm{border:1.5px solid var(--violet); border-radius:14px; padding:12px; display:flex; flex-direction:column; gap:10px; background:color-mix(in srgb, var(--violet) 8%, var(--surface))}
+  textarea{width:100%; font:inherit; font-size:.85rem; border:1px solid var(--border); border-radius:12px; background:var(--surface-2); color:var(--ink); padding:10px}
+
+  @keyframes eq{0%,100%{height:25%}50%{height:100%}}
+  @keyframes rise{0%{opacity:0; transform:translateY(10px)}15%{opacity:1; transform:none}80%{opacity:1}100%{opacity:0; transform:translateY(-10px)}}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none!important; transition-duration:0s!important}
+    .music .eq i{height:70%}
+  }
+  @media print{
+    body{background:#fff; color:#000; font-size:12pt}
+    .top, .noprint{display:none!important}
+    .screen{box-shadow:none; border:0; padding:0; min-height:0}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="badge" aria-hidden="true">🏎️</span>
+      <div>
+        <h1 id="hTitle">Travão F1</h1>
+        <div class="sub" id="hSub"></div>
+      </div>
+    </div>
+    <div class="tools">
+      <div class="seg" role="group" id="langSeg">
+        <button id="lPT" type="button">PT</button>
+        <button id="lEN" type="button">EN</button>
+      </div>
+      <button class="icon" id="soundBtn" type="button">🔊</button>
+      <button class="icon" id="themeBtn" type="button">🌙</button>
+      <button class="btn small" id="reportBtn" type="button" hidden><span aria-hidden="true">📋</span><span class="hide-narrow" data-t="reportShort">Relatório</span></button>
+    </div>
+  </header>
+  <main class="screen" id="screen" aria-live="polite"></main>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var MOTOR=[
+  {e:"😴",c:"#6FB1E0",pt:"Com sono",en:"Sleepy"},
+  {e:"🙂",c:"#3AA6A0",pt:"Calmo",en:"Calm"},
+  {e:"😎",c:"#5BAE5B",pt:"No ponto",en:"Just right"},
+  {e:"⚡",c:"#E6B23C",pt:"Acelerado",en:"Revved up"},
+  {e:"🚀",c:"#E8743B",pt:"A mil à hora",en:"Full throttle"}
+];
+var DIRS=["up","down","left","right"], OPP={up:"down",down:"up",left:"right",right:"left"};
+var ARROW={up:"⬆️",down:"⬇️",left:"⬅️",right:"➡️"};
+var KEYDIR={ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right"};
+
+// Red light, green light: how long a held key may stay down after red before it counts as running the light.
+var RED_WINDOW=800, SEM_DRIVE_MS=30000;
+
+var T={
+  pt:{
+    title:"Travão F1", tagline:"Treina o músculo do travão", reportShort:"Relatório", themeAria:"Mudar tema", langAria:"Idioma", soundOn:"Som ligado", soundOff:"Som desligado",
+    homeLead:"3 provas inspiradas em jogos de sempre: Semáforo, O Simão diz… ao contrário e Estátua. No fim há um relatório para o terapeuta.",
+    homeNote:"Numa sessão online, o jovem joga neste computador e partilha o ecrã. Joga-se só com o teclado.",
+    nameLabel:"Alcunha ou código do piloto", namePh:"ex.: Tiago, P-12", nameNote:"Usa uma alcunha ou código, não o nome completo. Nada sai deste computador.",
+    start:"Começar", anon:"Piloto",
+    gauge0:"Antes de começar: a que velocidade está o teu motor?", gauge1:"E agora, a que velocidade está o teu motor?", gaugeKeys:"Carrega numa tecla de 1 a 5",
+    space:"ESPAÇO", pressCont:"Carrega em {k} para continuar", pressStart:"Carrega em {k} para começar",
+    mapTitle:"Campeonato do Travão", mapLead:"3 provas, uma de cada vez.", mapNext:"Carrega em {k} para a prova {n}", mapDone:"Carrega em {k} para terminar o campeonato",
+    evN:"Prova {n}",
+    g:[
+      {e:"🚦", name:"Semáforo", kid:"Luz vermelha, luz verde",
+       rules:["Mantém o <kbd>ESPAÇO</kbd> carregado para acelerar.","Luz <b>vermelha</b> ✋: larga o <kbd>ESPAÇO</kbd> logo!","Às vezes a palavra engana. Segue sempre a <b>cor</b> da luz.","Chega à bandeira 🏁 para terminar."]},
+      {e:"📻", name:"O Simão diz… ao contrário", kid:"O Simão diz",
+       rules:["Ouve o rádio da equipa e faz o <b>contrário</b> com as setas.","⬆️ Cima ➜ carrega <kbd>⬇️</kbd> &nbsp;·&nbsp; ⬅️ Esquerda ➜ carrega <kbd>➡️</kbd>","Enganaste-te? Corrige logo: também conta!","A meio aparece uma regra nova."]},
+      {e:"🗿", name:"Estátua", kid:"Estátua + Mãe, posso?",
+       rules:["Há música 🎵? Dança: carrega no <kbd>ESPAÇO</kbd> ao ritmo.","A música parou? <b>Estátua!</b> Não toques em nada.","Só voltas a dançar quando o 🏁 Diretor de corrida disser.","Cuidado com o 😈 Rival: ele também diz “podes”, mas não manda."]}
+    ],
+    esc:"sair",
+    semHint:"Mantém ESPAÇO para acelerar · larga no vermelho", goW:"VAI!", stopW:"PÁRA!", brakeOk:"✋ Travaste em {s}",
+    failPhrase:"🔄 O meu travão falhou, a reiniciar!",
+    radio:"📻 Rádio da equipa", says:"O Simão diz:", dirs:{up:"CIMA",down:"BAIXO",left:"ESQUERDA",right:"DIREITA"},
+    remA:"Faz o CONTRÁRIO", remB:"Faz o CONTRÁRIO · só se o Simão disser",
+    newRule:"Regra nova!", newRuleBody:"Agora só obedeces quando ouvires <b>“O Simão diz”</b>. Sem o Simão, não mexes em nada. E continua a fazer o contrário.",
+    correct:"✓ Certo!", selfcorr:"🔄 Boa correção!", inhibit:"😉 Boa! O Simão não disse", miss:"⏱️ Foi rápido. Próxima!",
+    round:"Estátua {n} de {m}", dance:"Dança! Carrega no ESPAÇO ao ritmo 🎵", freeze:"ESTÁTUA!", freezeSub:"Não toques em nada até o 🏁 Diretor de corrida deixar.",
+    director:"🏁 Diretor de corrida: Podes dançar!", rival:"😈 Rival: Podes dançar!",
+    distract:[["🔔","Carrega no ESPAÇO!"],["📣","Anda, anda!"],["🎈",""],["🏎️","Vruum!"]],
+    resTitle:["Boa prova!","Grande prova!","Prova incrível!"],
+    kid0a:"Travagens a tempo: {a} de {b}", kid0b:"Melhor travagem: {s}",
+    kid1a:"Certas: {a} de {b}", kid1b:"Boas correções: {c} 🔄 (também contam!)",
+    kid2a:"Estátuas perfeitas: {a} de {b}", kid2b:"Esperaste pelo Diretor: {a} de {b}",
+    finalTitle:"Campeonato terminado! 🏆", reinforce:"O travão não serve para parar o carro para sempre; serve para podermos fazer as curvas sem despistar.",
+    reportBtn:"Relatório para o terapeuta", reportKey:"ou carrega em {k}",
+    repTitle:"Relatório da sessão", repMeta:"{p} · {d} · {t} de jogo", motor:"Motor (autoavaliação 1–5): início {a} · fim {b}",
+    highlights:"Destaques", notPlayed:"Não jogado nesta sessão.",
+    caveat:"Jogo de treino, não é um teste validado: não há normas por idade. Serve para acompanhar a evolução desta criança de sessão para sessão.",
+    copy:"Copiar relatório", print:"Imprimir / guardar PDF", copied:"Relatório copiado.", copyFail:"Não deu para copiar diretamente. Seleciona o texto abaixo e copia.",
+    newSession:"Nova sessão", confirmNew:"Apagar esta sessão? Copia ou imprime o relatório primeiro.", yes:"Sim, nova sessão", cancel:"Cancelar", back:"Voltar ao jogo",
+    m0:[["reds","Luzes vermelhas (sem contar a partida)"],["braked","Travou a tempo (≤ 0,8 s)"],["still","Já estava parado quando ficou vermelho"],["ran","Passou o vermelho"],["fs","Acelerou com a luz vermelha"],["stopMed","Tempo de travagem (mediana)"],["goMed","Tempo de arranque no verde (mediana)"],["hesit","Hesitou no verde (> 2 s)"],["fakeRed","Vermelho falso (“VAI!”): falhou"],["fakeGreen","Verde falso (“PÁRA!”): seguiu a palavra"]],
+    m1:[["goN","Ordens com o Simão"],["c2","Certas à primeira"],["c1","Erradas mas corrigiu sozinho"],["c0","Erradas"],["copy","…copiou a direção (resposta automática)"],["missN","Sem resposta"],["nogoN","Ordens sem o Simão"],["comm","Mexeu sem o Simão"],["rtMed","Tempo de resposta certa (mediana)"],["win","Janela de resposta no fim"]],
+    m2:[["cycles","Estátuas"],["perfect","Estátuas perfeitas"],["brFreeze","Mexeu durante a estátua"],["brDist","…logo a seguir a uma distração"],["brFake","Obedeceu ao Rival"],["waited","Não retomou a tempo (> 4 s)"],["resumeMed","Tempo para retomar com autorização (mediana)"]],
+    halves:"Erros impulsivos: 1.ª metade {a} · 2.ª metade {b}",
+    hFatigue:"Mais erros impulsivos na 2.ª metade das provas ({a} ➜ {b}): pode ser cansaço da atenção.",
+    hWarm:"Menos erros impulsivos na 2.ª metade das provas ({a} ➜ {b}): o travão foi aquecendo.",
+    hFake:"No Semáforo, os sinais falsos custaram mais ({a}% de falhas) do que os normais ({b}%): a palavra puxou a resposta.",
+    hCopy:"No Simão, copiou a direção {n} vezes: a resposta automática ganhou à regra.",
+    hSelf:"Corrigiu-se sozinho {n} vezes: sinal de automonitorização.",
+    hDist:"Quebrou a estátua logo a seguir a distrações {n} vezes.",
+    hRival:"Obedeceu ao Rival {n} de {m} vezes (agir antes da autorização).",
+    hMotor:"O motor passou de {a} para {b}.",
+    hNone:"Sem padrões a destacar nesta sessão.",
+    none:"—", times:"{n}×"
+  },
+  en:{
+    title:"Brake F1", tagline:"Train your brake muscle", reportShort:"Report", themeAria:"Switch theme", langAria:"Language", soundOn:"Sound on", soundOff:"Sound off",
+    homeLead:"3 events based on classic games: Red Light Green Light, Simon Says… in reverse, and Statues. At the end there's a report for the therapist.",
+    homeNote:"In an online session, the young person plays on this computer and shares the screen. Keyboard only.",
+    nameLabel:"Driver's nickname or code", namePh:"e.g. Tom, P-12", nameNote:"Use a nickname or code, not the full name. Nothing leaves this computer.",
+    start:"Start", anon:"Driver",
+    gauge0:"Before we start: how fast is your engine running?", gauge1:"And now, how fast is your engine running?", gaugeKeys:"Press a key from 1 to 5",
+    space:"SPACE", pressCont:"Press {k} to continue", pressStart:"Press {k} to start",
+    mapTitle:"Brake Championship", mapLead:"3 events, one at a time.", mapNext:"Press {k} for event {n}", mapDone:"Press {k} to finish the championship",
+    evN:"Event {n}",
+    g:[
+      {e:"🚦", name:"Traffic Light", kid:"Red light, green light",
+       rules:["Hold <kbd>SPACE</kbd> to accelerate.","<b>Red</b> light ✋: let go of <kbd>SPACE</kbd> straight away!","Sometimes the word tricks you. Always follow the light's <b>colour</b>.","Reach the flag 🏁 to finish."]},
+      {e:"📻", name:"Simon Says… in reverse", kid:"Simon says",
+       rules:["Listen to the team radio and do the <b>opposite</b> with the arrow keys.","⬆️ Up ➜ press <kbd>⬇️</kbd> &nbsp;·&nbsp; ⬅️ Left ➜ press <kbd>➡️</kbd>","Got it wrong? Fix it straight away: that counts too!","Halfway through there's a new rule."]},
+      {e:"🗿", name:"Statues", kid:"Statues + Mother, may I?",
+       rules:["Music 🎵? Dance: tap <kbd>SPACE</kbd> to the beat.","Music stopped? <b>Statue!</b> Don't touch anything.","Only dance again when the 🏁 Race director says so.","Watch out for the 😈 Rival: he says “you may” too, but he's not in charge."]}
+    ],
+    esc:"leave",
+    semHint:"Hold SPACE to accelerate · let go on red", goW:"GO!", stopW:"STOP!", brakeOk:"✋ You braked in {s}",
+    failPhrase:"🔄 My brake slipped, restarting!",
+    radio:"📻 Team radio", says:"Simon says:", dirs:{up:"UP",down:"DOWN",left:"LEFT",right:"RIGHT"},
+    remA:"Do the OPPOSITE", remB:"Do the OPPOSITE · only if Simon says",
+    newRule:"New rule!", newRuleBody:"Now you only obey when you hear <b>“Simon says”</b>. Without Simon, don't touch anything. And keep doing the opposite.",
+    correct:"✓ Right!", selfcorr:"🔄 Nice fix!", inhibit:"😉 Nice! Simon didn't say", miss:"⏱️ That was quick. Next one!",
+    round:"Statue {n} of {m}", dance:"Dance! Tap SPACE to the beat 🎵", freeze:"STATUE!", freezeSub:"Don't touch anything until the 🏁 Race director says so.",
+    director:"🏁 Race director: You may dance!", rival:"😈 Rival: You may dance!",
+    distract:[["🔔","Press SPACE!"],["📣","Come on, go!"],["🎈",""],["🏎️","Vroom!"]],
+    resTitle:["Good race!","Great race!","Amazing race!"],
+    kid0a:"Brakes on time: {a} of {b}", kid0b:"Best brake: {s}",
+    kid1a:"Right: {a} of {b}", kid1b:"Nice fixes: {c} 🔄 (they count too!)",
+    kid2a:"Perfect statues: {a} of {b}", kid2b:"Waited for the Director: {a} of {b}",
+    finalTitle:"Championship finished! 🏆", reinforce:"Brakes aren't there to stop the car forever; they're there so we can take the bends without spinning out.",
+    reportBtn:"Report for the therapist", reportKey:"or press {k}",
+    repTitle:"Session report", repMeta:"{p} · {d} · {t} of play", motor:"Engine (self-rating 1–5): start {a} · end {b}",
+    highlights:"Highlights", notPlayed:"Not played this session.",
+    caveat:"A practice game, not a validated test: there are no age norms. Use it to follow this child's progress from session to session.",
+    copy:"Copy report", print:"Print / save PDF", copied:"Report copied.", copyFail:"Couldn't copy directly. Select the text below and copy it.",
+    newSession:"New session", confirmNew:"Delete this session? Copy or print the report first.", yes:"Yes, new session", cancel:"Cancel", back:"Back to the game",
+    m0:[["reds","Red lights (not counting the start)"],["braked","Braked in time (≤ 0.8 s)"],["still","Already stopped when it turned red"],["ran","Ran the red light"],["fs","Accelerated on red"],["stopMed","Braking time (median)"],["goMed","Go time on green (median)"],["hesit","Hesitated on green (> 2 s)"],["fakeRed","Fake red (“GO!”): slipped"],["fakeGreen","Fake green (“STOP!”): followed the word"]],
+    m1:[["goN","Commands with Simon"],["c2","Right first time"],["c1","Wrong but self-corrected"],["c0","Wrong"],["copy","…copied the direction (automatic response)"],["missN","No answer"],["nogoN","Commands without Simon"],["comm","Moved without Simon"],["rtMed","Correct response time (median)"],["win","Response window at the end"]],
+    m2:[["cycles","Statues"],["perfect","Perfect statues"],["brFreeze","Moved during the statue"],["brDist","…right after a distraction"],["brFake","Obeyed the Rival"],["waited","Didn't resume in time (> 4 s)"],["resumeMed","Time to resume with permission (median)"]],
+    halves:"Impulsive errors: 1st half {a} · 2nd half {b}",
+    hFatigue:"More impulsive errors in the 2nd half of the events ({a} ➜ {b}): possibly attention fatigue.",
+    hWarm:"Fewer impulsive errors in the 2nd half of the events ({a} ➜ {b}): the brake warmed up.",
+    hFake:"In Traffic Light, fake signals cost more ({a}% slips) than normal ones ({b}%): the word pulled the response.",
+    hCopy:"In Simon, copied the direction {n} times: the automatic response beat the rule.",
+    hSelf:"Self-corrected {n} times: a sign of self-monitoring.",
+    hDist:"Broke the statue right after distractions {n} times.",
+    hRival:"Obeyed the Rival {n} of {m} times (acting before permission).",
+    hMotor:"Engine went from {a} to {b}.",
+    hNone:"No patterns to highlight this session.",
+    none:"—", times:"{n}×"
+  }
+};
+
+var L="pt", S=null, view="home", G=null, timers=[], raf=0, sound=true, confirmNew=false;
+var gaugeVal=null;
+
+function $(s){ return document.querySelector(s); }
+function t(k,v){ var s=T[L][k]; if(s==null) s=T.pt[k]; if(s==null) s=k; if(v && typeof s==="string") for(var x in v) s=s.split("{"+x+"}").join(v[x]); return s; }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function now(){ return performance.now(); }
+function rnd(a,b){ return a+Math.random()*(b-a); }
+function later(fn,ms){ var id=setTimeout(fn,ms); timers.push(id); return id; }
+function clearTimers(){ timers.forEach(clearTimeout); timers=[]; }
+function median(a){ if(!a.length) return null; var s=a.slice().sort(function(x,y){ return x-y; }), m=s.length>>1; return s.length%2?s[m]:(s[m-1]+s[m])/2; }
+function sec(ms){ return ms==null ? t("none") : (ms/1000).toFixed(2).replace(".", L==="pt"?",":".")+" s"; }
+function mmss(ms){ var s=Math.round(ms/1000); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+function locale(){ return L==="pt"?"pt-PT":"en-GB"; }
+function kbd(){ return "<kbd>"+t("space")+"</kbd>"; }
+function count(arr, fn){ var n=0; arr.forEach(function(x){ if(fn(x)) n++; }); return n; }
+function sum(arr, fn){ var n=0; arr.forEach(function(x){ n+=fn(x); }); return n; }
+
+/* ---------- sound: a soft beat for Statues (generated, no files) ---------- */
+var AC=null, beatT=0;
+function ac(){
+  if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
+  if(AC.state==="suspended") AC.resume();
+  return AC;
+}
+function kick(c){
+  var o=c.createOscillator(), g=c.createGain(), t0=c.currentTime;
+  o.frequency.setValueAtTime(140,t0); o.frequency.exponentialRampToValueAtTime(45,t0+.15);
+  g.gain.setValueAtTime(.45,t0); g.gain.exponentialRampToValueAtTime(.001,t0+.2);
+  o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+.22);
+}
+function hat(c){
+  var len=Math.floor(c.sampleRate*.04), b=c.createBuffer(1,len,c.sampleRate), d=b.getChannelData(0);
+  for(var i=0;i<len;i++) d[i]=(Math.random()*2-1)*(1-i/len);
+  var s=c.createBufferSource(), f=c.createBiquadFilter(), g=c.createGain();
+  f.type="highpass"; f.frequency.value=6000; g.gain.value=.12;
+  s.buffer=b; s.connect(f); f.connect(g); g.connect(c.destination); s.start();
+}
+function startBeat(){
+  stopBeat(); if(!sound) return;
+  var c=ac(); if(!c) return;
+  kick(c);
+  beatT=setInterval(function(){ kick(c); setTimeout(function(){ if(beatT) hat(c); }, 250); }, 500);
+}
+function stopBeat(){ clearInterval(beatT); beatT=0; }
+
+/* ---------- session ---------- */
+function newSession(name){ return {name:name, started:Date.now(), m0:null, m1:null, res:[null,null,null], playMs:0}; }
+function nextGame(){ for(var i=0;i<3;i++) if(!S.res[i]) return i; return -1; }
+
+/* ---------- screens ---------- */
+function show(v){ view=v; render(); }
+function render(){
+  $("#hTitle").textContent=t("title");
+  $("#hSub").textContent=t("tagline")+(S?" · "+S.name:"");
+  $("#reportBtn").hidden=!S || view==="play" || view==="count" || view==="report";
+  var sc=$("#screen"), h="";
+  sc.className="screen";
+  if(view==="home") h=homeHtml();
+  else if(view==="gauge0" || view==="gauge1") h=gaugeScreen();
+  else if(view==="map") h=mapHtml();
+  else if(view==="intro") h=introHtml();
+  else if(view==="rule") h='<h2>'+t("newRule")+'</h2><p class="lead" style="font-size:1.35rem">'+t("newRuleBody")+'</p><p class="press">'+t("pressCont",{k:kbd()})+'</p>';
+  else if(view==="result") h=resultHtml();
+  else if(view==="final") h=finalHtml();
+  else if(view==="report"){ sc.className="screen report"; h=reportHtml(); }
+  if(view!=="play" && view!=="count") sc.innerHTML=h;
+}
+function homeHtml(){
+  return '<h2>'+t("title")+' 🏁</h2><p class="lead">'+t("homeLead")+'</p>'+
+    '<div class="form"><label class="fl" for="nm">'+t("nameLabel")+'</label><input type="text" id="nm" maxlength="30" autocomplete="off" spellcheck="false" placeholder="'+esc(t("namePh"))+'">'+
+    '<p class="fine">'+t("nameNote")+'</p><button type="button" class="btn primary" data-act="start">'+t("start")+' ▶</button></div>'+
+    '<p class="fine">'+t("homeNote")+'</p>';
+}
+function gaugeSvg(v){
+  function pt(a){ var r=a*Math.PI/180; return (100+80*Math.cos(r)).toFixed(1)+" "+(100-80*Math.sin(r)).toFixed(1); }
+  var h='<svg class="gauge '+(v?"set":"unset")+'" viewBox="0 0 200 112" aria-hidden="true">';
+  MOTOR.forEach(function(m,k){ h+='<path class="'+(v===k+1?"on":"")+'" stroke="'+m.c+'" d="M'+pt(180-36*k-1.5)+' A80 80 0 0 1 '+pt(180-36*(k+1)+1.5)+'"/>'; });
+  return h+'<g class="needle" style="transform:rotate('+(v?(v-.5)*36:90)+'deg)"><line x1="100" y1="100" x2="38" y2="100"/></g><circle cx="100" cy="100" r="9"/></svg>';
+}
+function gaugeScreen(){
+  var v=gaugeVal;
+  return '<h2>'+t(view)+'</h2>'+gaugeSvg(v)+
+    '<div class="motors" role="group">'+MOTOR.map(function(m,k){
+      return '<button type="button" class="mbtn" data-act="gauge" data-v="'+(k+1)+'" aria-pressed="'+(v===k+1)+'"><span class="e" aria-hidden="true">'+m.e+'</span><b>'+(k+1)+'</b><small>'+m[L]+'</small></button>';
+    }).join("")+'</div>'+
+    (v?'<p class="press">'+t("pressCont",{k:kbd()})+'</p>':'<p class="fine">'+t("gaugeKeys")+'</p>');
+}
+function starsHtml(n, cls){ var h='<div class="'+(cls||"stars")+'" aria-label="'+n+'/3">'; for(var i=0;i<3;i++) h+='<span class="'+(i<n?"":"off")+'">⭐</span>'; return h+'</div>'; }
+function mapHtml(){
+  var nx=nextGame();
+  return '<h2>'+t("mapTitle")+'</h2><p class="lead">'+t("mapLead")+'</p><div class="events">'+t("g").map(function(g,i){
+      var r=S.res[i], cls=r?" done":(i===nx?" next":"");
+      return '<button type="button" class="ev'+cls+'" data-act="intro" data-v="'+i+'"><span class="n">'+t("evN",{n:i+1})+'</span><span class="e" aria-hidden="true">'+g.e+'</span><b>'+g.name+'</b><small>'+g.kid+'</small>'+(r?starsHtml(r.stars):'')+'</button>';
+    }).join("")+'</div>'+
+    '<p class="press">'+(nx>=0?t("mapNext",{k:kbd(), n:nx+1}):t("mapDone",{k:kbd()}))+'</p>';
+}
+function introHtml(){
+  var g=t("g")[G.i];
+  return '<span style="font-size:3.4rem;line-height:1" aria-hidden="true">'+g.e+'</span><h2>'+g.name+'</h2><ol class="rules">'+g.rules.map(function(r,i){ return '<li><span class="k">'+(i+1)+'</span><span>'+r+'</span></li>'; }).join("")+'</ol>'+
+    '<p class="press">'+t("pressStart",{k:kbd()})+'</p>';
+}
+function resultHtml(){
+  var r=S.res[G.i], lines;
+  if(G.i===0) lines=[t("kid0a",{a:r.kid.a, b:r.kid.b})].concat(r.kid.best!=null?[t("kid0b",{s:sec(r.kid.best)})]:[]);
+  else if(G.i===1) lines=[t("kid1a",{a:r.kid.a, b:r.kid.b})].concat(r.kid.c?[t("kid1b",{c:r.kid.c})]:[]);
+  else lines=[t("kid2a",{a:r.kid.a, b:r.kid.b})].concat(r.kid.d?[t("kid2b",{a:r.kid.c, b:r.kid.d})]:[]);
+  return starsHtml(r.stars,"big-stars")+'<h2>'+t("resTitle")[r.stars-1]+'</h2><div class="kidstats">'+lines.map(function(x){ return '<span>'+x+'</span>'; }).join("")+'</div>'+
+    '<p class="press">'+t("pressCont",{k:kbd()})+'</p>';
+}
+function finalHtml(){
+  return '<span style="font-size:4.5rem;line-height:1" aria-hidden="true">🏆</span><h2>'+t("finalTitle")+'</h2><div class="events" style="max-width:640px">'+
+    t("g").map(function(g,i){ var r=S.res[i]; return '<div class="ev done"><span class="e" aria-hidden="true">'+g.e+'</span><b>'+g.name+'</b>'+(r?starsHtml(r.stars):'<small>'+t("none")+'</small>')+'</div>'; }).join("")+
+    '</div><p class="quote">'+t("reinforce")+'</p>'+
+    '<button type="button" class="btn primary" data-act="report">📋 '+t("reportBtn")+'</button><p class="fine">'+t("reportKey",{k:"<kbd>R</kbd>"})+'</p>';
+}
+
+/* ---------- game flow ---------- */
+function openIntro(i){ G={i:i}; show("intro"); }
+function countdown(){
+  view="count"; render();
+  var sc=$("#screen"), n=3;
+  sc.innerHTML='<div class="count" id="cd">3</div>';
+  ac();
+  (function step(){
+    if(view!=="count") return;
+    if(n===0){ startGame(); return; }
+    $("#cd").textContent=n; n--;
+    later(step, 700);
+  })();
+}
+function startGame(){
+  view="play"; render();
+  G.t0=now(); G.log=[];
+  if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  GAMES[G.i].start();
+}
+function stopAll(){ clearTimers(); cancelAnimationFrame(raf); raf=0; stopBeat(); }
+function endGame(){
+  stopAll();
+  var res=GAMES[G.i].score(G.log);
+  res.ms=now()-G.t0; res.log=G.log;
+  S.res[G.i]=res; S.playMs+=res.ms;
+  show("result");
+}
+function abortGame(){ stopAll(); show("map"); }
+function hudHtml(extra){
+  var g=t("g")[G.i];
+  return '<div class="hud"><b>'+g.e+' '+g.name+'</b><div class="prog"><i id="prog"></i></div><span class="esc"><kbd>Esc</kbd> '+t("esc")+'</span></div>'+(extra||"");
+}
+function setProg(p){ var el=$("#prog"); if(el) el.style.width=Math.max(0,Math.min(100,p))+"%"; }
+var fxT=0;
+function fx(html, cls, ms){
+  var el=$("#fx"); if(!el) return;
+  clearTimeout(fxT);
+  el.innerHTML='<span class="chip '+cls+'">'+html+'</span>';
+  fxT=setTimeout(function(){ if(el) el.innerHTML=""; }, ms||1300);
+}
+function slip(){ fx(t("failPhrase"), "reset", 1700); }
+function starsFor(ratio){ return ratio>=.9?3:ratio>=.7?2:1; }
+
+/* ---------- game 1: red light, green light ---------- */
+var SEM={
+  start:function(){
+    var sc=$("#screen");
+    sc.className="screen play";
+    sc.innerHTML=hudHtml()+
+      '<div class="light" aria-hidden="true"><div class="lamp r" id="lampR"><svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="6" rx="2" fill="currentColor"/></svg></div><div class="lword" id="lword"></div><div class="lamp g" id="lampG"><svg viewBox="0 0 24 24"><path d="M8 5 L19 12 L8 19 Z" fill="currentColor"/></svg></div></div>'+
+      '<div class="fx" id="fx"></div>'+
+      '<div class="track"><div class="finish"></div><div class="car" id="car">🏎️</div></div>'+
+      '<p class="hint">'+t("semHint")+'</p>';
+    G.pos=0; G.hold=false; G.sig=null; G.n=0; G.last=now();
+    SEM.signal("red", false, true);
+    later(SEM.next, 1500);
+    later(endGame, 150000);
+    raf=requestAnimationFrame(SEM.loop);
+  },
+  loop:function(){
+    var n=now(), dt=n-G.last; G.last=n;
+    if(G.hold) G.pos+=dt/SEM_DRIVE_MS*100;
+    var car=$("#car"); if(car) car.style.setProperty("--p", Math.min(100,G.pos));
+    setProg(G.pos);
+    if(G.pos>=100){ endGame(); return; }
+    raf=requestAnimationFrame(SEM.loop);
+  },
+  signal:function(c, fake, ready){
+    var s={c:c, fake:!!fake, ready:!!ready, t:now(), held:G.hold, rt:null, res:null, fs:0};
+    G.sig=s; G.log.push(s); G.n++;
+    $("#lampR").classList.toggle("on", c==="red"); $("#lampG").classList.toggle("on", c==="green");
+    // A fake signal keeps its colour (the real instruction) but shows the opposite word.
+    var goWord = fake ? c!=="green" : c==="green";
+    $("#lword").textContent = ready ? "" : t(goWord?"goW":"stopW");
+    if(c==="red"){
+      if(s.held && !ready) later(function(){ if(G.sig===s && G.hold && s.res===null){ s.res="ran"; G.pos=Math.max(0,G.pos-4); slip(); } }, RED_WINDOW);
+      else if(!ready) s.res="still";
+    } else {
+      if(s.held){ s.rt=0; s.res="go"; }
+      else later(function(){ if(G.sig===s && s.res===null) s.res="hesit"; }, 2000);
+    }
+  },
+  next:function(){
+    var c=G.sig.c==="red"?"green":"red", real=G.log.filter(function(s){ return !s.ready; }).length;
+    SEM.signal(c, real>=4 && Math.random()<.3, false);
+    later(SEM.next, c==="red"?rnd(1500,3500):rnd(1800,4000));
+  },
+  down:function(code){
+    if(code!=="Space" || G.hold) return;
+    G.hold=true; G.last=now();
+    var s=G.sig;
+    if(s.c==="green"){ if(s.rt===null){ s.rt=now()-s.t; if(s.res===null) s.res="go"; } }
+    else { s.fs++; slip(); }
+  },
+  up:function(code){
+    if(code!=="Space" || !G.hold) return;
+    G.hold=false;
+    var s=G.sig;
+    if(s.c==="red" && s.held && s.res===null && !s.ready){
+      s.rt=now()-s.t; s.res="braked";
+      fx(t("brakeOk",{s:sec(s.rt)}), "good", 1300);
+      var tr=$(".track"), car=$("#car");
+      if(tr && car){
+        var sk=document.createElement("div"), w=Math.max(1.5, s.rt/RED_WINDOW*8), left=3+Math.min(100,G.pos)*.86;
+        sk.className="skid"; sk.style.left=(left-w)+"%"; sk.style.width=w+"%";
+        Array.prototype.forEach.call(tr.querySelectorAll(".skid"), function(o){ o.remove(); });
+        tr.insertBefore(sk, car);
+      }
+    }
+  },
+  score:function(log){
+    var reds=log.filter(function(s){ return s.c==="red" && !s.ready; });
+    var ok=count(reds, function(s){ return (s.res==="braked"||s.res==="still") && !s.fs; });
+    var braked=reds.filter(function(s){ return s.res==="braked"; }).map(function(s){ return s.rt; });
+    return {stars:starsFor(reds.length?ok/reds.length:1), kid:{a:ok, b:reds.length, best:braked.length?Math.min.apply(null,braked):null}};
+  },
+  imp:function(s){ return (s.res==="ran"?1:0)+s.fs; }
+};
+
+/* ---------- game 2: Simon says, reversed ---------- */
+var SIMON={
+  start:function(){
+    var plan=[], i, last=[];
+    function dir(){ var d; do{ d=DIRS[Math.floor(Math.random()*4)]; } while(last.length>=2 && last[0]===d && last[1]===d); last.unshift(d); last.length=Math.min(last.length,2); return d; }
+    for(i=0;i<10;i++) plan.push({dir:dir(), nogo:false, part:"A"});
+    var b=[]; for(i=0;i<16;i++) b.push({dir:dir(), nogo:i<5, part:"B"});
+    do{ b.sort(function(){ return Math.random()-.5; }); } while(b[0].nogo);
+    G.plan=plan.concat(b); G.i2=0; G.W=2500; G.streak=0; G.trial=null;
+    SIMON.draw();
+    later(function(){ SIMON.run(0); }, 600);
+  },
+  draw:function(){
+    var sc=$("#screen");
+    sc.className="screen play";
+    sc.innerHTML=hudHtml()+
+      '<p class="reminder" id="rem"></p>'+
+      '<div class="radio"><small>'+t("radio")+'</small><div class="simon" id="simon"></div><div class="cmd" id="cmd"></div></div>'+
+      '<div class="fx" id="fx"></div>'+
+      '<div class="keys" aria-hidden="true">'+DIRS.map(function(d){ return '<div class="key '+d+'" id="k-'+d+'">'+ARROW[d]+'</div>'; }).join("")+'</div>';
+  },
+  run:function(i){
+    if(view!=="play") return;
+    if(i>=G.plan.length){ endGame(); return; }
+    var tr=G.plan[i];
+    if(tr.part==="B" && G.plan[i-1] && G.plan[i-1].part==="A" && !G.ruleShown){
+      G.ruleShown=true; G.resumeAt=i; stopAll(); show("rule"); return;
+    }
+    G.i2=i; setProg(i/G.plan.length*100);
+    $("#rem").textContent=t(tr.part==="A"?"remA":"remB");
+    DIRS.forEach(function(d){ $("#k-"+d).className="key "+d; });
+    tr.t=now(); tr.keys=[]; tr.W=G.W; tr.done=false; G.trial=tr;
+    $("#simon").textContent=tr.nogo?"":t("says");
+    $("#cmd").innerHTML='<span class="e" aria-hidden="true">'+ARROW[tr.dir]+'</span><span class="w">'+t("dirs")[tr.dir]+'!</span>';
+    tr.timer=later(function(){ SIMON.end(tr); }, G.W);
+  },
+  down:function(code){
+    var d=KEYDIR[code], tr=G.trial; if(!d || !tr || tr.done) return;
+    tr.keys.push({k:d, t:now()-tr.t});
+    var el=$("#k-"+d);
+    if(tr.nogo){ if(el) el.classList.add("bad"); tr.res="commission"; SIMON.end(tr); return; }
+    if(d===OPP[tr.dir]){ if(el) el.classList.add("ok"); tr.score=tr.keys.length===1?2:1; tr.rt=now()-tr.t; SIMON.end(tr); }
+    else { if(el) el.classList.add("bad"); if(tr.keys.length===1 && d===tr.dir) tr.copy=true; }
+  },
+  up:function(){},
+  end:function(tr){
+    if(tr.done) return; tr.done=true; clearTimeout(tr.timer);
+    if(tr.nogo){ if(!tr.res) tr.res="inhibit"; }
+    else { if(tr.score==null) tr.score=0; tr.res=tr.score===2?"correct":tr.score===1?"selfcorr":(tr.keys.length?"wrong":"miss"); }
+    if(tr.res==="correct"||tr.res==="inhibit"){ if(++G.streak>=3){ G.W=Math.max(1200,G.W-200); G.streak=0; } }
+    else if(tr.res!=="selfcorr"){ G.streak=0; G.W=Math.min(3000,G.W+200); }
+    else G.streak=0;
+    G.log.push(tr);
+    if(tr.res==="correct") fx(t("correct"),"good",700);
+    else if(tr.res==="selfcorr") fx(t("selfcorr"),"good",1000);
+    else if(tr.res==="inhibit") fx(t("inhibit"),"good",1000);
+    else if(tr.res==="miss") fx(t("miss"),"calm",1000);
+    else slip();
+    later(function(){ $("#cmd").innerHTML=""; $("#simon").textContent=""; }, 700);
+    later(function(){ SIMON.run(G.i2+1); }, 1300);
+  },
+  resume:function(){
+    view="play"; render(); SIMON.draw(); setProg(G.resumeAt/G.plan.length*100);
+    later(function(){ SIMON.run(G.resumeAt); }, 700);
+  },
+  score:function(log){
+    var go=log.filter(function(x){ return !x.nogo; }), nogo=log.filter(function(x){ return x.nogo; });
+    var c2=count(go,function(x){ return x.res==="correct"; }), c1=count(go,function(x){ return x.res==="selfcorr"; }), inh=count(nogo,function(x){ return x.res==="inhibit"; });
+    return {stars:starsFor(log.length?(c2+c1*.5+inh)/log.length:1), kid:{a:c2+c1+inh, b:log.length, c:c1}, W:G.W};
+  },
+  imp:function(x){ return (x.res==="commission"||x.copy)?1:0; }
+};
+
+/* ---------- game 3: statues + mother may I ---------- */
+var CYCLES=5;
+var STATUE={
+  start:function(){
+    var sc=$("#screen");
+    sc.className="screen play";
+    sc.innerHTML=hudHtml()+'<p class="reminder" id="rnd"></p><div class="stage3" id="st"></div><div class="fx" id="fx"></div>';
+    G.cycle=0; STATUE.music();
+  },
+  music:function(){
+    G.cycle++; G.phase="music"; G.real=false; G.fakeOn=false;
+    setProg((G.cycle-1)/CYCLES*100);
+    $("#rnd").textContent=t("round",{n:G.cycle, m:CYCLES});
+    var st=$("#st"); st.className="stage3 music";
+    st.innerHTML='<div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="dancer" id="dancer" aria-hidden="true">🏎️</div><p class="reminder">'+t("dance")+'</p>';
+    startBeat();
+    later(STATUE.freeze, rnd(5000,8000));
+  },
+  freeze:function(){
+    stopBeat(); G.phase="freeze";
+    var fz={t:now(), breaks:[], distract:[], fake:false, realT:null, resumeRT:null, waited:false};
+    G.fz=fz; G.log.push(fz);
+    var st=$("#st"); st.className="stage3";
+    st.innerHTML='<div class="freezeW"><span aria-hidden="true">✋</span>'+t("freeze")+'</div><p class="reminder">'+t("freezeSub")+'</p><div class="perm" id="perm"></div>';
+    var dur=rnd(3500,6000), nd=1+Math.round(Math.random());
+    for(var i=0;i<nd;i++) later(STATUE.distract, rnd(700, dur-900));
+    var hasFake=G.cycle>=2 && Math.random()<.6;
+    if(hasFake) later(STATUE.fakePerm, dur);
+    later(STATUE.realPerm, dur+(hasFake?1800:0));
+  },
+  distract:function(){
+    if(G.phase!=="freeze" || G.real) return;
+    var d=t("distract")[Math.floor(Math.random()*4)], st=$("#st"), el=document.createElement("div");
+    el.className="distract"; el.style.left=rnd(8,72)+"%"; el.style.top=rnd(8,60)+"%";
+    el.innerHTML='<span class="e">'+d[0]+'</span>'+(d[1]?'<span>'+d[1]+'</span>':'');
+    st.appendChild(el); setTimeout(function(){ el.remove(); }, 1500);
+    G.fz.distract.push(now()-G.fz.t);
+  },
+  fakePerm:function(){
+    G.fakeOn=true; G.fz.fake=true;
+    $("#perm").innerHTML='<span class="say fake">'+t("rival")+'</span>';
+    later(function(){ G.fakeOn=false; var p=$("#perm"); if(p && !G.real) p.innerHTML=""; }, 1500);
+  },
+  realPerm:function(){
+    G.real=true; G.fz.realT=now();
+    $("#perm").innerHTML='<span class="say real">'+t("director")+'</span>';
+    var fz=G.fz;
+    later(function(){ if(G.fz===fz && G.real){ fz.waited=true; STATUE.resume(); } }, 4000);
+  },
+  resume:function(){
+    G.real=false; clearTimers();
+    if(G.cycle>=CYCLES){ setProg(100); endGame(); } else STATUE.music();
+  },
+  down:function(code){
+    if(code!=="Space") return;
+    if(G.phase==="music"){ var d=$("#dancer"); if(d){ d.classList.add("hop"); setTimeout(function(){ d.classList.remove("hop"); }, 130); } return; }
+    if(G.real){ G.fz.resumeRT=now()-G.fz.realT; STATUE.resume(); return; }
+    var rel=now()-G.fz.t, kind=G.fakeOn?"fake":(G.fz.distract.some(function(d){ return rel-d>=0 && rel-d<1200; })?"distract":"freeze");
+    G.fz.breaks.push({t:rel, kind:kind});
+    slip();
+  },
+  up:function(){},
+  score:function(log){
+    var perfect=count(log,function(f){ return !f.breaks.length; });
+    var fakes=log.filter(function(f){ return f.fake; });
+    var okFake=count(fakes,function(f){ return !f.breaks.some(function(b){ return b.kind==="fake"; }); });
+    return {stars:starsFor(log.length?perfect/log.length:1), kid:{a:perfect, b:log.length, c:okFake, d:fakes.length}};
+  },
+  imp:function(f){ return f.breaks.length; }
+};
+var GAMES=[SEM, SIMON, STATUE];
+
+/* ---------- therapist report ---------- */
+function metrics(i){
+  var r=S.res[i]; if(!r) return null;
+  var log=r.log, m={};
+  if(i===0){
+    var reds=log.filter(function(s){ return s.c==="red" && !s.ready; }), greens=log.filter(function(s){ return s.c==="green"; });
+    var fr=reds.filter(function(s){ return s.fake; }), fg=greens.filter(function(s){ return s.fake; });
+    m.reds=reds.length+(fr.length?" ("+fr.length+" "+(L==="pt"?"falsas":"fake")+")":"");
+    m.braked=count(reds,function(s){ return s.res==="braked"; });
+    m.still=count(reds,function(s){ return s.res==="still"; });
+    m.ran=count(reds,function(s){ return s.res==="ran"; });
+    m.fs=sum(log,function(s){ return s.c==="red"?s.fs:0; });
+    m.stopMed=sec(median(reds.filter(function(s){ return s.res==="braked"; }).map(function(s){ return s.rt; })));
+    m.goMed=sec(median(greens.filter(function(s){ return s.rt>0; }).map(function(s){ return s.rt; })));
+    m.hesit=count(greens,function(s){ return !s.fake && s.res==="hesit"; });
+    m.fakeRed=fr.length?count(fr,function(s){ return s.res==="ran"||s.fs; })+" / "+fr.length:t("none");
+    m.fakeGreen=fg.length?count(fg,function(s){ return s.res==="hesit"; })+" / "+fg.length:t("none");
+    var nr=reds.filter(function(s){ return !s.fake; });
+    m._fakeRate=fr.length>=2?count(fr,function(s){ return s.res==="ran"||s.fs; })/fr.length:null;
+    m._realRate=nr.length?count(nr,function(s){ return s.res==="ran"||s.fs; })/nr.length:null;
+  } else if(i===1){
+    var go=log.filter(function(x){ return !x.nogo; }), ng=log.filter(function(x){ return x.nogo; });
+    m.goN=go.length; m.c2=count(go,function(x){ return x.res==="correct"; }); m.c1=count(go,function(x){ return x.res==="selfcorr"; });
+    m.c0=count(go,function(x){ return x.res==="wrong"; }); m.copy=count(go,function(x){ return x.copy; });
+    m.missN=count(go,function(x){ return x.res==="miss"; });
+    m.nogoN=ng.length; m.comm=count(ng,function(x){ return x.res==="commission"; });
+    m.rtMed=sec(median(go.filter(function(x){ return x.res==="correct"; }).map(function(x){ return x.rt; })));
+    m.win=sec(r.W);
+  } else {
+    var all=[]; log.forEach(function(f){ all=all.concat(f.breaks); });
+    var fk=log.filter(function(f){ return f.fake; });
+    m.cycles=log.length; m.perfect=count(log,function(f){ return !f.breaks.length; });
+    m.brFreeze=count(all,function(b){ return b.kind!=="fake"; });
+    m.brDist=count(all,function(b){ return b.kind==="distract"; });
+    m.brFake=fk.length?count(fk,function(f){ return f.breaks.some(function(b){ return b.kind==="fake"; }); })+" / "+fk.length:t("none");
+    m._fakeN=fk.length; m._fakeErr=count(fk,function(f){ return f.breaks.some(function(b){ return b.kind==="fake"; }); });
+    m.waited=count(log,function(f){ return f.waited; });
+    m.resumeMed=sec(median(log.filter(function(f){ return f.resumeRT!=null; }).map(function(f){ return f.resumeRT; })));
+  }
+  var imps=log.map(GAMES[i].imp), mid=Math.floor(imps.length/2);
+  m._h1=imps.slice(0,mid).reduce(function(a,b){ return a+b; },0);
+  m._h2=imps.slice(mid).reduce(function(a,b){ return a+b; },0);
+  return m;
+}
+function highlights(M){
+  var h=[], a=0, b=0, played=M.filter(Boolean);
+  played.forEach(function(m){ a+=m._h1; b+=m._h2; });
+  if(played.length){ if(b>=a+2) h.push(t("hFatigue",{a:a,b:b})); else if(a>=b+2) h.push(t("hWarm",{a:a,b:b})); }
+  if(M[0] && M[0]._fakeRate!=null && M[0]._realRate!=null && M[0]._fakeRate>=M[0]._realRate+.2) h.push(t("hFake",{a:Math.round(M[0]._fakeRate*100), b:Math.round(M[0]._realRate*100)}));
+  if(M[1] && M[1].copy>=2) h.push(t("hCopy",{n:M[1].copy}));
+  if(M[1] && M[1].c1>=1) h.push(t("hSelf",{n:M[1].c1}));
+  if(M[2] && M[2].brDist>=1) h.push(t("hDist",{n:M[2].brDist}));
+  if(M[2] && M[2]._fakeErr>=1) h.push(t("hRival",{n:M[2]._fakeErr, m:M[2]._fakeN}));
+  if(S.m0 && S.m1 && S.m0!==S.m1) h.push(t("hMotor",{a:S.m0+"/5", b:S.m1+"/5"}));
+  if(!h.length) h.push(t("hNone"));
+  return h;
+}
+function reportHtml(){
+  var M=[0,1,2].map(metrics), g=t("g");
+  var h='<h2>'+t("repTitle")+'</h2><p class="rmeta">'+t("repMeta",{p:esc(S.name), d:new Date(S.started).toLocaleDateString(locale()), t:mmss(S.playMs)})+'</p>'+
+    '<p class="rmeta">'+t("motor",{a:S.m0||t("none"), b:S.m1||t("none")})+'</p>'+
+    '<h3>'+t("highlights")+'</h3><ul class="hl">'+highlights(M).map(function(x){ return '<li>'+x+'</li>'; }).join("")+'</ul><div class="rgrid">';
+  [0,1,2].forEach(function(i){
+    h+='<section class="rsec"><h3><span aria-hidden="true">'+g[i].e+'</span>'+g[i].name+(S.res[i]?' '+starsHtml(S.res[i].stars):'')+'</h3>';
+    if(!M[i]) h+='<p class="fine">'+t("notPlayed")+'</p>';
+    else h+='<dl class="kv">'+t("m"+i).map(function(row){ return '<dt'+(row[1].charAt(0)==="…"?' class="sub"':'')+'>'+row[1]+'</dt><dd>'+M[i][row[0]]+'</dd>'; }).join("")+'</dl><p class="half">'+t("halves",{a:M[i]._h1, b:M[i]._h2})+'</p>';
+    h+='</section>';
+  });
+  h+='</div><p class="fine">'+t("caveat")+'</p>'+
+    '<div class="row noprint"><button type="button" class="btn primary" data-act="copy">📋 '+t("copy")+'</button><button type="button" class="btn" data-act="print">🖨️ '+t("print")+'</button><button type="button" class="btn" data-act="back">'+t("back")+'</button><button type="button" class="btn" data-act="new">'+t("newSession")+'</button></div>'+
+    '<p class="fine noprint" id="copyMsg" role="status"></p><textarea id="copyBox" class="noprint" rows="10" readonly hidden></textarea>';
+  if(confirmNew) h+='<div class="confirm noprint"><p>'+t("confirmNew")+'</p><div class="row"><button type="button" class="btn primary" data-act="newYes">'+t("yes")+'</button><button type="button" class="btn" data-act="newNo">'+t("cancel")+'</button></div></div>';
+  return h;
+}
+function reportText(){
+  var M=[0,1,2].map(metrics), g=t("g"), lines=[
+    t("title")+" · "+t("repTitle"),
+    t("repMeta",{p:S.name, d:new Date(S.started).toLocaleDateString(locale()), t:mmss(S.playMs)}),
+    t("motor",{a:S.m0||t("none"), b:S.m1||t("none")}), "",
+    t("highlights")+":"
+  ];
+  highlights(M).forEach(function(x){ lines.push("- "+x); });
+  [0,1,2].forEach(function(i){
+    lines.push("", g[i].name.toUpperCase()+(S.res[i]?" ("+S.res[i].stars+"/3 ⭐)":""));
+    if(!M[i]){ lines.push(t("notPlayed")); return; }
+    t("m"+i).forEach(function(row){ lines.push(row[1]+": "+M[i][row[0]]); });
+    lines.push(t("halves",{a:M[i]._h1, b:M[i]._h2}));
+  });
+  lines.push("", t("caveat"));
+  return lines.join("\n");
+}
+function doCopy(){
+  var txt=reportText(), msg=$("#copyMsg"), box=$("#copyBox");
+  function fallback(){ box.hidden=false; box.value=txt; box.focus(); box.select(); msg.textContent=t("copyFail"); }
+  try{ navigator.clipboard.writeText(txt).then(function(){ msg.textContent=t("copied"); box.hidden=true; }, fallback); }catch(e){ fallback(); }
+}
+
+/* ---------- actions + keys ---------- */
+var reportFrom="map";
+function act(a, v){
+  if(a==="start"){ var n=($("#nm").value||"").trim().slice(0,30)||t("anon"); S=newSession(n); gaugeVal=null; show("gauge0"); }
+  else if(a==="gauge"){ gaugeVal=+v; render(); }
+  else if(a==="cont"){
+    if(view==="gauge0" && gaugeVal){ S.m0=gaugeVal; show("map"); }
+    else if(view==="gauge1" && gaugeVal){ S.m1=gaugeVal; show("final"); }
+    else if(view==="map"){ var nx=nextGame(); if(nx>=0) openIntro(nx); else { gaugeVal=null; show("gauge1"); } }
+    else if(view==="intro") countdown();
+    else if(view==="rule") SIMON.resume();
+    else if(view==="result") show("map");
+  }
+  else if(a==="intro") openIntro(+v);
+  else if(a==="report"){ reportFrom=view; confirmNew=false; show("report"); }
+  else if(a==="back") show(reportFrom==="report"?"map":reportFrom);
+  else if(a==="copy") doCopy();
+  else if(a==="print") window.print();
+  else if(a==="new"){ confirmNew=true; render(); }
+  else if(a==="newNo"){ confirmNew=false; render(); }
+  else if(a==="newYes"){ confirmNew=false; S=null; G=null; show("home"); }
+}
+function bind(){
+  $("#lPT").addEventListener("click", function(){ setLang("pt"); });
+  $("#lEN").addEventListener("click", function(){ setLang("en"); });
+  $("#themeBtn").addEventListener("click", toggleTheme);
+  $("#soundBtn").addEventListener("click", function(){ sound=!sound; if(!sound) stopBeat(); else if(view==="play" && G && G.i===2 && G.phase==="music") startBeat(); savePrefs(); applySound(); });
+  $("#reportBtn").addEventListener("click", function(){ act("report"); });
+  document.addEventListener("click", function(e){
+    var b=e.target.closest("[data-act]"); if(!b || b.disabled) return;
+    act(b.getAttribute("data-act"), b.getAttribute("data-v"));
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.target && e.target.id==="nm"){ if(e.key==="Enter"){ e.preventDefault(); act("start"); } return; }
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    var code=e.code;
+    if(view==="play"){
+      if(code==="Escape"){ abortGame(); return; }
+      if(code==="Space" || KEYDIR[code]) e.preventDefault();
+      if(e.repeat) return;
+      GAMES[G.i].down(code);
+      return;
+    }
+    if(view==="count"){ if(code==="Space") e.preventDefault(); return; }
+    var tag=(e.target && e.target.tagName)||"";
+    if(tag==="BUTTON" && (code==="Space"||code==="Enter")) return;
+    if((view==="gauge0"||view==="gauge1") && /^[1-5]$/.test(e.key)){ act("gauge", e.key); return; }
+    if(view==="final" && (e.key==="r"||e.key==="R")){ act("report"); return; }
+    if(code==="Space" && e.target.tagName!=="TEXTAREA"){ e.preventDefault(); act("cont"); }
+  });
+  document.addEventListener("keyup", function(e){ if(view==="play") GAMES[G.i].up(e.code); });
+  // If the window loses focus while SPACE is held, treat it as released.
+  window.addEventListener("blur", function(){ if(view==="play") GAMES[G.i].up("Space"); });
+}
+
+/* ---------- prefs, theme, language ---------- */
+function savePrefs(){ try{ localStorage.setItem("travao_f1_prefs", JSON.stringify({lang:L, sound:sound})); }catch(e){} }
+function applySound(){ var b=$("#soundBtn"); b.textContent=sound?"🔊":"🔇"; b.setAttribute("aria-label",t(sound?"soundOn":"soundOff")); b.setAttribute("aria-pressed", sound); }
+function isDark(){ var a=document.documentElement.getAttribute("data-theme"); if(a) return a==="dark"; try{ return window.matchMedia("(prefers-color-scheme: dark)").matches; }catch(e){ return false; } }
+function applyTheme(){
+  var th=null; try{ th=localStorage.getItem("travao_f1_theme"); }catch(e){}
+  if(th) document.documentElement.setAttribute("data-theme",th);
+  $("#themeBtn").textContent=isDark()?"☀️":"🌙";
+}
+function toggleTheme(){
+  var v=isDark()?"light":"dark";
+  document.documentElement.setAttribute("data-theme",v);
+  try{ localStorage.setItem("travao_f1_theme",v); }catch(e){}
+  $("#themeBtn").textContent=isDark()?"☀️":"🌙";
+}
+function applyLang(){
+  document.documentElement.lang=L==="pt"?"pt-PT":"en";
+  document.title=t("title");
+  Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function(el){ el.textContent=t(el.getAttribute("data-t")); });
+  $("#themeBtn").setAttribute("aria-label",t("themeAria"));
+  $("#langSeg").setAttribute("aria-label",t("langAria"));
+  $("#lPT").setAttribute("aria-pressed", L==="pt"); $("#lEN").setAttribute("aria-pressed", L==="en");
+  applySound();
+  // Mid-game, leave the running game alone; the next screen picks up the language.
+  if(view!=="play" && view!=="count") render();
+}
+function setLang(l){ if(L===l) return; L=l; savePrefs(); applyLang(); }
+
+try{ var pr=JSON.parse(localStorage.getItem("travao_f1_prefs")||"{}")||{}; if(pr.lang==="pt"||pr.lang==="en") L=pr.lang; if(pr.sound===false) sound=false; }catch(e){}
+bind(); applyTheme(); applyLang();
+})();
+</script>
+</body>
+</html>

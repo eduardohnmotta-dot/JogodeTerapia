@@ -20,3 +20,17 @@ Sessão online de 50 minutos (PT-PT/EN) de treino do controlo inibitório para 1
 - Microfone opcional (botão 🎤): nos momentos de falar aparece um medidor de voz. Só mede o volume, dentro do navegador: nada é gravado nem enviado.
 
 A sessão em curso fica guardada só neste navegador, para sobreviver a um recarregamento da página.
+
+---
+
+# Travão F1 / Brake F1
+
+Jogo para o jovem (12 anos, PHDA) jogar sozinho com o teclado, com relatório para o terapeuta no fim. Três provas inspiradas em jogos de criança que treinam o controlo inibitório:
+
+- **Semáforo** (luz vermelha, luz verde): mantém ESPAÇO para acelerar, larga no vermelho. Sinais falsos (a palavra contradiz a cor). Mede tempo de travagem, passar o vermelho, arranques em falso.
+- **O Simão diz… ao contrário** (Head-Toes-Knees-Shoulders + Simão diz): setas ao contrário; a meio, só se o Simão disser. Mede acertos, autocorreções, respostas automáticas (copiar a direção) e erros impulsivos.
+- **Estátua + Mãe, posso?**: dança com a música, congela quando para, só retoma com autorização do Diretor (e não do Rival). Mede quebras, distrações e agir antes da autorização.
+
+- `travao-f1/index.html` — ficheiro único, sem build. Publicado em https://eduardohnmotta-dot.github.io/JogodeTerapia/travao-f1/
+- O relatório é por sessão (copiar ou imprimir/PDF); nada fica guardado nem sai do computador.
+- Não é um teste validado: serve para acompanhar a evolução de cada criança.
