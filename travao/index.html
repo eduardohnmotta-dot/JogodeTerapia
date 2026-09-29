@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Músculo do Travão</title>
+<meta name="description" content="Sessão online de treino do controlo inibitório (12 anos): Parar – Pensar – Agir.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+  /* ADHD-friendly choices: calm neutral background, one strong accent, one task per screen,
+     big rounded type, go/stop never told apart by colour alone (shape + word too), no flashing. */
+  :root{
+    --bg:#F5F3EE; --surface:#FFFFFF; --surface-2:#ECE8E0; --ink:#1F2A33; --ink-soft:#5A6570; --border:#DED8CC;
+    --primary:#2F5BD3; --on-primary:#FFFFFF; --accent:#E8743B; --violet:#6B60C9; --amber:#C98A12;
+    --go:#1E8A4C; --stop:#C8372D; --on-signal:#FFFFFF;
+    --shadow:0 6px 18px rgba(31,42,51,.08); --shadow-lg:0 16px 40px rgba(31,42,51,.14);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12171D; --surface:#1A2129; --surface-2:#232C36; --ink:#EEF2F5; --ink-soft:#A5B0BA; --border:#2F3A46;
+      --primary:#86A6FF; --on-primary:#0E1520; --accent:#F4A064; --violet:#A89EF2; --amber:#E9BE55;
+      --shadow:0 6px 18px rgba(0,0,0,.35); --shadow-lg:0 16px 40px rgba(0,0,0,.5);
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12171D; --surface:#1A2129; --surface-2:#232C36; --ink:#EEF2F5; --ink-soft:#A5B0BA; --border:#2F3A46;
+    --primary:#86A6FF; --on-primary:#0E1520; --accent:#F4A064; --violet:#A89EF2; --amber:#E9BE55;
+    --shadow:0 6px 18px rgba(0,0,0,.35); --shadow-lg:0 16px 40px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{margin:0}
+  body{background:var(--bg); color:var(--ink); font-family:"Nunito",system-ui,-apple-system,sans-serif; font-size:17px; line-height:1.5; -webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:"Fredoka","Nunito",system-ui,sans-serif; font-weight:600; text-wrap:balance; margin:0}
+  p{margin:0}
+  button,input,textarea{font:inherit; color:inherit}
+  :focus-visible{outline:3px solid var(--primary); outline-offset:2px}
+
+  .app{max-width:1100px; margin:0 auto; padding-inline:16px; padding-block:12px 32px; display:flex; flex-direction:column; gap:12px}
+
+  /* header */
+  .top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .brand{display:flex; align-items:center; gap:12px; min-width:0}
+  .badge{width:48px; height:48px; flex:0 0 auto; border-radius:15px; background:var(--primary); display:grid; place-items:center; font-size:1.6rem; box-shadow:var(--shadow)}
+  .brand h1{font-size:1.4rem; line-height:1.15}
+  .brand .sub{color:var(--ink-soft); font-weight:700; font-size:.88rem}
+  .tools{display:flex; align-items:center; gap:8px}
+  .seg{display:inline-flex; flex-wrap:wrap; background:var(--surface-2); border:1px solid var(--border); border-radius:13px; padding:3px; gap:3px}
+  .seg button{border:0; background:transparent; border-radius:10px; padding:7px 12px; font-family:"Fredoka",sans-serif; font-weight:600; font-size:.9rem; cursor:pointer; color:var(--ink-soft)}
+  .seg button[aria-pressed="true"]{background:var(--primary); color:var(--on-primary)}
+  .icon{border:1px solid var(--border); background:var(--surface); width:42px; height:42px; border-radius:12px; font-size:1rem; cursor:pointer; box-shadow:var(--shadow); display:grid; place-items:center}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:50px; padding:0 18px; border:1px solid var(--border); background:var(--surface); color:var(--ink); border-radius:14px; font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.02rem; cursor:pointer; box-shadow:var(--shadow); transition:transform .12s ease}
+  .btn:active:not(:disabled){transform:translateY(1px)}
+  .btn:disabled{opacity:.45; cursor:default; box-shadow:none}
+  .btn.primary{background:var(--primary); border-color:var(--primary); color:var(--on-primary)}
+  .btn.ok{background:var(--go); border-color:var(--go); color:var(--on-signal)}
+  .btn.miss{background:var(--surface); border:2px solid var(--violet); color:var(--violet)}
+  .btn.go{background:var(--go); border-color:var(--go); color:var(--on-signal)}
+  .btn.stop{background:var(--stop); border-color:var(--stop); color:var(--on-signal)}
+  .btn.ghost{box-shadow:none; background:transparent}
+  .btn.big{min-height:60px; font-size:1.2rem; border-radius:16px}
+  .btn.small{min-height:42px; font-size:.92rem; padding:0 14px}
+  kbd{font-family:"Nunito",sans-serif; font-weight:800; font-size:.72rem; padding:1px 6px; border-radius:6px; border:1px solid currentColor; opacity:.75}
+  .hide-narrow{display:inline}
+  @media (max-width:560px){ .hide-narrow{display:none} }
+
+  /* phase stepper: always shows where we are and what's left */
+  .steps ol{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(5,1fr); gap:6px}
+  .step{width:100%; display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:14px; border:1.5px solid var(--border); background:var(--surface); cursor:pointer; text-align:left; min-height:48px}
+  .step .n{flex:0 0 28px; height:28px; border-radius:50%; display:grid; place-items:center; font-family:"Fredoka",sans-serif; font-weight:700; font-size:.9rem; background:var(--surface-2); color:var(--ink-soft)}
+  .step .lb{font-family:"Fredoka",sans-serif; font-weight:600; font-size:.9rem; line-height:1.15; color:var(--ink-soft)}
+  .step.done .n{background:color-mix(in srgb, var(--go) 18%, var(--surface)); color:var(--go)}
+  .step.on{border-color:var(--primary); background:color-mix(in srgb, var(--primary) 12%, var(--surface))}
+  .step.on .n{background:var(--primary); color:var(--on-primary)}
+  .step.on .lb{color:var(--ink)}
+  @media (max-width:760px){ .step:not(.on) .lb{display:none} .step{justify-content:center; padding:8px} .steps ol{display:flex} .steps li{flex:0 0 auto} .steps li:has(.on){flex:1 1 auto} .step.on{justify-content:flex-start} }
+
+  /* visible time (time blindness): phase time against its target */
+  .clock{display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-weight:700; color:var(--ink-soft); font-variant-numeric:tabular-nums; font-size:.92rem}
+  .cbar{flex:1 1 200px; height:10px; border-radius:99px; background:var(--surface-2); border:1px solid var(--border); overflow:hidden}
+  .cbar i{display:block; height:100%; width:0; background:var(--primary); border-radius:99px; transition:width .5s linear}
+  .clock.over .cbar i{background:var(--amber)}
+  .clock.over #clockTxt b{color:var(--amber)}
+
+  /* stage = what the young person sees */
+  .stage{background:var(--surface); border:1px solid var(--border); border-radius:24px; box-shadow:var(--shadow-lg); padding:clamp(16px, 3vw, 32px); min-height:min(56vh, 600px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; text-align:center}
+  .stage h2{font-size:clamp(1.5rem, 3.4vw, 2.2rem)}
+  .lead{font-size:clamp(1.05rem, 2.2vw, 1.3rem); max-width:40ch; color:var(--ink-soft); font-weight:600}
+  .quote{font-family:"Fredoka",sans-serif; font-weight:600; font-size:clamp(1.35rem, 3.2vw, 2rem); line-height:1.25; max-width:30ch; text-wrap:balance}
+  .quote::before{content:"“"} .quote::after{content:"”"}
+  .toprow{align-self:stretch; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
+  .ptitle{font-family:"Fredoka",sans-serif; font-weight:600; color:var(--ink-soft); font-size:1rem}
+
+  .gauge{width:min(290px, 70%); height:auto; overflow:visible}
+  .gauge path{fill:none; stroke-width:20; transition:opacity .2s}
+  .gauge.set path{opacity:.3} .gauge.set path.on{opacity:1}
+  .gauge .needle{transform-origin:100px 100px; transition:transform .45s cubic-bezier(.3,1.4,.5,1)}
+  .gauge .needle line{stroke:var(--ink); stroke-width:6; stroke-linecap:round}
+  .gauge.unset .needle{opacity:.2}
+  .gauge circle{fill:var(--ink)}
+  .motors{display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:8px; width:100%; max-width:640px}
+  .mbtn{display:flex; flex-direction:column; align-items:center; gap:2px; padding:10px 4px; border-radius:16px; border:2px solid var(--border); background:var(--surface-2); cursor:pointer; min-height:96px; justify-content:center}
+  .mbtn .e{font-size:1.9rem; line-height:1.1}
+  .mbtn b{font-family:"Fredoka",sans-serif; font-size:1.15rem}
+  .mbtn small{font-weight:700; font-size:.8rem; color:var(--ink-soft); line-height:1.15}
+  .mbtn[aria-pressed="true"]{border-color:var(--primary); background:color-mix(in srgb, var(--primary) 14%, var(--surface))}
+  .cmp{font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.15rem}
+
+  /* brake strength: progress that only goes up (misses never take points away) */
+  .meter{display:inline-flex; align-items:center; gap:10px; padding:8px 14px; border-radius:999px; background:var(--surface-2); border:1px solid var(--border); font-weight:700; font-size:.92rem}
+  .meter b{font-family:"Fredoka",sans-serif; font-size:1.25rem; font-variant-numeric:tabular-nums}
+  .meter .mbar{width:80px; height:8px; border-radius:99px; background:var(--surface); overflow:hidden; border:1px solid var(--border)}
+  .meter .mbar i{display:block; height:100%; background:var(--go); border-radius:99px; transition:width .25s ease}
+  .meter small{color:var(--ink-soft); font-weight:700}
+  .meter.pop{animation:pop .5s ease}
+
+  .prompt{display:flex; flex-direction:column; align-items:center; gap:4px}
+  .prompt .e{font-size:clamp(3.5rem, 10vw, 6rem); line-height:1}
+  .prompt .w{font-family:"Fredoka",sans-serif; font-weight:700; font-size:clamp(3rem, 11vw, 6.5rem); line-height:1.05; text-transform:uppercase; letter-spacing:.02em}
+  .say{font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.3rem; color:var(--primary)}
+  .pairs{display:flex; flex-wrap:wrap; justify-content:center; gap:8px}
+  .pair{padding:6px 14px; border-radius:999px; background:var(--surface-2); font-weight:700}
+  .rules{display:flex; flex-direction:column; gap:12px; width:100%; max-width:720px}
+  .rule{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px; padding:16px; border-radius:20px; background:var(--surface-2); border:1px solid var(--border)}
+  .rule .side{display:flex; flex-direction:column; align-items:center; gap:4px; font-family:"Fredoka",sans-serif; font-weight:600; font-size:clamp(1.05rem, 2.6vw, 1.45rem); line-height:1.2}
+  .rule .side .e{font-size:clamp(2.2rem, 6vw, 3.2rem); line-height:1}
+  .rule .arrow{font-size:1.8rem; color:var(--primary); font-weight:800}
+  .rule .side.you{color:var(--primary)}
+
+  /* the "reset" moment: calm violet, never alarm red, no shaming */
+  .reset{display:flex; flex-direction:column; align-items:center; gap:10px; padding:28px; border-radius:24px; background:color-mix(in srgb, var(--violet) 12%, var(--surface)); border:2px solid color-mix(in srgb, var(--violet) 45%, transparent); max-width:620px}
+  .reset .e{font-size:3rem; line-height:1}
+  .reset small{font-weight:700; color:var(--ink-soft); font-size:1rem}
+  .reset b{font-family:"Fredoka",sans-serif; font-weight:600; font-size:clamp(1.5rem, 4vw, 2.3rem); color:var(--violet); line-height:1.2}
+  .reset.strip{flex-direction:row; padding:12px 18px; gap:12px; border-radius:18px}
+  .reset.strip .e{font-size:1.8rem} .reset.strip b{font-size:1.3rem}
+
+  /* traffic light: readable from across the room */
+  .signal{align-self:stretch; min-height:min(44vh, 460px); border-radius:28px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(--on-signal); padding:20px}
+  .signal.go{background:var(--go)} .signal.stop{background:var(--stop)}
+  .signal svg{width:clamp(110px, 22vmin, 200px); height:auto}
+  .signal .w{font-family:"Fredoka",sans-serif; font-weight:700; font-size:clamp(3rem, 12vw, 7rem); line-height:1; letter-spacing:.03em}
+  .signal .d{font-size:clamp(1.1rem, 2.6vw, 1.5rem); font-weight:700; opacity:.95}
+  .follow{font-weight:700; color:var(--ink-soft); font-size:1.05rem}
+  .follow b{color:var(--ink)}
+  .ready .e{font-size:4.5rem; line-height:1}
+
+  .talk{max-width:640px; padding:24px; border-radius:22px; background:color-mix(in srgb, var(--primary) 10%, var(--surface)); border:1.5px solid color-mix(in srgb, var(--primary) 35%, transparent); font-family:"Fredoka",sans-serif; font-weight:500; font-size:clamp(1.25rem, 3vw, 1.7rem); line-height:1.35; text-wrap:balance}
+  .talk .e{font-size:2.4rem; display:block; margin-bottom:6px}
+
+  /* stop - think - act */
+  .dilemma{max-width:760px; display:flex; flex-direction:column; gap:8px; align-items:center}
+  .tag{display:inline-flex; gap:6px; align-items:center; padding:5px 12px; border-radius:999px; background:var(--surface-2); font-family:"Fredoka",sans-serif; font-weight:600; font-size:.95rem}
+  .dilemma p{font-size:clamp(1.15rem, 2.8vw, 1.55rem); font-weight:600; line-height:1.4; text-wrap:balance}
+  .ppa{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; width:100%; max-width:860px}
+  .pstep{padding:16px 12px; border-radius:20px; border:2px solid var(--border); background:var(--surface-2); display:flex; flex-direction:column; align-items:center; gap:6px; opacity:.4; transition:opacity .2s}
+  .pstep .e{font-size:2.4rem; line-height:1}
+  .pstep b{font-family:"Fredoka",sans-serif; font-weight:700; font-size:1.3rem; letter-spacing:.04em}
+  .pstep small{font-weight:600; font-size:.95rem; color:var(--ink-soft); line-height:1.3}
+  .pstep.past{opacity:.75}
+  .pstep.on{opacity:1; border-color:var(--primary); background:color-mix(in srgb, var(--primary) 10%, var(--surface))}
+  @media (max-width:640px){ .ppa{grid-template-columns:1fr} .pstep:not(.on){flex-direction:row; justify-content:center; padding:8px} .pstep:not(.on) small{display:none} .pstep:not(.on) .e{font-size:1.4rem} }
+  .breath{width:150px; height:150px; border-radius:50%; background:color-mix(in srgb, var(--primary) 18%, var(--surface)); border:4px solid var(--primary); display:grid; place-items:center; animation:breath 8s ease-in-out infinite}
+  .breath span{font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.1rem; color:var(--primary)}
+  .question{font-family:"Fredoka",sans-serif; font-weight:600; font-size:clamp(1.2rem, 3vw, 1.6rem)}
+
+  .mission{max-width:640px; padding:22px; border-radius:22px; border:2px dashed var(--accent); background:color-mix(in srgb, var(--accent) 9%, var(--surface)); display:flex; flex-direction:column; gap:6px; align-items:center}
+  .mission .lbl{font-family:"Fredoka",sans-serif; font-weight:600; color:var(--accent); letter-spacing:.04em; text-transform:uppercase; font-size:.9rem}
+  .mission p{font-family:"Fredoka",sans-serif; font-weight:600; font-size:clamp(1.2rem, 3vw, 1.6rem); line-height:1.3}
+  .mission p.empty{color:var(--ink-soft); font-weight:500}
+  .choices{display:flex; flex-direction:column; gap:8px; width:100%; max-width:640px}
+  .choice{text-align:left; padding:14px 16px; border-radius:16px; border:2px solid var(--border); background:var(--surface-2); cursor:pointer; font-weight:700; font-size:1.02rem; min-height:56px}
+  .choice[aria-pressed="true"]{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, var(--surface))}
+  input[type="text"], textarea{width:100%; font-size:1.02rem; padding:12px 14px; border-radius:14px; border:1.5px solid var(--border); background:var(--surface-2); color:var(--ink)}
+  input[type="text"]{min-height:50px}
+  input[type="text"]:focus, textarea:focus{border-color:var(--primary); outline:none}
+
+  /* dock = therapist controls, visually quieter than the stage */
+  .dock{background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:12px; display:flex; flex-direction:column; gap:10px}
+  .dhead{display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap}
+  .dlabel{font-family:"Fredoka",sans-serif; font-weight:600; font-size:.85rem; color:var(--ink-soft); letter-spacing:.03em; text-transform:uppercase}
+  .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+  .row .btn{flex:1 1 150px}
+  .row .grow{flex:1 1 auto}
+  .counts{font-weight:700; color:var(--ink-soft); font-size:.9rem; font-variant-numeric:tabular-nums}
+  .nav{display:flex; justify-content:space-between; gap:8px; border-top:1px solid var(--border); padding-top:10px}
+  .toggle{display:flex; gap:8px; align-items:center; cursor:pointer; font-weight:700; font-size:.95rem}
+  .toggle input{width:20px; height:20px; margin:0; accent-color:var(--primary)}
+  .fine{color:var(--ink-soft); font-size:.86rem}
+  .confirm{border:1.5px solid var(--violet); border-radius:14px; padding:12px; display:flex; flex-direction:column; gap:10px; background:color-mix(in srgb, var(--violet) 8%, var(--surface))}
+
+  /* start */
+  .start{width:100%; max-width:560px; display:flex; flex-direction:column; gap:16px; text-align:left}
+  .start h2{text-align:center}
+  .start .lead{text-align:center; margin-inline:auto}
+  .resume{display:flex; flex-direction:column; gap:10px; padding:16px; border-radius:18px; background:color-mix(in srgb, var(--primary) 9%, var(--surface)); border:1.5px solid color-mix(in srgb, var(--primary) 35%, transparent)}
+  .fl{font-weight:800; font-size:.95rem}
+
+  dialog{border:1px solid var(--border); border-radius:22px; background:var(--surface); color:var(--ink); padding:0; width:min(640px, calc(100% - 32px)); max-height:calc(100% - 48px); box-shadow:var(--shadow-lg); overflow:auto}
+  dialog::backdrop{background:rgba(15,20,26,.5)}
+  .phead{position:sticky; top:0; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 18px; background:var(--surface); border-bottom:1px solid var(--border)}
+  .pbody{padding:18px; display:flex; flex-direction:column; gap:12px}
+  .pbody h3{font-size:1.1rem; margin-top:6px}
+  .pbody ul{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px}
+  .pbody .goal{font-weight:700}
+
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+  @keyframes breath{0%,100%{transform:scale(.62)}50%{transform:scale(1)}}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none!important; transition-duration:0s!important}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="badge" aria-hidden="true">🏎️</span>
+      <div>
+        <h1 id="hTitle">Músculo do Travão</h1>
+        <div class="sub" id="hSub"></div>
+      </div>
+    </div>
+    <div class="tools">
+      <div class="seg" role="group" id="langSeg">
+        <button id="lPT" type="button">PT</button>
+        <button id="lEN" type="button">EN</button>
+      </div>
+      <button class="icon" id="themeBtn" type="button">🌙</button>
+      <button class="btn small" id="guideBtn" type="button"><span aria-hidden="true">📋</span><span class="hide-narrow" data-t="guide">Guião</span></button>
+    </div>
+  </header>
+  <nav class="steps" id="steps"></nav>
+  <div class="clock" id="clock"><span id="clockTxt"></span><div class="cbar"><i id="clockBar"></i></div></div>
+  <main class="stage" id="stage" aria-live="polite"></main>
+  <section class="dock" id="dock"></section>
+</div>
+
+<dialog id="guide">
+  <div class="phead">
+    <h2 id="gTitle"></h2>
+    <button class="icon" id="guideClose" type="button">✕</button>
+  </div>
+  <div class="pbody" id="guideBody"></div>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+
+// Target minutes per phase, from the session plan (upper bound of each range).
+var TARGET=[7,10,15,10,5];
+var MOTOR=[
+  {e:"😴",c:"#6FB1E0",pt:"Com sono",en:"Sleepy"},
+  {e:"🙂",c:"#3AA6A0",pt:"Calmo",en:"Calm"},
+  {e:"😎",c:"#5BAE5B",pt:"No ponto",en:"Just right"},
+  {e:"⚡",c:"#E6B23C",pt:"Acelerado",en:"Revved up"},
+  {e:"🚀",c:"#E8743B",pt:"A mil à hora",en:"Full throttle"}
+];
+var PAIRS=[
+  [{e:"☀️",pt:"Dia",en:"Day"},{e:"🌙",pt:"Noite",en:"Night"}],
+  [{e:"✔️",pt:"Certo",en:"Right"},{e:"✖️",pt:"Errado",en:"Wrong"}],
+  [{e:"⬆️",pt:"Cima",en:"Up"},{e:"⬇️",pt:"Baixo",en:"Down"}],
+  [{e:"🔥",pt:"Quente",en:"Hot"},{e:"❄️",pt:"Frio",en:"Cold"}]
+];
+var BODY=[
+  {a:"🧍",b:"🪑",pt:["Eu levanto-me","Tu baixas-te ou sentas-te"],en:["I stand up","You crouch or sit down"]},
+  {a:"👏",b:"🙅",pt:["Eu bato palmas","Tu cruzas os braços"],en:["I clap","You cross your arms"]}
+];
+var DILEMMAS=[
+  {id:"game",e:"🎮",pt:["Gaming","Estás a jogar online com amigos e perdes por um erro parvo. O teu motor quer gritar ou atirar o comando. Como usas o Parar – Pensar – Agir aqui?"],
+                   en:["Gaming","You're playing online with friends and lose because of a silly mistake. Your engine wants to shout or throw the controller. How do you use Stop – Think – Act here?"]},
+  {id:"school",e:"🏫",pt:["Escola","A professora faz uma pergunta e tu sabes a resposta. O teu motor quer gritar logo a resposta à frente de todos. O que faz o teu travão?"],
+                   en:["School","The teacher asks a question and you know the answer. Your engine wants to shout it out in front of everyone. What does your brake do?"]},
+  // Not in the original script (it only names "casa" as a theme); review before using.
+  {id:"home",e:"🏠",pt:["Casa","Estás a meio de um jogo e chamam-te para jantar. O teu motor quer gritar “JÁ VOU!” e continuar a jogar. Como usas o Parar – Pensar – Agir?"],
+                   en:["Home","You're in the middle of a game and get called for dinner. Your engine wants to yell “COMING!” and keep playing. How do you use Stop – Think – Act?"]}
+];
+var PPA=[
+  {e:"✋",pt:["PARAR","Travão imediato: largar o comando, travar o movimento."],en:["STOP","Instant brake: put the controller down, stop moving."]},
+  {e:"🧠",pt:["PENSAR","1 respiração funda: “O que acontece se eu agir agora?”"],en:["THINK","1 deep breath: “What happens if I act right now?”"]},
+  {e:"✅",pt:["AGIR","A resposta consciente e calibrada."],en:["ACT","The conscious, measured response."]}
+];
+var MISSIONS=[
+  {id:"daily",pt:"Usar o Parar – Pensar – Agir uma vez por dia e contar como foi na próxima sessão.",en:"Use Stop – Think – Act once a day and tell how it went next session."},
+  {id:"game",pt:"Quando perder num jogo: largar o comando e fazer 1 respiração antes de falar.",en:"When losing a game: put the controller down and take 1 breath before talking."},
+  {id:"class",pt:"Na aula: levantar a mão e esperar 3 segundos antes de responder.",en:"In class: raise your hand and wait 3 seconds before answering."}
+];
+var REFLECT={
+  pt:["Em que momento de hoje o teu travão funcionou melhor?","O que te ajudou a travar?","Onde é que vais precisar do travão esta semana?"],
+  en:["When did your brake work best today?","What helped you brake?","Where will you need your brake this week?"]
+};
+var T={
+  pt:{
+    title:"Músculo do Travão", tagline:"Parar · Pensar · Agir", guide:"Guião", themeAria:"Mudar tema", langAria:"Idioma", close:"Fechar",
+    phases:["Aquecimento","Regra Reversa","Semáforo","Parar-Pensar-Agir","Missão"],
+    stepsAria:"Fases da sessão", dockAria:"Controlos do terapeuta", dock:"Controlos do terapeuta",
+    clock:"Fase {n} de 5 · <b>{a}</b> de {b} min", total:"Sessão {t}", over:"tempo extra",
+    prev:"Anterior", next:"Seguinte fase",
+    startTitle:"Treino do Músculo do Travão",
+    startBody:"Sessão online de 50 minutos em 5 fases. Partilha este separador na videochamada: o ecrã grande é para o jovem, os controlos em baixo são para ti.",
+    resumeTitle:"Sessão por terminar", resumeMeta:"{p} · começou às {h} · fase {n} de 5", resume:"Continuar sessão",
+    newTitle:"Nova sessão", nameLabel:"Alcunha ou código do jovem", namePh:"ex.: Tiago, P-12",
+    nameNote:"Usa uma alcunha ou código, não o nome completo. Os dados ficam só neste navegador.",
+    begin:"Começar sessão", anon:"Jovem", replaceNote:"Começar uma nova sessão apaga a que está por terminar.",
+    p1quote:"O motor mais rápido do mundo não vale nada se os travões falharem na curva.",
+    p1lead:"Hoje vamos treinar o teu músculo do travão para teres super-controlo sobre o teu corpo e a tua mente.",
+    gaugeQ:"A que velocidade está o teu motor agora?", gaugeQ2:"E agora, a que velocidade está o teu motor?",
+    gaugeKeys:"Teclas 1 a 5 também funcionam.",
+    strength:"Força do travão", brakeLvl:"nível {l}",
+    lvl1:"Nível 1 · Palavras", lvl2:"Nível 2 · Corpo", showWord:"Mostrar a palavra no ecrã",
+    pairs2:"2 pares", pairs4:"4 pares",
+    sayOpp:"Diz o contrário!", listen:"Ouve bem e diz sempre o contrário", bodyTitle:"Faz sempre o contrário de mim",
+    ok:"Travão OK", miss:"Falhou", countsRev:"OK {a} · falhas {b}",
+    failSay:"Diz em voz alta:", failPhrase:"O meu travão falhou, a reiniciar!",
+    semReady:"Afasta-te da câmara e fica de pé.", follow:"Segue a <b>COR</b> do cartão, não a palavra.",
+    goW:"VAI!", goD:"Marcha, saltita ou dança", stopW:"ESTÁTUA!", stopD:"Congela na posição exata",
+    goBtn:"Verde", stopBtn:"Vermelho", fakeBtn:"Sinal falso", auto:"Automático", pause:"Pausar",
+    fakeRate:"Sinais falsos no automático:", rate0:"Nenhum", rate1:"Alguns", rate2:"Muitos",
+    micro:"Micro-urgência", back:"Voltar ao jogo",
+    microQ:"Sentiste a vontade de dar mais um passo nos 2 segundos antes de parar? Esse é o teu motor. O que fez o teu travão para impedir?",
+    countsSem:"{n} sinais · OK {a} · falhas {b} · falsos {f}",
+    dilemmaN:"Dilema", nextStep:"Passo seguinte", otherDilemma:"Outro dilema",
+    breatheIn:"Inspira…", breatheOut:"Expira…", ppaQ:"O que acontece se eu agir agora?", actQ:"Qual é a resposta calibrada?",
+    answerLabel:"O que o jovem respondeu (opcional, vai para o resumo)",
+    mstep:["Motor","Desafio","Fecho"], reflect:"Para conversar", startEnd:"Início {a}/5 ➜ agora {b}/5",
+    missionLbl:"Desafio da Semana", missionEmpty:"Escolham juntos o desafio da semana.", custom:"Outro desafio (escreve aqui)",
+    reinforce:"O travão não serve para parar o carro para sempre; serve para podermos fazer as curvas sem despistar.",
+    seeYou:"Até à próxima sessão!",
+    copy:"Copiar resumo", copied:"Resumo copiado.", copyFail:"Não deu para copiar diretamente. Seleciona o texto abaixo e copia.",
+    newSession:"Nova sessão", confirmNew:"Isto apaga esta sessão deste navegador. Já copiaste o resumo?", confirmYes:"Sim, começar outra", cancel:"Cancelar",
+    shortcuts:"Atalhos de teclado",
+    keys:["<kbd>Espaço</kbd> travão OK · passo seguinte","<kbd>X</kbd> falhou","<kbd>↑</kbd> verde · <kbd>↓</kbd> vermelho · <kbd>F</kbd> sinal falso","<kbd>A</kbd> automático · <kbd>M</kbd> micro-urgência","<kbd>1</kbd>–<kbd>5</kbd> medidor do motor"],
+    sumHead:"Músculo do Travão · {p} · {d}",
+    sumTime:"Duração: {t} ({x})",
+    sumMotor:"Motor: início {a}/5 · fim {b}/5",
+    sumRev:"Regra reversa: {a} travões OK · {b} falhas (nível 1: {c} OK / {d} falhas · nível 2: {e} OK / {f} falhas)",
+    sumSem:"Semáforo: {n} sinais · {a} OK · {b} falhas · sinais falsos: {c} OK / {d} falhas",
+    sumPpa:"Parar-Pensar-Agir: {x}", sumMission:"Desafio da semana: {x}", none:"—"
+  },
+  en:{
+    title:"Brake Muscle", tagline:"Stop · Think · Act", guide:"Script", themeAria:"Switch theme", langAria:"Language", close:"Close",
+    phases:["Warm-up","Reverse Rule","Traffic Light","Stop-Think-Act","Mission"],
+    stepsAria:"Session phases", dockAria:"Therapist controls", dock:"Therapist controls",
+    clock:"Phase {n} of 5 · <b>{a}</b> of {b} min", total:"Session {t}", over:"over time",
+    prev:"Back", next:"Next phase",
+    startTitle:"Brake Muscle Training",
+    startBody:"A 50-minute online session in 5 phases. Share this tab on the video call: the big screen is for the young person, the controls at the bottom are for you.",
+    resumeTitle:"Unfinished session", resumeMeta:"{p} · started at {h} · phase {n} of 5", resume:"Continue session",
+    newTitle:"New session", nameLabel:"Young person's nickname or code", namePh:"e.g. Tom, P-12",
+    nameNote:"Use a nickname or code, not the full name. The data stays in this browser only.",
+    begin:"Start session", anon:"Player", replaceNote:"Starting a new session deletes the unfinished one.",
+    p1quote:"The fastest engine in the world is worth nothing if the brakes fail on the bend.",
+    p1lead:"Today we're training your brake muscle so you get super-control over your body and your mind.",
+    gaugeQ:"How fast is your engine running right now?", gaugeQ2:"And now, how fast is your engine running?",
+    gaugeKeys:"Keys 1 to 5 work too.",
+    strength:"Brake strength", brakeLvl:"level {l}",
+    lvl1:"Level 1 · Words", lvl2:"Level 2 · Body", showWord:"Show the word on screen",
+    pairs2:"2 pairs", pairs4:"4 pairs",
+    sayOpp:"Say the opposite!", listen:"Listen carefully and always say the opposite", bodyTitle:"Always do the opposite of me",
+    ok:"Brake OK", miss:"Slipped", countsRev:"OK {a} · slips {b}",
+    failSay:"Say it out loud:", failPhrase:"My brake slipped, restarting!",
+    semReady:"Step back from the camera and stand up.", follow:"Follow the card's <b>COLOUR</b>, not the word.",
+    goW:"GO!", goD:"March, hop or dance", stopW:"FREEZE!", stopD:"Freeze exactly where you are",
+    goBtn:"Green", stopBtn:"Red", fakeBtn:"Fake signal", auto:"Automatic", pause:"Pause",
+    fakeRate:"Fake signals in automatic:", rate0:"None", rate1:"Some", rate2:"Lots",
+    micro:"Micro-urge", back:"Back to the game",
+    microQ:"Did you feel the urge to take one more step in the 2 seconds before you stopped? That's your engine. What did your brake do to stop it?",
+    countsSem:"{n} signals · OK {a} · slips {b} · fake {f}",
+    dilemmaN:"Dilemma", nextStep:"Next step", otherDilemma:"Another dilemma",
+    breatheIn:"Breathe in…", breatheOut:"Breathe out…", ppaQ:"What happens if I act right now?", actQ:"What's the measured response?",
+    answerLabel:"What the young person answered (optional, goes in the summary)",
+    mstep:["Engine","Challenge","Wrap-up"], reflect:"Let's talk", startEnd:"Start {a}/5 ➜ now {b}/5",
+    missionLbl:"Challenge of the Week", missionEmpty:"Pick this week's challenge together.", custom:"Another challenge (type here)",
+    reinforce:"Brakes aren't there to stop the car forever; they're there so we can take the bends without spinning out.",
+    seeYou:"See you next session!",
+    copy:"Copy summary", copied:"Summary copied.", copyFail:"Couldn't copy directly. Select the text below and copy it.",
+    newSession:"New session", confirmNew:"This deletes this session from this browser. Have you copied the summary?", confirmYes:"Yes, start another", cancel:"Cancel",
+    shortcuts:"Keyboard shortcuts",
+    keys:["<kbd>Space</kbd> brake OK · next step","<kbd>X</kbd> slipped","<kbd>↑</kbd> green · <kbd>↓</kbd> red · <kbd>F</kbd> fake signal","<kbd>A</kbd> automatic · <kbd>M</kbd> micro-urge","<kbd>1</kbd>–<kbd>5</kbd> engine gauge"],
+    sumHead:"Brake Muscle · {p} · {d}",
+    sumTime:"Duration: {t} ({x})",
+    sumMotor:"Engine: start {a}/5 · end {b}/5",
+    sumRev:"Reverse rule: {a} brakes OK · {b} slips (level 1: {c} OK / {d} slips · level 2: {e} OK / {f} slips)",
+    sumSem:"Traffic light: {n} signals · {a} OK · {b} slips · fake signals: {c} OK / {d} slips",
+    sumPpa:"Stop-Think-Act: {x}", sumMission:"Challenge of the week: {x}", none:"—"
+  }
+};
+var GUIDE={
+  pt:[
+    {g:"Apresentar a metáfora do Músculo do Travão (alta performance, F1) e fazer a autoavaliação do motor de 1 a 5.",
+     l:["“O motor mais rápido do mundo não vale nada se os travões falharem na curva. Hoje vamos treinar o teu ‘músculo do travão’ para teres super-controlo sobre o teu corpo e mente.”",
+        "Medidor de urgência: 1 = com sono / sem energia; 5 = a mil à hora / impulsivo. O jovem diz o número e tu marcas (ou usa as teclas 1–5)."]},
+    {g:"Inibição cognitiva por níveis, com a frase de reinício ao errar.",
+     l:["Nível 1 (verbal): dizes “Dia” ➜ o jovem diz “Noite”; “Certo” ➜ “Errado”. Alterna ritmo lento e rápido.",
+        "Com “Mostrar a palavra no ecrã”, cada clique em Travão OK mostra a palavra seguinte: o ritmo é o dos teus cliques.",
+        "Nível 2 (motor na câmara): quando te levantas ➜ o jovem baixa-se ou senta-se; quando bates palmas ➜ cruza os braços.",
+        "Regra do erro: ao falhar, o ecrã mostra “O meu travão falhou, a reiniciar!” e o jovem diz a frase em voz alta. Foco na autorregulação, sem culpa."]},
+    {g:"Inibição motora em movimento ativo, com sinais contraditórios.",
+     l:["O jovem afasta-se da câmara e fica de pé. Verde = marchar no lugar, saltitar ou dançar. Vermelho = estátua.",
+        "Sinal falso: a cor e a forma do cartão dizem uma coisa, a palavra diz outra. Podes também dizer a palavra errada em voz alta. Vale sempre a cor.",
+        "Automático: o jogo escolhe os sinais e os tempos, para poderes olhar só para o jovem. Marca OK / Falhou a qualquer momento; conta para o último sinal.",
+        "Depois de uma paragem, abre “Micro-urgência” para conversar sobre os 2 segundos antes de parar."]},
+    {g:"Treino explícito do ciclo Parar – Pensar – Agir com dilemas do dia a dia.",
+     l:["Lê o dilema e avança um passo de cada vez: PARAR, PENSAR (1 respiração funda guiada no ecrã), AGIR.",
+        "Podes escrever a resposta do jovem: fica no resumo da sessão."]},
+    {g:"Reflexão metacognitiva final e Desafio da Semana para treino autónomo.",
+     l:["Repete o medidor do motor e compara com o início.",
+        "Escolham juntos o desafio da semana, ou escrevam um.",
+        "Fecha com a frase de reforço. Copia o resumo para as tuas notas antes de começar outra sessão."]}
+  ],
+  en:[
+    {g:"Introduce the Brake Muscle metaphor (high performance, F1) and rate the engine from 1 to 5.",
+     l:["“The fastest engine in the world is worth nothing if the brakes fail on the bend. Today we're training your ‘brake muscle’ so you get super-control over your body and mind.”",
+        "Urge gauge: 1 = sleepy / no energy; 5 = full throttle / impulsive. The young person says the number and you tap it (or use keys 1–5)."]},
+    {g:"Cognitive inhibition in levels, with the restart phrase after a slip.",
+     l:["Level 1 (verbal): you say “Day” ➜ they say “Night”; “Right” ➜ “Wrong”. Alternate slow and fast rhythm.",
+        "With “Show the word on screen” on, each Brake OK click shows the next word: the pace is your clicking.",
+        "Level 2 (body, on camera): when you stand up ➜ they crouch or sit; when you clap ➜ they cross their arms.",
+        "Slip rule: after a slip the screen shows “My brake slipped, restarting!” and they say it out loud. The focus is self-regulation, not blame."]},
+    {g:"Motor inhibition while moving, with conflicting signals.",
+     l:["The young person steps back from the camera and stands. Green = march on the spot, hop or dance. Red = statue.",
+        "Fake signal: the card's colour and shape say one thing, the word says another. You can also say the wrong word out loud. The colour always wins.",
+        "Automatic: the game picks the signals and timing so you can just watch. Mark OK / Slipped at any time; it counts for the latest signal.",
+        "After a stop, open “Micro-urge” to talk about the 2 seconds before stopping."]},
+    {g:"Explicit practice of the Stop – Think – Act cycle with everyday dilemmas.",
+     l:["Read the dilemma, then go one step at a time: STOP, THINK (1 deep breath guided on screen), ACT.",
+        "You can type the young person's answer: it goes in the session summary."]},
+    {g:"Final metacognitive reflection and the Challenge of the Week for practice at home.",
+     l:["Repeat the engine gauge and compare it with the start.",
+        "Pick the week's challenge together, or write one.",
+        "Close with the reinforcement phrase. Copy the summary into your notes before starting another session."]}
+  ]
+};
+
+var KEY="musculo_travao_v1", PREFS="musculo_travao_prefs", THEME="musculo_travao_theme";
+var L="pt", S=null, view="start", saved=null;
+// Screen-only state (not saved).
+var U={word:null, fail:false, failT:0, auto:false, autoT:0, micro:false, breathT:0, pop:false, confirm:false};
+
+function $(s){ return document.querySelector(s); }
+function t(k,v){ var s=T[L][k]; if(s==null) s=T.pt[k]; if(s==null) s=k; if(v && typeof s==="string") for(var x in v) s=s.split("{"+x+"}").join(v[x]); return s; }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function rnd(a,b){ return a+Math.random()*(b-a); }
+function fmt(ms){ var s=Math.max(0,Math.floor(ms/1000)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+function locale(){ return L==="pt"?"pt-PT":"en-GB"; }
+
+/* ---------- session state (this browser only) ---------- */
+function newSession(name){
+  var now=Date.now();
+  return {v:1, name:name, started:now, seen:now, phase:0, pt:[0,0,0,0,0], at:now, m0:null, m1:null,
+    rev:{lvl:1, pairs:2, show:true, log:[]}, sem:{cur:null, rate:1, log:[]},
+    ppa:{i:0, step:0, done:[], ans:{}}, mstep:0, mis:{pick:null, custom:""}};
+}
+function load(){ try{ var d=JSON.parse(localStorage.getItem(KEY)||"null"); if(d && d.v===1 && Array.isArray(d.pt)) return d; }catch(e){} return null; }
+function save(){ if(!S) return; S.seen=Date.now(); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function phaseMs(i){ return S.pt[i]+(i===S.phase?Date.now()-S.at:0); }
+function totalMs(){ var n=0; for(var i=0;i<5;i++) n+=phaseMs(i); return n; }
+function brakes(){
+  var n=0;
+  S.rev.log.forEach(function(e){ if(e.ok) n++; });
+  S.sem.log.forEach(function(e){ if(e.ok===true) n++; });
+  return n;
+}
+
+function begin(){
+  var inp=$("#newName"), name=((inp && inp.value)||"").trim().slice(0,30) || t("anon");
+  S=newSession(name); view="session"; U.word=null; save(); renderAll();
+}
+function resume(){
+  S=saved;
+  // Don't count the time the tab was closed.
+  S.at=Date.now()-Math.max(0, S.seen-S.at);
+  view="session"; renderAll();
+}
+function goPhase(i){
+  if(i<0 || i>4 || i===S.phase) return;
+  stopAuto(); clearTimeout(U.failT); U.fail=false; U.micro=false; U.confirm=false;
+  S.pt[S.phase]+=Date.now()-S.at; S.phase=i; S.at=Date.now();
+  save(); renderAll();
+  window.scrollTo(0,0);
+}
+
+/* ---------- phase 2: reverse rule ---------- */
+function newWord(){
+  var n=S.rev.pairs, prev=U.word, w;
+  do{ w={p:Math.floor(Math.random()*n), s:Math.random()<.5?0:1}; } while(prev && w.p===prev.p && w.s===prev.s);
+  U.word=w;
+}
+function markRev(ok){
+  S.rev.log.push({l:S.rev.lvl, ok:ok});
+  clearTimeout(U.failT); U.fail=!ok;
+  if(ok){ newWord(); bump(); }
+  else U.failT=setTimeout(function(){ U.fail=false; newWord(); renderStage(); }, 2600);
+  save(); renderStage(); renderDock();
+}
+
+/* ---------- phase 3: traffic light ---------- */
+function signal(c, fake){
+  S.sem.cur={c:c, fake:!!fake};
+  S.sem.log.push({c:c, fake:!!fake, ok:null});
+  U.micro=false; U.fail=false; clearTimeout(U.failT);
+  if(U.auto){ clearTimeout(U.autoT); U.autoT=setTimeout(autoStep, c==="go"?rnd(3000,6000):rnd(2500,4500)); }
+  save(); renderStage(); renderDock();
+}
+function fakeSignal(){ var cur=S.sem.cur; signal(cur && cur.c==="stop"?"go":"stop", true); }
+function autoStep(){
+  if(!U.auto || !S || S.phase!==2) return;
+  var cur=S.sem.cur, fake=!!cur && Math.random()<[0,.25,.45][S.sem.rate];
+  signal(cur && cur.c==="go"?"stop":"go", fake);
+}
+function toggleAuto(){ if(U.auto){ stopAuto(); renderDock(); } else { U.auto=true; autoStep(); } }
+function stopAuto(){ U.auto=false; clearTimeout(U.autoT); }
+function markSem(ok){
+  var last=S.sem.log[S.sem.log.length-1]; if(!last) return;
+  var was=last.ok; last.ok=ok;
+  if(ok && was!==true) bump();
+  clearTimeout(U.failT); U.fail=!ok;
+  if(!ok) U.failT=setTimeout(function(){ U.fail=false; renderStage(); }, 2600);
+  save(); renderStage(); renderDock();
+}
+function bump(){ U.pop = brakes()%10===0; }
+
+/* ---------- phase 4: stop-think-act ---------- */
+function nextStep(){
+  var p=S.ppa;
+  if(p.step<3){ p.step++; if(p.step===3 && p.done.indexOf(DILEMMAS[p.i].id)<0) p.done.push(DILEMMAS[p.i].id); }
+  else { p.i=(p.i+1)%DILEMMAS.length; p.step=0; }
+  save(); renderStage(); renderDock();
+}
+
+/* ---------- rendering ---------- */
+function renderAll(){
+  var on=view==="session";
+  $("#hTitle").textContent=t("title");
+  $("#hSub").textContent=t("tagline")+(on?" · "+S.name:"");
+  $("#steps").hidden=!on; $("#clock").hidden=!on; $("#dock").hidden=!on;
+  $("#steps").setAttribute("aria-label",t("stepsAria")); $("#dock").setAttribute("aria-label",t("dockAria"));
+  if(on){ renderSteps(); tick(); }
+  renderStage(); renderDock();
+}
+function renderSteps(){
+  $("#steps").innerHTML='<ol>'+t("phases").map(function(name,i){
+    var cls=i===S.phase?" on":(i<S.phase?" done":"");
+    return '<li><button type="button" class="step'+cls+'" data-act="phase" data-v="'+i+'"'+(i===S.phase?' aria-current="step"':'')+' title="'+esc(name)+'"><span class="n">'+(i<S.phase?"✓":i+1)+'</span><span class="lb">'+esc(name)+'</span></button></li>';
+  }).join("")+'</ol>';
+}
+function tick(){
+  if(view!=="session") return;
+  var p=S.phase, el=phaseMs(p), tgt=TARGET[p]*60000, over=el>tgt;
+  $("#clockTxt").innerHTML=t("clock",{n:p+1, a:fmt(el), b:TARGET[p]})+(over?" · "+t("over"):"")+' · '+t("total",{t:fmt(totalMs())});
+  $("#clockBar").style.width=Math.min(100, el/tgt*100)+"%";
+  $("#clock").classList.toggle("over", over);
+}
+function meterHtml(){
+  var n=brakes(), cls=U.pop?" pop":"";
+  U.pop=false;
+  return '<div class="meter'+cls+'"><span aria-hidden="true">💪</span><span>'+t("strength")+'</span><b>'+n+'</b><div class="mbar" aria-hidden="true"><i style="width:'+(n%10*10)+'%"></i></div><small>'+t("brakeLvl",{l:Math.floor(n/10)+1})+'</small></div>';
+}
+function resetHtml(strip){
+  return '<div class="reset'+(strip?" strip":"")+'" role="status"><span class="e" aria-hidden="true">🔄</span><div>'+(strip?'':'<small>'+t("failSay")+'</small><br>')+'<b>'+t("failPhrase")+'</b></div></div>';
+}
+function gaugeHtml(v){
+  function pt(a){ var r=a*Math.PI/180; return (100+80*Math.cos(r)).toFixed(1)+" "+(100-80*Math.sin(r)).toFixed(1); }
+  var h='<svg class="gauge '+(v?"set":"unset")+'" viewBox="0 0 200 112" aria-hidden="true">';
+  MOTOR.forEach(function(m,k){ h+='<path class="'+(v===k+1?"on":"")+'" stroke="'+m.c+'" d="M'+pt(180-36*k-1.5)+' A80 80 0 0 1 '+pt(180-36*(k+1)+1.5)+'"/>'; });
+  h+='<g class="needle" style="transform:rotate('+(v?(v-.5)*36:90)+'deg)"><line x1="100" y1="100" x2="38" y2="100"/></g><circle cx="100" cy="100" r="9"/></svg>';
+  return h;
+}
+function motorsHtml(v){
+  return '<div class="motors" role="group">'+MOTOR.map(function(m,k){
+    return '<button type="button" class="mbtn" data-act="motor" data-v="'+(k+1)+'" aria-pressed="'+(v===k+1)+'"><span class="e" aria-hidden="true">'+m.e+'</span><b>'+(k+1)+'</b><small>'+m[L]+'</small></button>';
+  }).join("")+'</div>';
+}
+function shapeSvg(c){
+  if(c==="go") return '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="7"/><path d="M40 30 L72 50 L40 70 Z" fill="currentColor"/></svg>';
+  return '<svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="30,4 70,4 96,30 96,70 70,96 30,96 4,70 4,30" fill="none" stroke="currentColor" stroke-width="7"/><rect x="28" y="42" width="44" height="16" rx="4" fill="currentColor"/></svg>';
+}
+
+function renderStage(){
+  var st=$("#stage"), h="";
+  clearInterval(U.breathT);
+  if(view!=="session"){ st.innerHTML=startHtml(); return; }
+  var p=S.phase;
+  if(p===0){
+    h='<p class="quote">'+t("p1quote")+'</p><p class="lead">'+t("p1lead")+'</p>'+
+      '<h2>'+t("gaugeQ")+'</h2>'+gaugeHtml(S.m0)+motorsHtml(S.m0);
+  } else if(p===1){
+    var r=S.rev;
+    h='<div class="toprow"><span class="ptitle">'+t(r.lvl===1?"lvl1":"lvl2")+'</span>'+meterHtml()+'</div>';
+    if(U.fail) h+=resetHtml(false);
+    else if(r.lvl===2){
+      h+='<h2>'+t("bodyTitle")+'</h2><div class="rules">'+BODY.map(function(b){
+        return '<div class="rule"><div class="side"><span class="e" aria-hidden="true">'+b.a+'</span>'+b[L][0]+'</div><span class="arrow" aria-hidden="true">➜</span><div class="side you"><span class="e" aria-hidden="true">'+b.b+'</span>'+b[L][1]+'</div></div>';
+      }).join("")+'</div>';
+    } else if(r.show){
+      if(!U.word) newWord();
+      var w=PAIRS[U.word.p][U.word.s];
+      h+='<div class="prompt"><span class="e" aria-hidden="true">'+w.e+'</span><span class="w">'+w[L]+'</span></div><p class="say">'+t("sayOpp")+'</p>'+pairsHtml();
+    } else {
+      h+='<h2>'+t("listen")+'</h2><div class="rules">'+PAIRS.slice(0,r.pairs).map(function(pr){
+        return '<div class="rule"><div class="side"><span class="e" aria-hidden="true">'+pr[0].e+'</span>'+pr[0][L]+'</div><span class="arrow" aria-hidden="true">⇄</span><div class="side"><span class="e" aria-hidden="true">'+pr[1].e+'</span>'+pr[1][L]+'</div></div>';
+      }).join("")+'</div>';
+    }
+  } else if(p===2){
+    var cur=S.sem.cur;
+    h='<div class="toprow"><span class="ptitle">'+t("phases")[2]+'</span>'+meterHtml()+'</div>';
+    if(U.micro) h+='<div class="talk"><span class="e" aria-hidden="true">🏁</span>'+t("microQ")+'</div>';
+    else if(!cur) h+='<div class="ready"><div class="e" aria-hidden="true">🧍</div><h2>'+t("semReady")+'</h2></div><p class="follow">'+t("follow")+'</p>';
+    else {
+      // A fake signal keeps its colour and shape (the real instruction) but shows the opposite word.
+      var wordGo = cur.fake ? cur.c!=="go" : cur.c==="go";
+      h+='<div class="signal '+cur.c+'"><span>'+shapeSvg(cur.c)+'</span><span class="w">'+t(wordGo?"goW":"stopW")+'</span>'+(cur.fake?'':'<span class="d">'+t(cur.c==="go"?"goD":"stopD")+'</span>')+'</div>';
+      h+=U.fail?resetHtml(true):'<p class="follow">'+t("follow")+'</p>';
+    }
+  } else if(p===3){
+    var pp=S.ppa, d=DILEMMAS[pp.i];
+    h='<div class="dilemma"><span class="tag"><span aria-hidden="true">'+d.e+'</span>'+t("dilemmaN")+' · '+d[L][0]+'</span><p>'+d[L][1]+'</p></div>';
+    h+='<div class="ppa">'+PPA.map(function(s,k){
+      var cls=pp.step===k+1?" on":(pp.step>k+1?" past":"");
+      return '<div class="pstep'+cls+'"><span class="e" aria-hidden="true">'+s.e+'</span><b>'+s[L][0]+'</b><small>'+s[L][1]+'</small></div>';
+    }).join("")+'</div>';
+    if(pp.step===2) h+='<div class="breath" aria-hidden="true"><span id="breathTxt">'+t("breatheIn")+'</span></div><p class="question">'+t("ppaQ")+'</p>';
+    else if(pp.step===3) h+='<p class="question">'+t("actQ")+'</p>';
+  } else if(p===4){
+    var ms=S.mstep;
+    if(ms===0){
+      h='<h2>'+t("gaugeQ2")+'</h2>'+gaugeHtml(S.m1)+motorsHtml(S.m1);
+      if(S.m0 && S.m1) h+='<p class="cmp">'+t("startEnd",{a:S.m0, b:S.m1})+'</p>';
+      h+='<div class="talk"><span class="e" aria-hidden="true">💬</span>'+REFLECT[L][S.m1?1:0]+'</div>';
+    } else if(ms===1){
+      h='<h2>'+t("missionLbl")+'</h2><div class="choices" role="group">'+MISSIONS.map(function(m){
+        return '<button type="button" class="choice" data-act="mission" data-v="'+m.id+'" aria-pressed="'+(S.mis.pick===m.id)+'">'+m[L]+'</button>';
+      }).join("")+'</div><div class="choices"><label class="fl" for="customMission">'+t("custom")+'</label><input type="text" id="customMission" maxlength="160" autocomplete="off" value="'+esc(S.mis.custom)+'"></div>';
+    } else {
+      var mt=missionText();
+      h='<p class="quote">'+t("reinforce")+'</p><div class="mission"><span class="lbl">'+t("missionLbl")+'</span><p class="'+(mt?"":"empty")+'">'+(mt?esc(mt):t("missionEmpty"))+'</p></div><h2>'+t("seeYou")+' 🏁</h2>';
+    }
+  }
+  st.innerHTML=h;
+  if(p===3 && S.ppa.step===2){
+    var inhale=true;
+    U.breathT=setInterval(function(){ var el=$("#breathTxt"); if(!el){ clearInterval(U.breathT); return; } inhale=!inhale; el.textContent=t(inhale?"breatheIn":"breatheOut"); }, 4000);
+  }
+}
+function pairsHtml(){
+  return '<div class="pairs">'+PAIRS.slice(0,S.rev.pairs).map(function(pr){ return '<span class="pair">'+pr[0][L]+' ⇄ '+pr[1][L]+'</span>'; }).join("")+'</div>';
+}
+function missionText(){
+  if(S.mis.pick==="custom") return S.mis.custom.trim();
+  for(var i=0;i<MISSIONS.length;i++) if(MISSIONS[i].id===S.mis.pick) return MISSIONS[i][L];
+  return "";
+}
+function startHtml(){
+  var h='<div class="start"><h2>'+t("startTitle")+'</h2><p class="lead">'+t("startBody")+'</p>';
+  if(saved) h+='<div class="resume"><b class="fl">'+t("resumeTitle")+'</b><span>'+t("resumeMeta",{p:esc(saved.name), h:new Date(saved.started).toLocaleTimeString(locale(),{hour:"2-digit",minute:"2-digit"}), n:saved.phase+1})+'</span><button type="button" class="btn primary big" data-act="resume">'+t("resume")+' ▶</button></div>';
+  h+='<b class="fl">'+t("newTitle")+'</b><label class="fl" for="newName">'+t("nameLabel")+'</label><input type="text" id="newName" maxlength="30" autocomplete="off" spellcheck="false" placeholder="'+esc(t("namePh"))+'">'+
+     '<p class="fine">'+t("nameNote")+(saved?' '+t("replaceNote"):'')+'</p>'+
+     '<button type="button" class="btn '+(saved?"":"primary ")+'big" data-act="begin">'+t("begin")+(saved?'':' ▶')+'</button></div>';
+  return h;
+}
+function kb(k){ return ' <kbd class="hide-narrow">'+k+'</kbd>'; }
+function segHtml(act, items, cur){
+  return '<div class="seg" role="group">'+items.map(function(it){ return '<button type="button" data-act="'+act+'" data-v="'+it[0]+'" aria-pressed="'+(String(cur)===String(it[0]))+'">'+it[1]+'</button>'; }).join("")+'</div>';
+}
+function renderDock(){
+  var d=$("#dock");
+  if(view!=="session"){ d.innerHTML=""; return; }
+  var p=S.phase, h='<div class="dhead"><span class="dlabel">'+t("dock")+'</span>';
+  if(p===1){
+    var ok=S.rev.log.filter(function(e){ return e.ok; }).length;
+    h+='<span class="counts">'+t("countsRev",{a:ok, b:S.rev.log.length-ok})+'</span></div>';
+    h+='<div class="row">'+segHtml("lvl",[[1,t("lvl1")],[2,t("lvl2")]],S.rev.lvl);
+    if(S.rev.lvl===1) h+=segHtml("pairs",[[2,t("pairs2")],[4,t("pairs4")]],S.rev.pairs)+'<label class="toggle"><input type="checkbox" id="optShow"'+(S.rev.show?" checked":"")+'><span>'+t("showWord")+'</span></label>';
+    h+='</div><div class="row"><button type="button" class="btn ok big" data-act="ok">✓ '+t("ok")+kb(L==="pt"?"Espaço":"Space")+'</button><button type="button" class="btn miss big" data-act="miss">🔄 '+t("miss")+kb("X")+'</button></div>';
+  } else if(p===2){
+    var log=S.sem.log, a=0, b=0, f=0;
+    log.forEach(function(e){ if(e.ok===true) a++; else if(e.ok===false) b++; if(e.fake) f++; });
+    h+='<span class="counts">'+t("countsSem",{n:log.length, a:a, b:b, f:f})+'</span></div>';
+    h+='<div class="row"><button type="button" class="btn go" data-act="go">▶ '+t("goBtn")+kb("↑")+'</button><button type="button" class="btn stop" data-act="stop">✋ '+t("stopBtn")+kb("↓")+'</button><button type="button" class="btn" data-act="fake">🎭 '+t("fakeBtn")+kb("F")+'</button></div>';
+    h+='<div class="row"><button type="button" class="btn'+(U.auto?" primary":"")+'" data-act="auto" aria-pressed="'+U.auto+'">'+(U.auto?"⏸ "+t("pause"):"🔁 "+t("auto"))+kb("A")+'</button><span class="fine">'+t("fakeRate")+'</span>'+segHtml("rate",[[0,t("rate0")],[1,t("rate1")],[2,t("rate2")]],S.sem.rate)+'</div>';
+    h+='<div class="row"><button type="button" class="btn ok" data-act="ok"'+(log.length?'':' disabled')+'>✓ '+t("ok")+kb(L==="pt"?"Espaço":"Space")+'</button><button type="button" class="btn miss" data-act="miss"'+(log.length?'':' disabled')+'>🔄 '+t("miss")+kb("X")+'</button><button type="button" class="btn" data-act="micro" aria-pressed="'+U.micro+'">'+(U.micro?"↩ "+t("back"):"💬 "+t("micro"))+kb("M")+'</button></div>';
+  } else if(p===3){
+    var pp=S.ppa, id=DILEMMAS[pp.i].id;
+    h+='</div><div class="row">'+segHtml("dilemma",DILEMMAS.map(function(x,i){ return [i, x.e+" "+x[L][0]+(pp.done.indexOf(x.id)>=0?" ✓":"")]; }),pp.i)+'</div>';
+    if(pp.step===3) h+='<label class="fl" for="ans">'+t("answerLabel")+'</label><textarea id="ans" rows="2" maxlength="400">'+esc(pp.ans[id]||"")+'</textarea>';
+    h+='<div class="row"><button type="button" class="btn primary big" data-act="step">'+(pp.step<3?t("nextStep"):t("otherDilemma"))+' ▶'+kb(L==="pt"?"Espaço":"Space")+'</button></div>';
+  } else if(p===4){
+    h+='</div><div class="row">'+segHtml("mstep",t("mstep").map(function(x,i){ return [i,(i+1)+". "+x]; }),S.mstep)+'</div>';
+    if(S.mstep===2){
+      h+='<div class="row"><button type="button" class="btn primary" data-act="copy">📋 '+t("copy")+'</button><button type="button" class="btn" data-act="newS">'+t("newSession")+'</button></div>'+
+         '<p class="fine" id="copyMsg" role="status"></p><textarea id="copyBox" rows="8" readonly hidden></textarea>';
+      if(U.confirm) h+='<div class="confirm"><p>'+t("confirmNew")+'</p><div class="row"><button type="button" class="btn primary" data-act="newYes">'+t("confirmYes")+'</button><button type="button" class="btn" data-act="newNo">'+t("cancel")+'</button></div></div>';
+    }
+  } else h+='</div>';
+  if(p===0) h+='<p class="fine">'+t("gaugeKeys")+'</p>';
+  h+='<div class="nav"><button type="button" class="btn small" data-act="prev"'+(p===0?" disabled":"")+'>◀ '+t("prev")+'</button>'+
+     (p<4?'<button type="button" class="btn small primary" data-act="next">'+t("next")+' ▶</button>':'')+'</div>';
+  d.innerHTML=h;
+}
+
+/* ---------- summary ---------- */
+function summaryText(){
+  var rev=S.rev.log, sem=S.sem.log;
+  function cnt(arr, fn){ return arr.filter(fn).length; }
+  var per=t("phases").map(function(n,i){ return n+" "+fmt(phaseMs(i)); }).join(", ");
+  var ppa=S.ppa.done.map(function(id){
+    var d=DILEMMAS.filter(function(x){ return x.id===id; })[0], a=(S.ppa.ans[id]||"").trim();
+    return d[L][0]+(a?" (“"+a+"”)":"");
+  }).join("; ");
+  return [
+    t("sumHead",{p:S.name, d:new Date(S.started).toLocaleDateString(locale())}),
+    t("sumTime",{t:fmt(totalMs()), x:per}),
+    t("sumMotor",{a:S.m0||t("none"), b:S.m1||t("none")}),
+    t("sumRev",{a:cnt(rev,function(e){ return e.ok; }), b:cnt(rev,function(e){ return !e.ok; }),
+      c:cnt(rev,function(e){ return e.l===1 && e.ok; }), d:cnt(rev,function(e){ return e.l===1 && !e.ok; }),
+      e:cnt(rev,function(e){ return e.l===2 && e.ok; }), f:cnt(rev,function(e){ return e.l===2 && !e.ok; })}),
+    t("sumSem",{n:sem.length, a:cnt(sem,function(e){ return e.ok===true; }), b:cnt(sem,function(e){ return e.ok===false; }),
+      c:cnt(sem,function(e){ return e.fake && e.ok===true; }), d:cnt(sem,function(e){ return e.fake && e.ok===false; })}),
+    t("sumPpa",{x:ppa||t("none")}),
+    t("sumMission",{x:missionText()||t("none")})
+  ].join("\n");
+}
+function doCopy(){
+  var txt=summaryText(), msg=$("#copyMsg"), box=$("#copyBox");
+  function fallback(){ box.hidden=false; box.value=txt; box.focus(); box.select(); msg.textContent=t("copyFail"); }
+  try{ navigator.clipboard.writeText(txt).then(function(){ msg.textContent=t("copied"); box.hidden=true; }, fallback); }catch(e){ fallback(); }
+}
+
+/* ---------- guide, theme, language ---------- */
+function renderGuide(){
+  var g=GUIDE[L][view==="session"?S.phase:0];
+  $("#gTitle").textContent=t("guide")+(view==="session"?" · "+t("phases")[S.phase]:"");
+  $("#guideBody").innerHTML='<p class="goal">'+g.g+'</p><ul>'+g.l.map(function(x){ return '<li>'+x+'</li>'; }).join("")+'</ul>'+
+    '<h3>'+t("shortcuts")+'</h3><ul>'+t("keys").map(function(x){ return '<li>'+x+'</li>'; }).join("")+'</ul>';
+}
+function isDark(){ var a=document.documentElement.getAttribute("data-theme"); if(a) return a==="dark"; try{ return window.matchMedia("(prefers-color-scheme: dark)").matches; }catch(e){ return false; } }
+function applyTheme(){
+  var th=null; try{ th=localStorage.getItem(THEME); }catch(e){}
+  if(th) document.documentElement.setAttribute("data-theme",th);
+  $("#themeBtn").textContent=isDark()?"☀️":"🌙";
+}
+function toggleTheme(){
+  var v=isDark()?"light":"dark";
+  document.documentElement.setAttribute("data-theme",v);
+  try{ localStorage.setItem(THEME,v); }catch(e){}
+  $("#themeBtn").textContent=isDark()?"☀️":"🌙";
+}
+function applyLang(){
+  document.documentElement.lang=L==="pt"?"pt-PT":"en";
+  document.title=t("title");
+  Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function(el){ el.textContent=t(el.getAttribute("data-t")); });
+  $("#themeBtn").setAttribute("aria-label",t("themeAria"));
+  $("#guideBtn").setAttribute("aria-label",t("guide"));
+  $("#guideClose").setAttribute("aria-label",t("close"));
+  $("#langSeg").setAttribute("aria-label",t("langAria"));
+  $("#lPT").setAttribute("aria-pressed", L==="pt"); $("#lEN").setAttribute("aria-pressed", L==="en");
+  renderAll();
+  if($("#guide").open) renderGuide();
+}
+function setLang(l){ if(L===l) return; L=l; try{ localStorage.setItem(PREFS, JSON.stringify({lang:L})); }catch(e){} applyLang(); }
+
+/* ---------- events ---------- */
+function act(a, v){
+  if(a==="begin") begin();
+  else if(a==="resume") resume();
+  else if(a==="phase") goPhase(+v);
+  else if(a==="prev") goPhase(S.phase-1);
+  else if(a==="next") goPhase(S.phase+1);
+  else if(a==="motor"){ if(S.phase===0) S.m0=+v; else S.m1=+v; save(); renderStage(); }
+  else if(a==="lvl"){ S.rev.lvl=+v; U.fail=false; save(); renderStage(); renderDock(); }
+  else if(a==="pairs"){ S.rev.pairs=+v; U.word=null; save(); renderStage(); renderDock(); }
+  else if(a==="ok") S.phase===1 ? markRev(true) : markSem(true);
+  else if(a==="miss") S.phase===1 ? markRev(false) : markSem(false);
+  else if(a==="go") signal("go",false);
+  else if(a==="stop") signal("stop",false);
+  else if(a==="fake") fakeSignal();
+  else if(a==="auto") toggleAuto();
+  else if(a==="rate"){ S.sem.rate=+v; save(); renderDock(); }
+  else if(a==="micro"){ U.micro=!U.micro; if(U.micro) stopAuto(); renderStage(); renderDock(); }
+  else if(a==="dilemma"){ S.ppa.i=+v; S.ppa.step=0; save(); renderStage(); renderDock(); }
+  else if(a==="step") nextStep();
+  else if(a==="mstep"){ S.mstep=+v; U.confirm=false; save(); renderStage(); renderDock(); }
+  else if(a==="mission"){ S.mis.pick=v; save(); renderStage(); }
+  else if(a==="copy") doCopy();
+  else if(a==="newS"){ U.confirm=true; renderDock(); }
+  else if(a==="newNo"){ U.confirm=false; renderDock(); }
+  else if(a==="newYes"){ try{ localStorage.removeItem(KEY); }catch(e){} S=null; saved=null; view="start"; U.confirm=false; renderAll(); }
+}
+function bind(){
+  $("#lPT").addEventListener("click", function(){ setLang("pt"); });
+  $("#lEN").addEventListener("click", function(){ setLang("en"); });
+  $("#themeBtn").addEventListener("click", toggleTheme);
+  var guide=$("#guide");
+  $("#guideBtn").addEventListener("click", function(){ renderGuide(); if(guide.showModal) guide.showModal(); else guide.setAttribute("open",""); });
+  $("#guideClose").addEventListener("click", function(){ guide.close(); });
+  guide.addEventListener("click", function(e){ if(e.target===guide) guide.close(); });
+
+  document.addEventListener("click", function(e){
+    var b=e.target.closest("[data-act]"); if(!b || b.disabled) return;
+    act(b.getAttribute("data-act"), b.getAttribute("data-v"));
+  });
+  document.addEventListener("input", function(e){
+    if(!S) return;
+    if(e.target.id==="customMission"){ S.mis.custom=e.target.value; S.mis.pick=e.target.value.trim()?"custom":S.mis.pick==="custom"?null:S.mis.pick; save();
+      Array.prototype.forEach.call(document.querySelectorAll('[data-act="mission"]'), function(el){ el.setAttribute("aria-pressed", S.mis.pick===el.getAttribute("data-v")); }); }
+    else if(e.target.id==="ans"){ S.ppa.ans[DILEMMAS[S.ppa.i].id]=e.target.value; save(); }
+  });
+  document.addEventListener("change", function(e){
+    if(e.target.id==="optShow"){ S.rev.show=e.target.checked; save(); renderStage(); }
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key==="Enter" && e.target.id==="newName"){ e.preventDefault(); begin(); return; }
+    if(view!=="session" || guide.open || e.ctrlKey || e.metaKey || e.altKey) return;
+    var tag=(e.target && e.target.tagName)||""; if(tag==="INPUT"||tag==="TEXTAREA") return;
+    var k=e.key.length===1?e.key.toLowerCase():e.key, p=S.phase, a=null, v=null;
+    if((p===0 || (p===4 && S.mstep===0)) && /^[1-5]$/.test(k)){ a="motor"; v=k; }
+    else if(p===1 || p===2){
+      if(k===" ") a="ok"; else if(k==="x") a="miss";
+      else if(p===2){ a={ArrowUp:"go",ArrowDown:"stop",f:"fake",a:"auto",m:"micro"}[k]||null; }
+      if(p===2 && (a==="ok"||a==="miss") && !S.sem.log.length) a=null;
+    }
+    else if(p===3 && k===" ") a="step";
+    if(!a) return;
+    e.preventDefault(); act(a, v);
+  });
+}
+
+/* ---------- boot ---------- */
+try{ var pr=JSON.parse(localStorage.getItem(PREFS)||"{}")||{}; if(pr.lang==="pt"||pr.lang==="en") L=pr.lang; }catch(e){}
+saved=load();
+bind(); applyTheme(); applyLang();
+setInterval(function(){ if(view==="session"){ tick(); if(Math.floor(Date.now()/1000)%5===0) save(); } }, 1000);
+})();
+</script>
+</body>
+</html>
