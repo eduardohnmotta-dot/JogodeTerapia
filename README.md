@@ -34,3 +34,15 @@ Jogo para o jovem (12 anos, PHDA) jogar sozinho com o teclado, com relatório pa
 - `travao-f1/index.html` — ficheiro único, sem build. Publicado em https://eduardohnmotta-dot.github.io/JogodeTerapia/travao-f1/
 - O relatório é por sessão (copiar ou imprimir/PDF); nada fica guardado nem sai do computador.
 - Não é um teste validado: serve para acompanhar a evolução de cada criança.
+
+---
+
+# Lanterna dos Medos / Lantern of Fears
+
+Jogo terapêutico (PT-BR) com 9 minijogos de tocar e arrastar para crianças de 9 a 12 anos conhecerem, medirem e enfrentarem os seus medos (escuro, provas, falar em público, animais, dormir fora e outros). Cada etapa concluída acende uma lanterna na trilha e vale uma medalha.
+
+- `lanterna-dos-medos/index.html` — ficheiro único, sem build. Publicado em https://eduardohnmotta-dot.github.io/JogodeTerapia/lanterna-dos-medos/
+- 9 etapas: Caça aos Medos, Monte o seu Medo, o alarme do corpo, Lanterna Acesa, O Medo vai à Festa, o mar e o peixe do medo, a escada (do mais fácil ao mais difícil), subir com o medo (cabo de guerra: soltar a corda) e o kit de coragem.
+- Trabalha psicoeducação sobre o medo, externalização, sinais no corpo, pensamento realista, respiração e descentramento, exposição gradual, aceitação e desfusão. Cada etapa tem notas "Para o adulto".
+
+Vários jogadores no mesmo aparelho. Os dados ficam salvos só no navegador onde o jogo é usado: nada é enviado para este repositório nem para nenhum servidor.

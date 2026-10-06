@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Lanterna dos Medos</title>
+<meta name="description" content="Jogo terapêutico com 9 minijogos de tocar e arrastar para crianças de 9 a 12 anos conhecerem, medirem e enfrentarem os seus medos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: trilha vertical de 9 lanternas na tela inicial; cada etapa abre como um minijogo em tela única, coluna de até 780px. */
+:root{
+  --bg:#EDF0FA; --bg2:#E0E5F5; --surface:#FBFCFF; --field:#FFFFFF;
+  --ink:#22254A; --muted:#565B85; --line:#CBD1E9;
+  --lamp:#F4B13E; --on-lamp:#2B1C00; --lamp-soft:#FFF0CF; --lamp-ink:#7E4A00;
+  --sea:#23807B; --sea-soft:#D8EFED;
+  --night:#1B1E3D; --night-ink:#EEF0FF; --night-field:#272B54; --night-line:#474C80; --night-muted:#B6BADD; --night-shadow:#343A75;
+  --glow:#FFF0CF; --party:#FFF0CF;
+  --sea1:#7CCBE0; --sea2:#3A86BF; --sea3:#22508C; --tag-bg:#FFFFFF; --tag-ink:#1B1E3D;
+  --t1:#49A874; --t2:#9CC656; --t3:#EDC540; --t4:#EE9443; --t5:#E0625C; --on-t:#14162B;
+  --display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:18px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14162E; --bg2:#1C1F3F; --surface:#22264A; --field:#191C3A;
+  --ink:#EEF0FF; --muted:#A9AED6; --line:#3B4072;
+  --lamp:#FFC55C; --on-lamp:#2B1C00; --lamp-soft:#3A3322; --lamp-ink:#FFD88A;
+  --sea:#62CEC5; --sea-soft:#1D3D45;
+  --night:#0D0F24; --night-ink:#EEF0FF; --night-field:#1E2146; --night-line:#3B4072; --night-muted:#A9AED6; --night-shadow:#2B2F63;
+  --glow:#F2E2BC; --party:#F2E2BC;
+  --sea1:#4E9DB8; --sea2:#28649A; --sea3:#173A6B;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#14162E; --bg2:#1C1F3F; --surface:#22264A; --field:#191C3A;
+  --ink:#EEF0FF; --muted:#A9AED6; --line:#3B4072;
+  --lamp:#FFC55C; --on-lamp:#2B1C00; --lamp-soft:#3A3322; --lamp-ink:#FFD88A;
+  --sea:#62CEC5; --sea-soft:#1D3D45;
+  --night:#0D0F24; --night-ink:#EEF0FF; --night-field:#1E2146; --night-line:#3B4072; --night-muted:#A9AED6; --night-shadow:#2B2F63;
+  --glow:#F2E2BC; --party:#F2E2BC;
+  --sea1:#4E9DB8; --sea2:#28649A; --sea3:#173A6B;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(1.7rem,5vw,2.2rem)} h2{font-size:1.3rem} h3{font-size:1.1rem}
+p{margin:0}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.45;cursor:default}
+:focus-visible{outline:3px solid var(--sea);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:18px 64px;display:flex;flex-direction:column;gap:22px}
+.sec{display:flex;flex-direction:column;gap:12px}
+.lead{color:var(--muted);max-width:62ch}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:.55em 1.15em;font-weight:800;min-height:46px}
+.btn.pri{background:var(--lamp);border-color:var(--lamp);color:var(--on-lamp)}
+.btn.ghost{background:transparent}
+.btn.big{font-size:1.05rem;padding:.75em 1.4em}
+.linkbtn{background:none;border:0;padding:.3em 0;font-weight:800;text-decoration:underline;color:var(--muted);min-height:44px}
+.night{background:var(--night);color:var(--night-ink);--ink:var(--night-ink);--field:var(--night-field);--surface:var(--night-field);--line:var(--night-line);--muted:var(--night-muted)}
+.hero{border-radius:28px;padding:22px 24px;display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:12px;align-items:center}
+.hero p{color:var(--night-muted);margin-top:8px;max-width:38ch}
+.hero svg{width:100%;height:auto;display:block}
+@media (max-width:560px){.hero{grid-template-columns:1fr}.hero svg{max-width:220px;justify-self:center;order:-1}}
+.fld{display:flex;flex-direction:column;gap:6px;font-weight:800;min-width:0}
+.fld input,.inp{font-weight:600;background:var(--field);border:2px solid var(--line);border-radius:12px;padding:.55em .75em;min-height:46px;width:100%;color:var(--ink)}
+::placeholder{color:var(--muted);opacity:.8}
+.player{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}
+@media (max-width:560px){.player{grid-template-columns:1fr}}
+details{border:2px dashed var(--line);border-radius:var(--r);padding:10px 14px}
+details>summary{font-weight:800;cursor:pointer;min-height:30px}
+details[open]>summary{margin-bottom:8px}
+details .dbody{display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:.95rem}
+details .dbody b{color:var(--ink)}
+details ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+.trail{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;position:relative}
+.trail::before{content:"";position:absolute;left:26px;top:26px;bottom:26px;border-left:3px dashed var(--line)}
+.st{position:relative;display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:0}
+.node{width:56px;height:56px;border-radius:50%;background:var(--bg);border:2px solid var(--line);display:grid;place-items:center}
+.st.lit .node{background:var(--lamp);border-color:var(--lamp)}
+.stb{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:12px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.st:hover .stb{border-color:var(--lamp)}
+.stb b{font-family:var(--display);font-weight:600;font-size:1.12rem}
+.stb small{color:var(--muted);font-size:.92rem}
+.stb .got{font-weight:800;font-size:.82rem;color:var(--lamp-ink)}
+.shelf{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px}
+@media (max-width:560px){.shelf{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.shelf figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.shelf figcaption{font-size:.72rem;font-weight:700;color:var(--muted);line-height:1.2}
+.shelf svg{width:100%;max-width:64px;height:auto}
+.medal.off{opacity:.3}
+.snav{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.step{font-weight:800;color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.shead{display:flex;flex-direction:column;gap:8px}
+.shead h1:focus,h2:focus{outline:none}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px}
+.finish{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.hint{background:var(--lamp-soft);border-radius:12px;padding:10px 14px;font-weight:700}
+.note{background:var(--sea-soft);border-radius:14px;padding:12px 14px}
+.status{font-weight:800;color:var(--muted);min-height:1.5em}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:.4em .9em;font-weight:700;min-height:44px;text-align:left}
+.chip[aria-pressed="true"],.chip[aria-checked="true"]{background:var(--lamp-soft);border-color:var(--lamp)}
+.chip[aria-pressed="true"]::before,.chip[aria-checked="true"]::before{content:"✓ ";font-weight:800}
+.chip.rm::after{content:" ×";font-weight:800;color:var(--muted)}
+.opts{display:flex;flex-direction:column;gap:10px;min-width:0}
+.opt b{display:block;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.opt .chip{min-height:40px;padding:.25em .8em;font-size:.92rem}
+.sw{width:38px;height:38px;border-radius:50%;border:3px solid var(--line);background:var(--c);padding:0}
+.sw[aria-checked="true"]{border-color:var(--ink);transform:scale(1.12)}
+.steps3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.steps3 button{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:.4em .3em;font-weight:800;font-size:.9rem;min-height:44px}
+.steps3 button[aria-current="step"]{background:var(--lamp);border-color:var(--lamp);color:var(--on-lamp)}
+
+/* 1 caça aos medos */
+.dark{position:relative;background:var(--night);border-radius:var(--r);padding:12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;touch-action:none;overflow:hidden}
+.shade{position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(circle 100px at var(--lx) var(--ly),transparent 0,transparent 50%,var(--night) 100%)}
+.fr{position:relative;background:var(--night-field);color:var(--night-ink);border:2px solid var(--night-line);border-radius:14px;min-height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 4px;font-weight:800;font-size:.86rem;line-height:1.2;text-align:center;min-width:0;overflow-wrap:anywhere}
+.fr .ic{font-size:2rem;line-height:1.1}
+.fr[aria-pressed="true"]{z-index:2;background:var(--lamp);color:var(--on-lamp);border-color:var(--lamp)}
+.addrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.meas{align-items:center;text-align:center}
+.bigic{width:calc(84px + var(--s)*24px);height:calc(84px + var(--s)*24px);border-radius:50%;display:grid;place-items:center;font-size:calc(2rem + var(--s)*.7rem);line-height:1;background:var(--bg2);transition:width .25s,height .25s,font-size .25s}
+.stage{height:210px;display:grid;place-items:center}
+.lvc1{background:var(--t1)}.lvc2{background:var(--t2)}.lvc3{background:var(--t3)}.lvc4{background:var(--t4)}.lvc5{background:var(--t5)}
+input[type=range]{width:100%;max-width:420px;height:44px;accent-color:var(--lamp);margin:0}
+.ticks{display:flex;justify-content:space-between;width:100%;max-width:420px;font-weight:800;color:var(--muted);padding-inline:6px}
+.pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.pk{border:2px solid var(--line);background:var(--surface);border-radius:16px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;min-height:120px}
+.pk .ic{font-size:2rem;line-height:1.1}
+.pk b{line-height:1.2;overflow-wrap:anywhere}
+.pk small{color:var(--muted);font-weight:700}
+.pk[aria-checked="true"]{background:var(--lamp);border-color:var(--lamp);color:var(--on-lamp)}
+.pk[aria-checked="true"] small{color:var(--on-lamp)}
+
+/* 2 monstro */
+.idcard{padding:0;overflow:hidden;gap:0}
+.idhead{background:var(--night);color:var(--night-ink);padding:10px 16px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:var(--display);font-weight:600;letter-spacing:.08em;font-size:.85rem;text-transform:uppercase}
+.idbody{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr);gap:16px;padding:16px;align-items:start}
+@media (max-width:600px){.idbody{grid-template-columns:1fr}}
+.monbox{background:var(--bg2);border-radius:16px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.mon{width:100%;max-width:200px;height:auto;display:block}
+.monname{font-family:var(--display);font-weight:600;font-size:1.2rem;text-align:center;overflow-wrap:anywhere;min-height:1.4em}
+
+/* 3 corpo */
+.bodygrid{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:560px){.bodygrid{grid-template-columns:1fr}.bodygrid svg{max-width:180px;justify-self:center}}
+.bodygrid svg{width:100%;height:auto}
+.zone{cursor:pointer}
+.zone .z{fill:var(--bg2);stroke:var(--line);stroke-width:3;transition:fill 3s ease}
+.zone.on .z{fill:var(--lamp);stroke:var(--lamp-ink);transition:none}
+.zone.on.calm .z{fill:var(--sea);stroke:var(--sea);transition:fill 3s ease}
+
+/* 4 lanterna */
+.lscene{width:100%;height:auto;display:block;border-radius:var(--r);touch-action:pan-y;cursor:ew-resize}
+.bubble{border-radius:18px;padding:14px 16px;font-family:var(--display);font-weight:600;font-size:1.15rem}
+.answers{display:flex;flex-direction:column;gap:8px}
+.ans{border:2px solid var(--lamp);background:var(--lamp-soft);border-radius:14px;padding:.6em .9em;font-weight:800;text-align:left;min-height:48px}
+.ans[aria-checked="true"]{background:var(--lamp);color:var(--on-lamp)}
+.ans[aria-checked="true"]::before{content:"✓ "}
+.dots{display:flex;gap:6px}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--lamp)}
+
+/* 5 festa */
+.party{width:100%;height:auto;display:block;border-radius:var(--r)}
+.partygrid{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:640px){.partygrid{grid-template-columns:1fr}}
+.partybox{position:relative;display:flex;flex-direction:column;gap:10px}
+.dancer{transform-box:fill-box;transform-origin:50% 100%}
+.fall{position:absolute;left:0;right:0;top:0;height:1px;pointer-events:none}
+
+/* 6 mar */
+.sea{position:relative;height:clamp(250px,52vw,340px);border-radius:var(--r);overflow:hidden;background:linear-gradient(var(--sea1),var(--sea2) 55%,var(--sea3))}
+.sea .weed{position:absolute;left:0;right:0;bottom:0;width:100%;height:40%;display:block}
+.fish{position:absolute;top:var(--y);left:var(--x);background:none;border:0;padding:6px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.fish.r svg{transform:scaleX(-1)}
+.fish .tag{background:var(--tag-bg);color:var(--tag-ink);border-radius:999px;padding:.05em .7em;font-weight:800;font-size:.85rem;white-space:nowrap;visibility:hidden}
+.fish[aria-pressed="true"] .tag,.fish.fear .tag{visibility:visible}
+.seasound{position:absolute;top:10px;right:10px;z-index:2;background:var(--tag-bg);color:var(--tag-ink);border:0;border-radius:999px;padding:.3em .9em;font-weight:800;font-size:.88rem;min-height:40px}
+.breathrow{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:center}
+.breath{width:120px;height:120px;border-radius:50%;background:var(--sea-soft);border:4px solid var(--sea);display:grid;place-items:center;font-weight:800;text-align:center;font-size:.9rem;transform:scale(.7);padding:10px;transition:transform 6s ease-out}
+.breath.in{transform:scale(1.05);transition:transform 4s ease-out}
+.hold{width:150px;height:150px;border-radius:50%;border:0;background:var(--lamp);color:var(--on-lamp);font-family:var(--display);font-weight:600;font-size:1.05rem;line-height:1.2;padding:14px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.hold.on{background:var(--sea);color:var(--tag-bg)}
+
+/* 7 escada */
+.poolc{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.pc{border:2px solid var(--line);background:var(--surface);border-radius:14px;padding:12px;font-weight:800;text-align:left;min-height:64px;line-height:1.3}
+.pc:hover{border-color:var(--lamp)}
+.ladder{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.rung{margin-inline-start:calc(var(--i)*3.5%);display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:10px;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:10px 12px;align-items:center}
+.rung.lit{border-color:var(--lamp);background:var(--lamp-soft)}
+.rn{width:40px;height:40px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;font-family:var(--display);font-weight:600}
+.rung.lit .rn{background:var(--lamp);color:var(--on-lamp)}
+.rung .rt{font-weight:700;overflow-wrap:anywhere;min-width:0}
+.rung .chip{min-height:40px;padding:.2em .8em;font-size:.9rem;white-space:nowrap}
+@media (max-width:560px){.rung{margin-inline-start:calc(var(--i)*2%);grid-template-columns:40px minmax(0,1fr)}.rung .chip{grid-column:2;justify-self:start}}
+.ex{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:2px}
+
+/* 8 subir a escada */
+.tug{width:100%;height:auto;display:block;border-radius:var(--r);background:var(--bg2)}
+.rung .rs{display:block;color:var(--muted);font-weight:700;font-size:.85rem}
+.rbtns{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+@media (max-width:560px){.rung .rbtns{grid-column:2;justify-content:flex-start}}
+.hands{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-weight:800;color:var(--muted);font-size:.9rem}
+.wheelbox{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:16px;align-items:center}
+.wheelbox svg{width:100%;height:auto;display:block}
+@media (max-width:560px){.wheelbox{grid-template-columns:1fr}.wheelbox svg{max-width:190px;justify-self:center}}
+#wheel{transform-box:fill-box;transform-origin:center}
+.vres{display:flex;flex-direction:column;gap:6px;min-width:0}
+.vres:focus,h3:focus{outline:none}
+.vsay,.mission{font-family:var(--display);font-weight:600;font-size:1.2rem;line-height:1.3;background:var(--lamp-soft);border-radius:14px;padding:12px 14px;overflow-wrap:anywhere}
+.vsay.v0{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1rem;letter-spacing:.08em}
+.vsay.v1{font-style:italic;font-size:1.45rem}
+.vsay.v3{font-size:.85rem}
+.vsay.v4{letter-spacing:.22em}
+
+/* 9 kit */
+.mem{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.mem{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.mc{aspect-ratio:1/1;border:2px solid var(--night-line);background:var(--night);color:var(--night-ink);border-radius:14px;display:grid;place-items:center;padding:6px;font-family:var(--display);font-weight:600;font-size:clamp(.78rem,2.6vw,1rem);line-height:1.15;text-align:center;min-width:0;overflow-wrap:anywhere}
+.mc.up{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.mc.ok{background:var(--lamp);color:var(--on-lamp);border-color:var(--lamp)}
+.ccards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.cc{border:2px solid var(--line);background:var(--surface);border-radius:16px;padding:14px 12px;font-family:var(--display);font-weight:600;font-size:1.05rem;line-height:1.2;min-height:76px;text-align:left}
+.cc[aria-pressed="true"]{background:var(--lamp);border-color:var(--lamp);color:var(--on-lamp)}
+.cc[aria-pressed="true"]::after{content:" ★"}
+.sprayscene{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,150px);gap:8px;align-items:end;background:var(--bg2);border-radius:16px;padding:12px;position:relative;width:100%;max-width:460px;align-self:center}
+.sprayscene .monwrap{display:grid;place-items:end center;height:210px}
+.sprayscene .mon{transform-origin:50% 100%;transition:transform .6s ease}
+.bottle{width:100%;height:auto;display:block}
+.mist{position:absolute;right:140px;top:44px;width:1px;height:1px}
+.sp{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--c);opacity:0}
+
+.ov{position:fixed;inset:0;background:color-mix(in srgb,var(--night) 78%,transparent);display:grid;place-items:center;padding:16px;z-index:10}
+.ovc{background:var(--surface);border-radius:26px;padding:26px 22px;max-width:420px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.ovc .row{justify-content:center}
+.passrow{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:520px){.passrow{grid-template-columns:1fr}.passrow .monbox{max-width:170px}}
+.kv{display:flex;flex-direction:column;gap:6px;min-width:0}
+.kv p{overflow-wrap:anywhere}
+.kv b{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block}
+.tf{background:var(--bg2);border-radius:999px;padding:.15em .7em;font-weight:700;font-size:.95rem;overflow-wrap:anywhere}
+hr{border:0;border-top:2px solid var(--bg2);margin:0;width:100%}
+
+@media (prefers-reduced-motion:no-preference){
+  .fish{animation:swimL var(--d) linear infinite;animation-delay:var(--dl)}
+  .fish.r{animation-name:swimR}
+  .fish[aria-pressed="true"],.fish:hover,.fish:focus-visible{animation-play-state:paused}
+  @keyframes swimL{from{left:104%}to{left:-28%}}
+  @keyframes swimR{from{left:-28%}to{left:104%}}
+  .ovc .medal{animation:pop .5s ease-out}
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+  .sp{animation:mist 1.4s ease-out forwards}
+  @keyframes mist{0%{opacity:.95;transform:translate(0,0) scale(.5)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3)}}
+  .dancer.go{animation:dance .6s ease-in-out 5}
+  @keyframes dance{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-14px) rotate(-7deg)}75%{transform:translateY(-14px) rotate(7deg)}}
+  .bottle.shake{animation:shake .5s ease-in-out}
+  @keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
+  .zone.on:not(.calm) .z{animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.6}}
+  #tmon,#tkid,#tflag{transition:transform .5s ease}
+  #wheel{transition:transform 2.2s cubic-bezier(.2,.8,.2,1)}
+}
+@media (prefers-reduced-motion:reduce){.breath,.breath.in,.zone .z,.zone.on.calm .z,.bigic,.sprayscene .mon{transition:none}}
+</style>
+</head>
+<body>
+
+<main class="wrap" id="app"></main>
+<div class="ov" id="ov" hidden></div>
+
+<script>
+(function(){
+'use strict';
+var KEY='lanterna-dos-medos-v2';
+var LEVELS=['Muito fraco','Fraco','Médio','Forte','Muito forte'];
+var STN=[
+ {id:'mapa',nome:'Caça aos Medos',curto:'Caça',sub:'Procurar os medos no escuro com a lanterna e medir cada um.',
+  intro:'O medo é o alarme do corpo. Ele toca para proteger você, mas às vezes toca alto demais. Vamos descobrir quais medos estão escondidos no escuro.',
+  medal:'Medalha da Caça',win:'Você achou os seus medos e mediu cada um. Quem conhece o medo já não está perdido.',
+  tip:'Normalize: todo mundo tem medos, e eles mudam com a idade. A criança passa a lanterna e só pega os medos que reconhece como seus. Deixe-a escolher qual investigar; um medo de tamanho médio costuma funcionar melhor do que o maior. O tamanho marcado aqui fica guardado como medida inicial e reaparece no Passaporte.'},
+ {id:'ident',nome:'Monte o seu Medo',curto:'Monstro',sub:'Dar corpo, cara e nome ao medo.',
+  intro:'Vamos dar um corpo ao medo. Quando a gente consegue ver e chamar pelo nome, ele fica menos misterioso.',
+  medal:'Medalha da Identidade',win:'Agora o medo tem cara, nome e documento. Ele ficou bem menos misterioso.',
+  tip:'Externalização: ao ganhar forma, nome e endereço, o medo passa a ser algo que a criança tem, e não algo que ela é. O personagem criado aqui acompanha a criança nas próximas etapas. Aproveite as escolhas para conversar: de que o medo tenta proteger? O que ele atrapalha?'},
+ {id:'corpo',nome:'O Alarme do Corpo',curto:'Corpo',sub:'Achar onde o alarme toca e desligar com a respiração.',
+  intro:'Quando o alarme toca, o corpo se prepara para proteger você. Toque nas partes do corpo onde você sente o medo.',
+  medal:'Medalha do Corpo',win:'Você já sabe onde o alarme toca e como acalmar o corpo.',
+  tip:'Psicoeducação sobre a resposta de alarme (lutar, fugir ou congelar). Reforce que as sensações são desconfortáveis, mas não são perigosas e passam sozinhas. Na segunda parte, a criança toca em cada zona acesa e solta o ar devagar enquanto a cor muda: faça junto com ela.'},
+ {id:'lanterna',nome:'Lanterna Acesa',curto:'Lanterna',sub:'Aproximar a luz e ver o medo do tamanho que ele é.',
+  intro:'No escuro, as coisas parecem maiores do que são. Arraste a lanterna para perto da sombra e veja o que acontece.',
+  medal:'Medalha da Lanterna',win:'Você acendeu a lanterna e viu o medo como ele é de verdade.',
+  tip:'Reestruturação cognitiva em forma de jogo. Primeiro a criança aproxima a luz e a sombra enorme vira o personagem pequeno. Depois escolhe respostas para as frases do medo: todas as respostas são válidas, o que importa é qual faz sentido para ela. Se o medo for realista (perigo real, bullying), não o minimize: o foco passa a ser segurança e pedir ajuda.'},
+ {id:'festa',nome:'O Medo vai à Festa',curto:'Festa',sub:'Vestir o medo para a festa e botar para dançar.',
+  intro:'O medo não passa o dia inteiro querendo assustar. Imagine que ele foi convidado para uma festa. Como ele iria?',
+  medal:'Medalha da Festa',win:'Você conseguiu ver o medo de um jeito novo. Isso pede imaginação e coragem.',
+  tip:'Humor e distanciamento: imaginar o medo em um contexto comum (com família, amigos, roupa de festa) reduz a ameaça percebida. Se a criança não achar graça, tudo bem; não insista.'},
+ {id:'mar',nome:'Eu sou o Mar',curto:'Mar',sub:'Respirar com as ondas e ver o peixe do medo passar.',
+  intro:'No mar vivem muitos peixes, e o mar continua sendo o mar. Este exercício é para fazer com calma, sem pressa.',
+  medal:'Medalha do Mar',win:'Você foi o mar: viu o peixe do medo passar e continuou sendo o mar.',
+  tip:'Exercício de descentramento (observar a emoção sem se confundir com ela), combinado com respiração lenta. A criança segura o botão enquanto puxa o ar e solta o botão para soltar o ar. O som do mar é opcional e começa baixo. Leia os textos em voz calma e deixe pausas.'},
+ {id:'escada',nome:'Escada da Coragem',curto:'Escada',sub:'Ordenar os passos do mais fácil ao mais difícil e subir.',
+  intro:'Ninguém sobe uma escada de um pulo só. Os passos estão embaralhados: toque sempre no que parece mais fácil para você.',
+  medal:'Medalha da Escada',win:'Sua escada está pronta. Um degrau de cada vez, no seu ritmo.',
+  tip:'Exposição gradual. Os passos sugeridos mudam conforme o medo escolhido, e a ordem é a da criança: é a hierarquia subjetiva dela que vale. Você pode reescrever qualquer degrau em “Editar os degraus”. Combine um degrau por vez, repita até o medo baixar e só então suba. Não use a escada para medos ligados a perigo real ou a experiências traumáticas sem avaliação clínica, e adapte os passos à realidade e à segurança de cada família.'},
+ {id:'subir',nome:'Subir a Escada',curto:'Subida',sub:'Cabo de guerra com o medo, roleta de vozes e um degrau por vez.',
+  intro:'Hora de subir. Em cada degrau o medo aparece, segura uma corda e grita. Descubra o que fazer com a corda para conseguir dar o passo.',
+  medal:'Medalha da Corda Solta',win:'Você soltou a corda e deu o passo com o medo por perto. As suas mãos estão livres.',
+  tip:'<b>O conceito:</b> aceitação e desfusão dentro da exposição gradual. É a regra do jogo que ensina: puxar a corda e gritar de volta fazem o medo puxar mais e crescer; soltar a corda deixa as mãos livres para dar o passo. O medo não some. Ele continua ali, gritando, e a criança sobe mesmo assim.</p><p><b>Não explique antes.</b> Deixe a criança experimentar os três botões e descobrir sozinha. Aqui não se discute se a frase do medo é verdade (isso foi a etapa 4); a criança treina deixar a frase estar.</p><p><b>O que observar:</b> quantas vezes ela puxa antes de soltar, se solta por conta própria e como reage quando o medo continua gritando depois.</p><p><b>Perguntas para depois:</b> “O que aconteceu quando você puxou?” e “O que deu para fazer quando as suas mãos ficaram livres?”.</p><p><b>Roleta de vozes:</b> brinca-se com a frase, nunca com a criança. Faça a voz junto com ela. Use “Pular a roleta” se o humor não couber, por exemplo em luto ou trauma recentes.</p><p><b>Medida depois:</b> o objetivo não é o medo baixar. Menor, igual ou maior, o que vale é o passo dado.</p><p><b>Missão:</b> o degrau jogado vira o passo real da semana, combinado com os responsáveis. No encontro seguinte, marque “Missão cumprida” e jogue o próximo degrau. Versão com corda de verdade: você faz o medo e segura a outra ponta.'},
+ {id:'kit',nome:'Kit de Coragem',curto:'Kit',sub:'Jogo da memória da coragem e spray tira-medos.',
+  intro:'Para terminar, monte o seu kit: ache os pares de frases de coragem e prepare o seu spray tira-medos.',
+  medal:'Medalha do Kit',win:'Seu kit de coragem está completo. Ele vai com você para onde você for.',
+  tip:'Autoinstruções e um objeto simbólico de coragem. No spray, o medo não desaparece: ele fica do tamanho certo. O spray pode ser construído de verdade na sessão (frasco com borrifador, água e glitter). Apresente-o como lembrete de que quem decide é a criança, e não como algo de que ela precisa para enfrentar o medo, para não virar comportamento de segurança.'}
+];
+var ROOMS=['Em casa','Na escola','No mundo'];
+var FEARS=[
+ ['escuro',0,'🌙','Escuro',['Ficar no quarto com a luz fraca e alguém junto','Ficar 2 minutos no escuro com alguém junto','Ficar 2 minutos no escuro com a porta aberta','Ficar 5 minutos no escuro sem ninguém','Dormir com a luz apagada']],
+ ['sozinho',0,'🏠','Ficar sozinho(a) em casa',['Ficar em um cômodo enquanto o adulto está em outro','Ficar 5 minutos enquanto o adulto vai até a porta','Ficar 10 minutos enquanto o adulto vai até a esquina','Ficar 20 minutos com o telefone por perto','Ficar meia hora com o telefone por perto']],
+ ['trovao',0,'⛈️','Trovões e tempestades',['Ouvir som de chuva no celular','Assistir a um vídeo de tempestade','Ouvir som de trovão com alguém junto','Olhar a chuva pela janela','Ficar no quarto durante uma tempestade']],
+ ['ladrao',0,'🔒','Ladrões',['Ver com um adulto como a casa fica trancada','Contar o medo para alguém da família','Descobrir de onde vêm os barulhos da casa','Ficar no quarto à noite com a porta aberta','Dormir sem chamar ninguém para conferir']],
+ ['terror',0,'🎬','Filmes de terror',['Ver o cartaz de um filme de suspense','Ver um trailer de dia, com alguém junto','Ver como os monstros do cinema são feitos','Assistir a uma cena curta com alguém junto','Lembrar da cena à noite e respirar como o mar']],
+ ['dormirfora',0,'🛏️','Dormir fora de casa',['Passar uma tarde na casa de um amigo ou parente','Jantar lá e voltar para casa','Ficar até a hora de dormir e voltar','Dormir uma noite na casa de alguém bem conhecido','Dormir fora em um passeio ou acampamento']],
+ ['prova',1,'📝','Provas e notas',['Fazer 3 questões em casa, sem valer nota','Responder a perguntas em voz alta para alguém','Fazer um simulado curto com tempo marcado','Fazer a prova começando pelas questões fáceis','Fazer a prova inteira respirando devagar antes']],
+ ['errar',1,'🙈','Errar na frente dos outros',['Errar de propósito em um jogo com a família','Contar para alguém um erro que já cometi','Responder na aula mesmo sem ter certeza','Tentar uma coisa nova na frente de um amigo','Tentar uma coisa nova na frente da turma']],
+ ['turma',1,'🎤','Falar na frente da turma',['Ler um texto em voz alta, sozinho(a) no quarto','Ler o mesmo texto para alguém da família','Gravar um vídeo lendo e assistir depois','Fazer uma pergunta durante a aula','Apresentar um trabalho curto para a turma']],
+ ['rir',1,'👀','Que riam de mim',['Contar uma piada para a família','Fazer uma careta engraçada para um amigo','Usar algo diferente na escola, como uma meia colorida','Dar uma opinião no grupo','Fazer uma pergunta na frente da turma']],
+ ['amigos',1,'👥','Ficar sem amigos',['Dizer oi para um colega','Fazer uma pergunta a um colega','Chamar alguém para brincar no recreio','Entrar em uma brincadeira que já começou','Convidar um colega para ir à minha casa']],
+ ['novo',1,'🧭','Lugares e pessoas novas',['Ver fotos do lugar antes de ir','Passar na frente do lugar','Entrar com alguém conhecido e ficar 10 minutos','Dizer oi para uma pessoa nova','Ficar no lugar novo sem o adulto por perto']],
+ ['caes',2,'🐕','Cães e outros animais',['Ver fotos de cachorros','Ver vídeos de cachorros brincando','Olhar de longe um cachorro na coleira','Ficar perto de um cachorro calmo, com o dono segurando','Fazer carinho em um cachorro calmo']],
+ ['insetos',2,'🕷️','Insetos e aranhas',['Ver desenhos de insetos','Ver fotos de insetos de verdade','Ver um vídeo de aranha ou inseto','Olhar de longe um inseto de verdade','Ficar perto de um inseto dentro de um pote fechado']],
+ ['injecao',2,'💉','Injeção e dentista',['Brincar de médico com uma seringa de brinquedo','Ver um vídeo de alguém tomando vacina','Ir ao consultório só para conhecer','Ficar junto enquanto outra pessoa toma vacina','Tomar a vacina respirando devagar']],
+ ['altura',2,'🏔️','Altura',['Subir 3 degraus de uma escada e olhar para baixo','Olhar pela janela do primeiro andar','Subir em um brinquedo alto do parquinho','Olhar pela janela de um andar alto, com alguém junto','Atravessar uma passarela ou ponte']],
+ ['perder',2,'💔','Perder alguém da família',['Contar para um adulto que eu tenho esse medo','Perguntar o que me deixa em dúvida','Combinar um jeito de dar notícias, como uma mensagem','Fazer algo de que gosto enquanto a pessoa está fora','Ficar um tempo longe sem ligar para conferir']],
+ ['agua',2,'🌊','Água funda',['Molhar os pés na parte rasa','Entrar até a cintura com um adulto','Molhar o rosto e soprar bolhas','Boiar com a ajuda de um adulto','Nadar onde dá pé, com um adulto por perto']]
+];
+var GENERIC=['Falar sobre o medo com alguém','Ver um desenho ou uma foto dele','Ver um vídeo sobre ele','Chegar perto com alguém junto','Ficar um pouco perto sem ninguém'];
+var PARTS=[['cabeca','Cabeça'],['garganta','Garganta'],['peito','Peito'],['barriga','Barriga'],['maos','Mãos'],['pernas','Pernas']];
+var SENS=['Coração acelerado','Respiração curta','Frio na barriga','Nó na garganta','Mãos suadas','Pernas bambas','Tremedeira','Calor no rosto','Músculos duros','Vontade de chorar','Vontade de fugir','Ficar sem se mexer'];
+var PCOL=['#7C6BD6','#4FB3A9','#F08A5D','#E8698E','#6C9BD9','#8CC152'];
+var MOPT=[['shape','Corpo',['Gota','Quadrado','Fantasma','Espinhudo']],['eyes','Olhos',['Um','Dois','Três']],['mouth','Boca',['Dentuça','Torta','Redonda']],['top','Na cabeça',['Nada','Chifres','Antenas','Espinhos']]];
+var NA=['Zum','Tro','Fri','Gru','Bru','Tre','Xi','Mur','Paf','Glu'],NB=['bre','vis','mu','li','ga','po','ru','ti'],NC=['co','lho','do','ta','xo','gão','lim','zé'];
+var WHERE=['No meu quarto','Em casa','Na escola','Na rua','Na casa dos outros','Em todo lugar'];
+var WHEN=['À noite','De manhã','Quando estou só','Antes de algo importante','De surpresa'];
+var POS=['De me machucar','De passar vergonha','De ficar só','De perder alguém','De errar','Do desconhecido'];
+var NEG=['Dormir bem','Brincar','Ir à escola','Fazer amigos','Tentar coisas novas','Ficar tranquilo(a)'];
+var THOUGHTS=[
+ ['Vai acontecer o pior.',['Na maioria das vezes, o pior não acontece.','Já passei por isso e fiquei bem.','Não sei o futuro. Vou esperar para ver.']],
+ ['Você não vai conseguir.',['Já consegui coisas difíceis antes.','Posso tentar um pedacinho de cada vez.','Tentar já é conseguir alguma coisa.']],
+ ['Todo mundo vai rir de você.',['Cada um está ocupado com as suas coisas.','Quem gosta de mim não ri de mim.','Se alguém rir, passa rápido.']],
+ ['É melhor fugir.',['Se eu ficar um pouco, o medo diminui.','Posso pedir ajuda em vez de fugir.','Quando eu fujo, o medo cresce.']]
+];
+var POPT=[['face','Cara',['Tímida','Sorridente','Gargalhada']],['hat','Chapéu',['Nenhum','De festa','Cartola','Coroa','Boné']],['glasses','Óculos',['Nenhum','Redondos','Escuros']],['outfit','Roupa',['Simples','Gravata-borboleta','Cachecol','Capa']],['hand','Leva na mão',['Nada','Balão','Fatia de bolo','Microfone']],['friend','Vai com',['Sozinho','Um amigo','A família']]];
+var SEA=[
+ {t:'Ouça o mar',p:'Sente de um jeito confortável. Se quiser, ligue o som do mar e escute as ondas por um momento. Elas vêm e vão, sem pressa.'},
+ {t:'Respire como as ondas',p:'Segure o botão enquanto puxa o ar pelo nariz: a onda cresce. Solte o botão e solte o ar devagar pela boca: a onda desce. Faça 5 ondas.',x:'breath'},
+ {t:'Os peixes do mar',p:'No mar vivem muitos peixes. Cada um carrega uma emoção diferente. Toque nos peixes para descobrir qual emoção cada um leva.'},
+ {t:'Chega o peixe do medo',p:'Agora chega um peixe que carrega o seu medo. Olhe para ele nadando. Ele é só mais um peixe no mar.'},
+ {t:'Você é o mar',p:'Você não é o peixe. Você é o mar inteiro: grande, fundo e calmo. O mar não sente o medo do peixe. O mar vê o peixe passar e continua sendo o mar.'},
+ {t:'O peixe vem e vai',p:'O peixe do medo pode aparecer de novo outro dia. Quando ele vier, você pode lembrar: eu sou o mar, e ele está só de passagem. Como você está agora?',x:'feel'}
+];
+var FISH=[['Alegria','#F2B84B',6,34,-4,0],['Tristeza','#8FB4EA',24,42,-22,1],['Raiva','#EC7B68',42,38,-12,0],['Vergonha','#F0A3C1',14,46,-33,1],['Calma','#8EDBC3',50,50,-40,0],['Surpresa','#C3B1EE',32,36,-28,1]];
+var FEEL=['Mais calmo(a)','Igual a antes','Com curiosidade','Com sono','Ainda com medo','Mais forte'];
+var CARDS=['Eu tenho coragem','Eu vou conseguir','Eu acredito em mim','O medo passa, eu fico','Um degrau de cada vez','Sinto medo e vou mesmo assim'];
+var ING=['💧 Água anti-medos','✨ Purpurina encantada','🦁 Gotas de coragem','😄 Pitada de riso','🌿 Cheiro de lavanda','🤗 Abraço de alguém querido'];
+var VOICES=[['Robô','Fale reto, sem emoção, uma sílaba de cada vez.'],['Cantor de ópera','Cante bem alto e bem comprido.'],['Narrador de futebol','Narre como se fosse um gol.'],['Ratinho','Voz fininha e bem rápida.'],['Câmera lenta','Fale bem, bem devagar.'],['Monstro com sono','Fale bocejando.']];
+var VSHORT=['Robô','Ópera','Gol','Ratinho','Lenta','Sono'],VCOL=['#C9C1F2','#B5E3DE','#F9CDB8','#F6C3D3','#C2D7F1','#CFE7B2'];
+var WHEN2=['Hoje','Amanhã','No fim de semana','Vou combinar com um adulto'],WHO=['Sozinho(a)','Com alguém junto'];
+var LIQ=['#DDE3F5','#8FD3F4','#B9A6FF','#9BE2B0','#FFC0D9','#FFE08A','#FFB37A'];
+
+var app=document.getElementById('app'), ov=document.getElementById('ov');
+var db={cur:null,profiles:{}}, view='home', seaStep=0, draft='', delArm=false, timers=[], audio=null, saveT=null;
+var mStep=0,mRoom=0,mIdx=0,light={x:60,y:60},downLight={x:-999,y:-999},huntMsg='',bPhase='mark',lq=0,dancing=false,holdT=0,breaths=0,deck=null,flipped=[],busy=false,editLad=false,cRung=null,cPhase='pick',cSub='tug',cTug=0,cSpin=false,wRot=0;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function uid(){return 'p'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36);}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function blank(){return {name:'',fears:[],focus:null,mon:{shape:0,color:0,eyes:1,mouth:0,top:0,name:'',where:[],when:[],pos:[],neg:[]},body:{parts:[],sens:[],calm:[]},lant:{seen:false,ans:[null,null,null,null]},party:{face:1,hat:0,glasses:0,outfit:0,hand:0,friend:0},sea:{},lad:{fid:null,pool:[],steps:[],tried:[]},climb:{phrase:0,custom:'',r:{}},kit:{found:[],fav:[],ing:[],shaken:0,sprays:0},post:null,medals:{}};}
+function load(){try{var r=localStorage.getItem(KEY);if(r){var d=JSON.parse(r);if(d&&d.profiles)db=d;}}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}}
+function saveSoon(){clearTimeout(saveT);saveT=setTimeout(save,300);}
+function ensure(){if(!db.cur||!db.profiles[db.cur]){var ids=Object.keys(db.profiles);if(ids.length)db.cur=ids[0];else{db.cur=uid();db.profiles[db.cur]=blank();}}var b=blank(),p=db.profiles[db.cur];Object.keys(b).forEach(function(k){if(p[k]==null)p[k]=b[k];});}
+function P(){return db.profiles[db.cur];}
+function getPath(o,p){return p.split('.').reduce(function(x,k){return x==null?x:x[k];},o);}
+function setPath(o,p,v){var k=p.split('.'),x=o;for(var i=0;i<k.length-1;i++){if(x[k[i]]==null)x[k[i]]={};x=x[k[i]];}x[k[k.length-1]]=v;}
+function focusFear(){var p=P();return p.fears.filter(function(f){return f.id===p.focus;})[0]||null;}
+function fearName(){var p=P(),f=focusFear();return (p.mon.name||'').trim()||(f&&f.text)||'';}
+function medalCount(){return Object.keys(P().medals).length;}
+function toggle(arr,v){var i=arr.indexOf(v);if(i>-1)arr.splice(i,1);else arr.push(v);}
+function later(fn,ms){timers.push(setTimeout(fn,ms));}
+function clearTimers(){timers.forEach(clearTimeout);timers=[];}
+function $(id){return document.getElementById(id);}
+
+/* ---------- peças de interface ---------- */
+function chipSet(list,sel,act,single,key){return '<div class="chips"'+(single?' role="radiogroup"':'')+'>'+list.map(function(t,i){var on=single?sel===i:sel.indexOf(i)>-1;return '<button type="button" class="chip" '+(single?'role="radio" aria-checked':'aria-pressed')+'="'+on+'" data-act="'+act+'"'+(key?' data-k="'+key+'"':'')+' data-v="'+i+'">'+esc(t)+'</button>';}).join('')+'</div>';}
+function levelPick(val,act,key){return '<div class="row"><div class="row" style="gap:4px" role="radiogroup" aria-label="Tamanho do medo">'+LEVELS.map(function(l,i){return '<button type="button" role="radio" class="sw'+(val!=null&&i<=val?' lvc'+(i+1):'')+'" style="--c:var(--field);border-radius:11px;font-weight:800;width:42px;height:42px'+(val!=null&&i<=val?';color:var(--on-t)':'')+'" aria-checked="'+(val===i)+'" aria-label="'+(i+1)+', '+l+'" data-act="'+act+'" data-i="'+key+'" data-v="'+i+'">'+(i+1)+'</button>';}).join('')+'</div><span class="status">'+(val!=null?LEVELS[val]:'Ainda sem medida')+'</span></div>';}
+function lanternIcon(lit,night){var c=lit?'var(--on-lamp)':night?'var(--night-muted)':'var(--muted)';return '<svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M11 9a5 5 0 0 1 10 0" fill="none" stroke="'+c+'" stroke-width="2.2"/><rect x="9" y="9" width="14" height="4" rx="1.5" fill="'+c+'"/><rect x="10.5" y="13" width="11" height="11" rx="2" fill="'+(lit?'#fff':'none')+'" stroke="'+c+'" stroke-width="2.2"/><rect x="8" y="24" width="16" height="4" rx="1.5" fill="'+c+'"/></svg>';}
+var MICON=[
+ '<path d="M0 14 C-12 0 -11 -13 0 -13 C11 -13 12 0 0 14Z"/><circle cy="-3" r="4" fill="var(--lamp)"/>',
+ '<rect x="-14" y="-10" width="28" height="20" rx="3"/><circle cx="-6" cy="-2" r="3.2" fill="var(--lamp)"/><path d="M1 -4h9M1 2h9M-10 6h8" stroke="var(--lamp)" stroke-width="2"/>',
+ '<path d="M0 12 C-18 0 -12 -14 0 -5 C12 -14 18 0 0 12Z"/>',
+ '<path d="M-5 -9a5 5 0 0 1 10 0" fill="none" stroke="var(--on-lamp)" stroke-width="2.4"/><rect x="-8" y="-9" width="16" height="4" rx="1.5"/><rect x="-6" y="-5" width="12" height="13" rx="2" fill="none" stroke="var(--on-lamp)" stroke-width="2.4"/><rect x="-9" y="8" width="18" height="4" rx="1.5"/>',
+ '<path d="M-10 11 L0 -11 L10 11Z"/><circle cy="-13" r="3"/>',
+ '<path d="M-14 -4 q4.6 -7 9.3 0 t9.3 0 t9.4 0 M-14 6 q4.6 -7 9.3 0 t9.3 0 t9.4 0" fill="none" stroke="var(--on-lamp)" stroke-width="3" stroke-linecap="round"/>',
+ '<path d="M-13 11 h8 v-7 h8 v-7 h8 v-7" fill="none" stroke="var(--on-lamp)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>',
+ '<path d="M0 3v-15M-6 -6l6 -7l6 7" fill="none" stroke="var(--on-lamp)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M-14 11q4.6 -6 9.3 0t9.3 0t9.4 0" fill="none" stroke="var(--on-lamp)" stroke-width="3" stroke-linecap="round"/>',
+ '<path d="M0 -14 L4 -4.5 L14 -4 L6 2.5 L9 12.5 L0 7 L-9 12.5 L-6 2.5 L-14 -4 L-4 -4.5Z"/>'
+];
+function medal(i,on,size){return '<svg class="medal'+(on?'':' off')+'" viewBox="0 0 100 112" width="'+(size||64)+'" height="'+Math.round((size||64)*1.12)+'" role="img" aria-label="'+esc(STN[i].medal)+(on?', conquistada':', ainda não conquistada')+'"><path d="M30 4h18l8 34H38Z" fill="var(--sea)"/><path d="M70 4H52l-8 34h18Z" fill="var(--sea)" opacity=".75"/><circle cx="50" cy="70" r="36" fill="var(--lamp)"/><circle cx="50" cy="70" r="28" fill="none" stroke="var(--on-lamp)" stroke-width="2" stroke-dasharray="3 4" opacity=".55"/><g transform="translate(50 70)" fill="var(--on-lamp)">'+MICON[i]+'</g></svg>';}
+
+/* ---------- ilustrações ---------- */
+var SPIKY=(function(){var s='';for(var i=0;i<18;i++){var a=i/18*Math.PI*2-Math.PI/2,r=i%2?47:60;s+=(i?'L':'M')+(Math.cos(a)*r).toFixed(1)+' '+(6+Math.sin(a)*r).toFixed(1);}return s+'Z';})();
+var BODY=['M-52 60C-66 10 -40 -52 0 -52C40 -52 66 10 52 60C40 72 -40 72 -52 60Z','M-30 -50H30Q52 -50 52 -28V44Q52 66 30 66H-30Q-52 66 -52 44V-28Q-52 -50 -30 -50Z','M-50 62V-4C-50 -68 50 -68 50 -4V62L33 50L17 62L0 50L-17 62L-33 50Z',SPIKY];
+function monG(m,o){o=o||{};var sh=o.shadow,c=sh?'var(--night-shadow)':PCOL[m.color||0],dk='#1B1E3D',mood=o.mood||'scary',s='';
+  if(m.top===1)s+='<path d="M-42 -30L-36 -74L-14 -46Z" fill="'+c+'"/><path d="M42 -30L36 -74L14 -46Z" fill="'+c+'"/>';
+  if(m.top===2)s+='<path d="M-18 -44L-28 -78M18 -44L28 -78" stroke="'+c+'" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="-28" cy="-80" r="7" fill="'+c+'"/><circle cx="28" cy="-80" r="7" fill="'+c+'"/>';
+  if(m.top===3)s+='<path d="M-30 -38L-22 -76L-8 -48L0 -82L8 -48L22 -76L30 -38Z" fill="'+c+'"/>';
+  s+=(o.back||'')+'<path d="'+BODY[m.shape||0]+'" fill="'+c+'"/>';
+  var E=[[[0,-8,16,7]],[[-17,-8,11,5],[17,-8,11,5]],[[-25,-5,9,4],[0,-17,9,4],[25,-5,9,4]]][m.eyes==null?1:m.eyes],dx=mood==='shy'?3:0;
+  E.forEach(function(e){s+=sh?'<circle cx="'+e[0]+'" cy="'+e[1]+'" r="'+(e[2]-3)+'" fill="var(--lamp)"/>':'<circle cx="'+e[0]+'" cy="'+e[1]+'" r="'+e[2]+'" fill="#fff"/><circle cx="'+(e[0]+dx)+'" cy="'+(e[1]+1)+'" r="'+e[3]+'" fill="'+dk+'"/>';});
+  if(sh)return s;
+  if(mood==='scary')s+='<path d="M-32 -30L-9 -23M32 -30L9 -23" stroke="'+dk+'" stroke-width="4" stroke-linecap="round"/>'+['<path d="M-22 20h44v6q-22 18 -44 0Z" fill="'+dk+'"/><path d="M-16 20l5 9l5 -9ZM-3 20l5 9l5 -9ZM9 20l4 8l4 -8Z" fill="#fff"/>','<path d="M-20 30l8 -8l8 8l8 -8l8 8l8 -8" fill="none" stroke="'+dk+'" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>','<ellipse cy="28" rx="10" ry="13" fill="'+dk+'"/>'][m.mouth||0];
+  else if(mood==='shy')s+='<path d="M-10 28h20" stroke="'+dk+'" stroke-width="4" stroke-linecap="round"/>';
+  else if(mood==='happy')s+='<path d="M-16 22q16 15 32 0" fill="none" stroke="'+dk+'" stroke-width="4" stroke-linecap="round"/>';
+  else s+='<path d="M-18 18h36q-2 22 -18 22q-16 0 -18 -22Z" fill="'+dk+'"/><path d="M-9 34q9 -7 18 0q-9 7 -18 0Z" fill="#FF8A80"/>';
+  return s+(o.front||'');}
+function monSVG(m,o,label){return '<svg class="mon" viewBox="-80 -98 160 180" role="img" aria-label="'+esc(label||'O personagem do medo')+'">'+monG(m,o)+'</svg>';}
+function heroArt(){return '<svg viewBox="0 0 240 190" role="img" aria-label="Uma lanterna acesa mostra que a sombra grande na parede vem de um bichinho pequeno"><circle cx="24" cy="24" r="2" fill="var(--night-muted)"/><circle cx="96" cy="14" r="1.6" fill="var(--night-muted)"/><circle cx="60" cy="48" r="1.4" fill="var(--night-muted)"/><circle cx="128" cy="40" r="1.8" fill="var(--night-muted)"/><path d="M148 182 C126 150 118 96 138 62 C152 36 190 26 210 50 C234 78 236 140 226 182Z" fill="var(--night-shadow)"/><ellipse cx="166" cy="84" rx="8" ry="10" fill="var(--night)"/><ellipse cx="196" cy="84" rx="8" ry="10" fill="var(--night)"/><path d="M62 120 L170 150 L170 182 L62 150Z" fill="var(--lamp)" opacity=".2"/><path d="M34 100a14 14 0 0 1 28 0" fill="none" stroke="var(--night-muted)" stroke-width="4"/><rect x="28" y="100" width="40" height="10" rx="4" fill="var(--night-muted)"/><rect x="32" y="110" width="32" height="44" rx="6" fill="var(--lamp)"/><rect x="26" y="154" width="44" height="12" rx="4" fill="var(--night-muted)"/><circle cx="150" cy="168" r="14" fill="var(--sea1)"/><circle cx="145" cy="165" r="3.4" fill="#fff"/><circle cx="155" cy="165" r="3.4" fill="#fff"/><circle cx="145.6" cy="165.4" r="1.6" fill="#1B1E3D"/><circle cx="155.6" cy="165.4" r="1.6" fill="#1B1E3D"/><path d="M146 173q4 3 8 0" fill="none" stroke="#1B1E3D" stroke-width="1.8" stroke-linecap="round"/><path d="M0 182h240" stroke="var(--night-shadow)" stroke-width="3"/></svg>';}
+function bodySVG(sel,calm){function z(id,label,inner){var on=sel.indexOf(id)>-1;return '<g class="zone'+(on?' on':'')+(calm.indexOf(id)>-1?' calm':'')+'" data-act="part" data-v="'+id+'" role="button" tabindex="0" aria-pressed="'+on+'" aria-label="'+label+'">'+inner+'</g>';}
+  return '<svg viewBox="0 0 200 350" role="group" aria-label="Mapa do corpo">'+
+  z('pernas','Pernas','<rect class="z" x="66" y="212" width="30" height="124" rx="14"/><rect class="z" x="104" y="212" width="30" height="124" rx="14"/>')+
+  z('maos','Mãos','<path class="z" d="M56 100L74 110L46 184L26 176Z" stroke-linejoin="round"/><path class="z" d="M144 100L126 110L154 184L174 176Z" stroke-linejoin="round"/><circle class="z" cx="32" cy="192" r="15"/><circle class="z" cx="168" cy="192" r="15"/>')+
+  z('barriga','Barriga','<path class="z" d="M62 156h76v48q0 16 -16 16h-44q-16 0 -16 -16z"/>')+
+  z('peito','Peito','<path class="z" d="M78 94h44q16 0 16 16v46h-76v-46q0 -16 16 -16z"/>')+
+  z('garganta','Garganta','<rect class="z" x="87" y="74" width="26" height="20" rx="6"/>')+
+  z('cabeca','Cabeça','<circle class="z" cx="100" cy="44" r="34"/><circle cx="89" cy="40" r="3.5" fill="var(--ink)"/><circle cx="111" cy="40" r="3.5" fill="var(--ink)"/><path d="M92 55q8 5 16 0" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/>')+'</svg>';}
+function blob(x,y,s,col,face){return '<g transform="translate('+x+' '+y+') scale('+s+')">'+monG({shape:0,color:0,eyes:1,top:0},{mood:face===2?'laugh':'happy'}).replace(new RegExp(PCOL[0],'g'),col)+'</g>';}
+function partySVG(p){var pt=p.party,m=p.mon,c=PCOL[m.color||0],s='<svg viewBox="0 0 320 280" class="party" role="img" aria-label="O medo arrumado para a festa"><rect width="320" height="280" fill="var(--party)"/><path d="M0 20Q160 58 320 20" fill="none" stroke="#565B85" stroke-width="2"/>';
+  [28,72,116,160,204,248,292].forEach(function(x,i){var t=x/320,y=20+2*(1-t)*t*38;s+='<path d="M'+(x-10)+' '+y.toFixed(1)+'l20 0l-10 17Z" fill="'+PCOL[i%6]+'"/>';});
+  [[40,90,'#E8698E'],[280,100,'#4FB3A9'],[70,140,'#F4B13E'],[262,70,'#7C6BD6'],[20,200,'#6C9BD9'],[300,170,'#F08A5D'],[110,76,'#8CC152'],[220,62,'#E8698E']].forEach(function(d){s+='<circle cx="'+d[0]+'" cy="'+d[1]+'" r="4" fill="'+d[2]+'"/>';});
+  s+='<ellipse cx="160" cy="254" rx="120" ry="12" fill="#E0D2AC"/>';
+  if(pt.friend===1)s+=blob(54,214,.5,PCOL[((m.color||0)+2)%6],1);
+  if(pt.friend===2)s+=blob(40,202,.58,PCOL[((m.color||0)+2)%6],1)+blob(88,226,.36,PCOL[((m.color||0)+4)%6],2);
+  var back=pt.outfit===3?'<path d="M-46 -6L-76 76L76 76L46 -6Z" fill="#DD5650"/>':'',front='';
+  if(pt.outfit===1)front+='<path d="M0 54l-17 -10v20ZM0 54l17 -10v20Z" fill="#DD5650"/><circle cy="54" r="4.5" fill="#B8403B"/>';
+  if(pt.outfit===2)front+='<path d="M-51 44Q0 60 51 44L53 58Q0 76 -53 58Z" fill="#3A7BD5"/><path d="M28 62l10 26l-14 2l-7 -25Z" fill="#3A7BD5"/>';
+  if(pt.glasses===1)front+='<circle cx="-17" cy="-8" r="15" fill="none" stroke="#1B1E3D" stroke-width="4"/><circle cx="17" cy="-8" r="15" fill="none" stroke="#1B1E3D" stroke-width="4"/>';
+  if(pt.glasses===2)front+='<rect x="-35" y="-19" width="31" height="21" rx="8" fill="#1B1E3D"/><rect x="4" y="-19" width="31" height="21" rx="8" fill="#1B1E3D"/><path d="M-5 -12h10" stroke="#1B1E3D" stroke-width="4"/>';
+  if(pt.hat===1)front+='<path d="M-24 -44L0 -100L24 -44Z" fill="#F4B13E"/><path d="M-12 -70h24M-18 -56h36" stroke="#DD5650" stroke-width="5"/><circle cy="-102" r="7" fill="#DD5650"/>';
+  if(pt.hat===2)front+='<rect x="-24" y="-98" width="48" height="50" rx="4" fill="#22254A"/><rect x="-38" y="-52" width="76" height="9" rx="4" fill="#22254A"/><rect x="-24" y="-64" width="48" height="8" fill="#DD5650"/>';
+  if(pt.hat===3)front+='<path d="M-28 -44L-32 -80L-14 -62L0 -86L14 -62L32 -80L28 -44Z" fill="#F4B13E"/><circle cy="-56" r="4" fill="#DD5650"/>';
+  if(pt.hat===4)front+='<path d="M-30 -46Q0 -86 30 -46Z" fill="#3A7BD5"/><path d="M18 -48q30 -4 38 8q-22 -3 -40 -2Z" fill="#2C5FA8"/>';
+  var hand='';
+  if(pt.hand)hand+='<ellipse cx="60" cy="26" rx="12" ry="8" fill="'+c+'"/>';
+  if(pt.hand===1)hand+='<path d="M64 22Q84 -10 78 -44" fill="none" stroke="#565B85" stroke-width="2"/><ellipse cx="78" cy="-66" rx="19" ry="24" fill="#DD5650"/>';
+  if(pt.hand===2)hand+='<rect x="60" y="18" width="46" height="6" rx="3" fill="#fff" stroke="#CBD1E9"/><path d="M68 18v-18h29v18Z" fill="#F7C6D9"/><rect x="68" y="0" width="29" height="6" fill="#fff"/><circle cx="82" cy="-4" r="5" fill="#DD5650"/>';
+  if(pt.hand===3)hand+='<rect x="70" y="-2" width="8" height="30" rx="4" fill="#22254A" transform="rotate(24 74 13)"/><circle cx="83" cy="-6" r="10" fill="#8A8FB5"/>';
+  s+='<g transform="translate(150 174) scale(1.1)"><g class="dancer'+(dancing?' go':'')+'">'+monG(Object.assign({},m,{top:pt.hat?0:m.top}),{mood:['shy','happy','laugh'][pt.face],back:back,front:front+hand})+'</g></g>';
+  return s+'</svg>';}
+function fishSVG(c,w){return '<svg viewBox="0 0 80 48" width="'+(w||70)+'" height="'+Math.round((w||70)*.6)+'" aria-hidden="true"><path d="M58 24L78 8L73 24L78 40Z" fill="'+c+'"/><ellipse cx="34" cy="24" rx="28" ry="17" fill="'+c+'"/><path d="M28 8Q40 -1 48 10Z" fill="'+c+'"/><path d="M28 30q8 7 16 0" fill="none" stroke="#1B1E3D" stroke-opacity=".3" stroke-width="3" stroke-linecap="round"/><circle cx="18" cy="20" r="5.5" fill="#fff"/><circle cx="17" cy="20" r="2.6" fill="#1B1E3D"/></svg>';}
+function bottle(p){var k=p.kit,n=(p.name||'').trim().slice(0,11),lv=k.ing.length,top=250-lv*21,liq=LIQ[Math.min(lv,6)],g='';
+  if(k.ing.indexOf(1)>-1)[[72,246],[100,236],[118,252],[84,258],[110,224],[70,230]].forEach(function(d,i){if(d[1]>top+6)g+='<circle cx="'+d[0]+'" cy="'+d[1]+'" r="2.6" fill="'+['#F4B13E','#E8698E','#7C6BD6','#fff'][i%4]+'"/>';});
+  return '<svg viewBox="0 0 180 280" class="bottle" id="bottle" role="img" aria-label="Frasco de spray tira-medos"><path d="M58 18h62q12 0 12 12v14H58Z" fill="#22254A"/><path d="M58 26H34v10h24Z" fill="#22254A"/><path d="M112 44q24 10 15 42l-10 -4q5 -18 -13 -27Z" fill="#474C80"/><rect x="74" y="44" width="38" height="34" fill="#fff" stroke="#CBD1E9" stroke-width="3"/><path d="M54 104q0 -26 22 -26h34q22 0 22 26v146q0 18 -18 18H72q-18 0 -18 -18Z" fill="#fff" stroke="#CBD1E9" stroke-width="3"/>'+(lv?'<path d="M57 '+top+'h72v'+(250-top)+'q0 15 -15 15H72q-15 0 -15 -15Z" fill="'+liq+'"/>':'')+g+'<rect x="62" y="150" width="62" height="62" rx="10" fill="#fff" stroke="#22254A" stroke-width="2"/><text x="93" y="172" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="9" textLength="52" lengthAdjust="spacingAndGlyphs" fill="#22254A">ANTI-MEDOS</text><text x="93" y="186" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="700" font-size="8.5" fill="#565B85">'+(n?'de':'')+'</text><text x="93" y="202" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="11" fill="#22254A">'+esc(n)+'</text></svg>';}
+
+/* ---------- telas ---------- */
+function shell(i,body){var s=STN[i],done=!!P().medals[s.id];
+  return '<nav class="snav" aria-label="Navegação"><button class="btn ghost" data-act="go" data-v="home">← Trilha</button><span class="step">Etapa '+(i+1)+' de '+STN.length+(done?' · medalha conquistada':'')+'</span></nav>'+
+  '<header class="shead"><h1 tabindex="-1">'+s.nome+'</h1><p class="lead">'+s.intro+'</p></header>'+
+  '<details><summary>👩‍⚕️ Para o adulto</summary><div class="dbody"><p>'+s.tip+'</p></div></details>'+body+
+  '<div class="finish"><p class="hint" id="hint" role="status" hidden></p><div class="row"><button class="btn pri big" data-act="done" data-v="'+s.id+'">'+(done?'Concluir de novo':'Concluir a etapa e ganhar a medalha')+'</button><button class="linkbtn" id="force" data-act="force" data-v="'+s.id+'" hidden>Concluir assim mesmo</button></div></div>';}
+
+var V={};
+V.home=function(){var p=P(),ids=Object.keys(db.profiles);
+  return '<header class="hero night"><div><h1 tabindex="-1">Lanterna dos Medos</h1><p>Todo medo parece maior no escuro. Vamos acender a lanterna e olhar para ele com calma, uma etapa de cada vez.</p></div>'+heroArt()+'</header>'+
+  '<section class="player"><label class="fld" for="pname"><span>Quem está jogando?</span><input id="pname" data-bind="name" value="'+esc(p.name)+'" placeholder="Nome ou apelido" autocomplete="off"></label><details><summary>Trocar de jogador</summary><div class="dbody"><div class="chips">'+ids.map(function(id){var q=db.profiles[id];return '<button class="chip" aria-pressed="'+(id===db.cur)+'" data-act="switch" data-v="'+id+'">'+esc(q.name||'Sem nome')+' · '+Object.keys(q.medals||{}).length+'/'+STN.length+'</button>';}).join('')+'</div><div class="row"><button class="btn" data-act="newplayer">Novo jogador</button><button class="linkbtn" data-act="delplayer">'+(delArm?'Toque de novo para apagar tudo deste jogador':'Apagar os dados deste jogador')+'</button></div></div></details></section>'+
+  '<details><summary>👩‍⚕️ Para o adulto</summary><div class="dbody"><p><b>Para quem:</b> crianças de 9 a 12 anos com medos que atrapalham o dia a dia (escuro, provas, falar em público, animais, dormir fora e outros).</p><p><b>O que trabalha:</b> psicoeducação sobre o medo, externalização, reconhecimento dos sinais no corpo, pensamento realista, respiração e descentramento, exposição gradual, aceitação e desfusão (soltar a corda do medo) e autoinstruções.</p><p><b>Como conduzir:</b></p><ul><li>Cada etapa é um minijogo de tocar e arrastar. Quase não há escrita: a conversa acontece entre você e a criança enquanto ela joga.</li><li>A ordem é uma sugestão. Qualquer etapa pode ser aberta a qualquer momento e refeita.</li><li>Duas etapas por encontro costumam bastar: 1 e 2, depois 3 e 4, depois 5 e 6, depois 7 e 8, e a 9 para fechar. A etapa 8 (Subir a Escada) pode ser jogada de novo a cada degrau.</li><li>Não existe resposta errada nem jeito de perder. Se a criança não quiser terminar um minijogo, use “Concluir assim mesmo”.</li><li>O Passaporte da Coragem reúne tudo o que foi feito e compara o tamanho do medo no início e agora.</li></ul><p><b>Jogadores e privacidade:</b> cada criança tem o seu jogador. As escolhas ficam guardadas apenas neste aparelho e neste navegador; não são enviadas para lugar nenhum. Use “Trocar de jogador” entre atendimentos e “Apagar os dados deste jogador” quando quiser removê-los.</p></div></details>'+
+  '<section class="sec"><h2>A trilha</h2><p class="lead">São '+STN.length+' etapas. Cada etapa concluída acende uma lanterna e vale uma medalha.</p><ol class="trail">'+STN.map(function(s,i){var on=!!p.medals[s.id];return '<li><button class="st'+(on?' lit':'')+'" data-act="go" data-v="'+s.id+'"><span class="node">'+lanternIcon(on)+'</span><span class="stb"><b>'+(i+1)+'. '+s.nome+'</b><small>'+s.sub+'</small>'+(on?'<span class="got">Medalha conquistada</span>':'')+'</span></button></li>';}).join('')+'</ol></section>'+
+  '<section class="sec"><h2>Medalhas: '+medalCount()+' de '+STN.length+'</h2><div class="shelf">'+STN.map(function(s,i){return '<figure>'+medal(i,!!p.medals[s.id])+'<figcaption>'+s.curto+'</figcaption></figure>';}).join('')+'</div><div class="row"><button class="btn" data-act="go" data-v="pass">Abrir o Passaporte da Coragem</button></div></section>';};
+
+V.mapa=function(){var p=P();if(mStep>0&&!p.fears.length)mStep=0;var b='<div class="steps3">'+['1. Procurar','2. Medir','3. Escolher'].map(function(t,i){return '<button data-act="mstep" data-v="'+i+'"'+(mStep===i?' aria-current="step"':'')+(i>0&&!p.fears.length?' disabled':'')+'>'+t+'</button>';}).join('')+'</div>';
+  if(mStep===0){
+    b+='<section class="sec"><h2 tabindex="-1">Procure os medos no escuro</h2><p class="lead">Passe a lanterna pelo escuro. Quando achar um medo que também é seu, toque nele para pegar. Pegue só os que são seus.</p>'+
+    '<div class="chips" role="radiogroup" aria-label="Lugar">'+ROOMS.map(function(r,i){return '<button class="chip" role="radio" aria-checked="'+(mRoom===i)+'" data-act="room" data-v="'+i+'">'+r+'</button>';}).join('')+'</div>'+
+    '<div class="dark" id="dark" style="--lx:'+light.x+'px;--ly:'+light.y+'px">'+FEARS.filter(function(f){return f[1]===mRoom;}).map(function(f){var on=p.fears.some(function(x){return x.id===f[0];});return '<button class="fr" data-act="catch" data-v="'+f[0]+'" aria-pressed="'+on+'"><span class="ic" aria-hidden="true">'+f[2]+'</span>'+f[3]+'</button>';}).join('')+'<div class="shade"></div></div>'+
+    '<p class="status" id="hmsg" role="status">'+esc(huntMsg)+'</p>'+
+    '<div class="addrow"><label class="sr" for="newfear">Outro medo</label><input class="inp" id="newfear" placeholder="Tem outro medo? Escreva aqui" value="'+esc(draft)+'" autocomplete="off"><button class="btn" data-act="addfear">Adicionar</button></div>'+
+    (p.fears.length?'<p><b>Medos que eu peguei</b> (toque para devolver ao escuro)</p><div class="chips">'+p.fears.map(function(f){return '<button class="chip rm" data-act="rmfear" data-i="'+f.id+'" aria-label="Devolver '+esc(f.text)+'">'+f.icon+' '+esc(f.text)+'</button>';}).join('')+'</div>':'')+
+    '<div class="row"><button class="btn pri" data-act="mstep" data-v="1"'+(p.fears.length?'':' disabled')+'>Agora vamos medir</button></div></section>';
+  }else if(mStep===1){mIdx=Math.max(0,Math.min(p.fears.length-1,mIdx));var f=p.fears[mIdx],lv=f.level==null?2:f.level,last=mIdx===p.fears.length-1;
+    b+='<section class="sec"><h2 tabindex="-1">De que tamanho é este medo?</h2><p class="lead">Arraste a bolinha. Quanto mais forte o medo, maior ele fica.</p><div class="card meas"><div class="stage"><div class="bigic lvc'+(lv+1)+'" id="bigic" style="--s:'+(lv+1)+'" aria-hidden="true">'+f.icon+'</div></div><h3>'+esc(f.text)+'</h3><input type="range" id="rng" min="1" max="5" step="1" value="'+(lv+1)+'" aria-label="Tamanho do medo, de 1 a 5"><div class="ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div><p class="status" id="lvn" role="status">'+LEVELS[lv]+'</p><div class="row" style="justify-content:center"><button class="btn ghost" data-act="mprev"'+(mIdx===0?' disabled':'')+'>Anterior</button><span class="step">Medo '+(mIdx+1)+' de '+p.fears.length+'</span><button class="btn pri" data-act="mnext">'+(last?'Pronto':'Próximo medo')+'</button></div></div></section>';
+  }else{
+    b+='<section class="sec"><h2 tabindex="-1">Qual medo vamos investigar com a lanterna?</h2><p class="lead">Toque em um deles. Ele vai acompanhar você nas próximas etapas.</p><div class="pick" role="radiogroup">'+p.fears.map(function(f){return '<button class="pk" role="radio" aria-checked="'+(p.focus===f.id)+'" data-act="focus" data-i="'+f.id+'"><span class="ic" aria-hidden="true">'+f.icon+'</span><b>'+esc(f.text)+'</b><small>'+(f.level!=null?LEVELS[f.level]:'Sem medida')+'</small></button>';}).join('')+'</div></section>';
+  }
+  return shell(0,b);};
+
+V.ident=function(){var p=P(),m=p.mon,f=focusFear(),num=String(Object.keys(db.profiles).indexOf(db.cur)+1).padStart(4,'0');
+  var opts='<div class="opt"><b>Cor</b><div class="chips" role="radiogroup">'+PCOL.map(function(c,i){return '<button class="sw" role="radio" aria-checked="'+(m.color===i)+'" aria-label="Cor '+(i+1)+'" style="--c:'+c+'" data-act="mopt" data-k="color" data-v="'+i+'"></button>';}).join('')+'</div></div>'+MOPT.map(function(o){return '<div class="opt"><b>'+o[1]+'</b>'+chipSet(o[2],m[o[0]],'mopt',true,o[0])+'</div>';}).join('');
+  return shell(1,(f?'<p class="note">Medo em investigação: <b>'+f.icon+' '+esc(f.text)+'</b></p>':'')+
+  '<section class="card idcard"><div class="idhead"><span>Carteira de identidade do medo</span><span>Nº '+num+'</span></div><div class="idbody"><div class="monbox">'+monSVG(m,{mood:'scary'})+'<p class="monname" id="monname">'+esc(m.name||'Sem nome ainda')+'</p><button class="btn pri" data-act="rollname">🎲 Sortear um nome</button><label class="sr" for="mname">Nome do medo</label><input class="inp" id="mname" data-bind="mon.name" value="'+esc(m.name)+'" placeholder="ou escreva um nome" autocomplete="off"></div><div class="opts">'+opts+'</div></div></section>'+
+  '<section class="sec"><h2>A ficha dele</h2><div class="opts"><div class="opt"><b>Onde ele aparece</b>'+chipSet(WHERE,m.where,'mlist',false,'where')+'</div><div class="opt"><b>Quando ele aparece</b>'+chipSet(WHEN,m.when,'mlist',false,'when')+'</div><div class="opt"><b>Lado bom: ele tenta me proteger</b>'+chipSet(POS,m.pos,'mlist',false,'pos')+'</div><div class="opt"><b>Lado chato: ele me atrapalha a</b>'+chipSet(NEG,m.neg,'mlist',false,'neg')+'</div></div></section>');};
+
+V.corpo=function(){var p=P(),calm=bPhase==='calm',left=p.body.parts.filter(function(x){return p.body.calm.indexOf(x)<0;}).length;
+  return shell(2,'<div class="steps3" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-act="bphase" data-v="mark"'+(!calm?' aria-current="step"':'')+'>1. Achar o alarme</button><button data-act="bphase" data-v="calm"'+(calm?' aria-current="step"':'')+(p.body.parts.length?'':' disabled')+'>2. Acalmar o corpo</button></div>'+
+  '<section class="card"><div class="bodygrid">'+bodySVG(p.body.parts,p.body.calm)+'<div class="opts">'+(calm?
+    '<h2 tabindex="-1">Desligue o alarme</h2><p>Toque em uma parte acesa e solte o ar bem devagar enquanto ela muda de cor.</p><p class="status" id="bmsg" role="status">'+(left?'Faltam '+left+'.':'O corpo está calmo. O alarme desligou.')+'</p><div class="row"><button class="btn ghost" data-act="bagain">Acender de novo</button></div>':
+    '<div class="opt"><b>Onde eu sinto</b><div class="chips">'+PARTS.map(function(x){return '<button class="chip" aria-pressed="'+(p.body.parts.indexOf(x[0])>-1)+'" data-act="part" data-v="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div></div><div class="opt"><b>O que acontece</b>'+chipSet(SENS,p.body.sens,'sens')+'</div>')+'</div></div></section>'+
+  '<p class="note">Esses sinais são o corpo se preparando para proteger você. Eles incomodam, mas não fazem mal, e passam sozinhos depois de um tempo.</p>');};
+
+V.lanterna=function(){var p=P(),m=p.mon,seen=p.lant.seen,n=fearName(),q=THOUGHTS[lq],nA=p.lant.ans.filter(function(a){return a!=null;}).length;
+  return shell(3,'<section class="sec"><svg class="lscene" id="lscene" viewBox="0 0 400 250" role="img" aria-label="Uma sombra grande na parede. Aproxime a lanterna para ver o medo de verdade."><rect width="400" height="250" fill="var(--night)"/><rect id="lglow" width="400" height="250" fill="var(--glow)" opacity="0"/><g id="lshadow" transform="translate(262 128) scale(1.9)">'+monG(m,{shadow:true})+'</g><g id="lreal" transform="translate(262 186) scale(.5)" opacity="0">'+monG(m,{mood:'shy'})+'</g><path d="M0 228h400v22H0Z" fill="#1B1E3D" opacity=".25"/><g id="llamp" transform="translate(24 150)"><path d="M26 22L170 -40L170 84Z" fill="var(--lamp)" opacity=".2"/><path d="M4 0a11 11 0 0 1 22 0" fill="none" stroke="#B6BADD" stroke-width="3.5"/><rect x="0" y="0" width="30" height="8" rx="3" fill="#B6BADD"/><rect x="3" y="8" width="24" height="34" rx="5" fill="var(--lamp)"/><rect x="-2" y="42" width="34" height="10" rx="3" fill="#B6BADD"/></g></svg>'+
+  '<label class="fld" for="lrange"><span>Arraste a lanterna para perto da sombra</span><input type="range" id="lrange" min="0" max="100" step="1" value="'+(seen?100:0)+'" style="max-width:none"></label>'+
+  '<p class="note" id="lmsg" role="status"'+(seen?'':' hidden')+'>De perto e com luz, '+(n?esc(n):'o medo')+' é deste tamanho. A sombra é que era grande.</p></section>'+
+  '<section class="sec" id="lnext"'+(seen?'':' hidden')+'><h2 tabindex="-1" id="lqh">Responda ao medo com a lanterna</h2><p class="lead">O medo fala umas frases no escuro. Escolha a resposta que mais combina com você. Todas valem.</p><div class="dots" aria-hidden="true">'+THOUGHTS.map(function(_,i){return '<i class="'+(p.lant.ans[i]!=null?'on':'')+'"></i>';}).join('')+'</div>'+
+  '<div class="bubble night">O medo diz: “'+q[0]+'”</div><div class="answers" role="radiogroup" aria-label="Respostas da lanterna">'+q[1].map(function(a,i){return '<button class="ans" role="radio" aria-checked="'+(p.lant.ans[lq]===i)+'" data-act="ans" data-v="'+i+'">'+a+'</button>';}).join('')+'</div>'+
+  '<div class="row"><button class="btn ghost" data-act="lq" data-v="-1"'+(lq===0?' disabled':'')+'>Anterior</button><span class="step">Frase '+(lq+1)+' de 4</span><button class="btn" data-act="lq" data-v="1"'+(lq===3?' disabled':'')+'>Próxima frase</button></div>'+(nA===4?'<p class="note">Você respondeu às 4 frases do medo. As suas respostas ficam guardadas no Passaporte.</p>':'')+'</section>');};
+
+V.festa=function(){var p=P(),pt=p.party;
+  var opts=POPT.map(function(o){return '<div class="opt"><b>'+o[1]+'</b>'+chipSet(o[2],pt[o[0]],'popt',true,o[0])+'</div>';}).join('');
+  return shell(4,'<section class="card"><div class="partygrid"><div class="partybox">'+partySVG(p)+'<div class="fall" id="fall" aria-hidden="true"></div><div class="row"><button class="btn pri" data-act="dance">🎵 Botar para dançar</button></div></div><div class="opts">'+opts+'</div></div></section>');};
+
+V.mar=function(){var p=P(),n=fearName()||'Medo';
+  return shell(5,'<section class="sec"><div class="sea" id="sea"><button class="seasound" data-act="seasound" aria-pressed="'+!!audio+'">'+(audio?'Desligar o som do mar':'Ligar o som do mar')+'</button><svg class="weed" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 120V96Q50 70 110 92T230 86T400 94V120Z" fill="#1B1E3D" opacity=".28"/><path d="M40 120Q30 90 44 70Q34 54 46 36" fill="none" stroke="#1B1E3D" stroke-opacity=".4" stroke-width="5" stroke-linecap="round"/><path d="M350 120Q362 92 348 74Q360 60 350 44" fill="none" stroke="#1B1E3D" stroke-opacity=".4" stroke-width="5" stroke-linecap="round"/><circle cx="90" cy="40" r="4" fill="#fff" opacity=".35"/><circle cx="300" cy="20" r="6" fill="#fff" opacity=".3"/><circle cx="210" cy="56" r="3" fill="#fff" opacity=".35"/></svg>'+
+  FISH.map(function(f,i){return '<button class="fish'+(f[5]?' r':'')+'" style="--y:'+f[2]+'%;--x:'+(8+i*14)+'%;--d:'+f[3]+'s;--dl:'+f[4]+'s" data-act="fish" aria-pressed="false" aria-label="Peixe da emoção: '+f[0]+'">'+fishSVG(f[1])+'<span class="tag">'+f[0]+'</span></button>';}).join('')+
+  '<button class="fish fear" id="fearfish" style="--y:66%;--x:38%;--d:44s;--dl:-16s" data-act="fish" aria-pressed="false" aria-label="Peixe do medo" hidden>'+fishSVG(PCOL[p.mon.color||0],84)+'<span class="tag">'+esc(n)+'</span></button></div>'+
+  '<div class="card" id="seacard"></div></section>');};
+function seaCard(){var p=P(),s=SEA[seaStep],x='';
+  if(s.x==='breath'){breaths=0;x='<div class="breathrow"><div class="breath" id="breath">Onda parada</div><button class="hold" id="hold" type="button">Segure para puxar o ar</button></div><p id="bcount" role="status" class="status" style="text-align:center">0 de 5 ondas</p>';}
+  if(s.x==='feel')x=chipSet(FEEL,p.sea.feel==null?-1:p.sea.feel,'feel',true);
+  var ff=$('fearfish');if(ff)ff.hidden=seaStep<3;
+  if(seaStep===SEA.length-1){p.sea.done=true;saveSoon();}
+  $('seacard').innerHTML='<div class="dots" aria-hidden="true">'+SEA.map(function(_,i){return '<i class="'+(i<=seaStep?'on':'')+'"></i>';}).join('')+'</div><h2 id="seat" tabindex="-1">'+s.t+'</h2><p>'+s.p+'</p>'+x+'<div class="row">'+(seaStep>0?'<button class="btn ghost" data-act="seastep" data-v="-1">Voltar</button>':'')+(seaStep<SEA.length-1?'<button class="btn pri" data-act="seastep" data-v="1">Próximo</button>':'')+'</div>';
+  var h=$('hold');if(h)setupHold(h);}
+function setupHold(h){var on=false;
+  function down(e){if(e&&e.preventDefault)e.preventDefault();if(on)return;on=true;holdT=Date.now();h.classList.add('on');h.textContent='Puxando o ar…';var b=$('breath');b.classList.add('in');b.textContent='A onda cresce';}
+  function up(){if(!on)return;on=false;var d=Date.now()-holdT;h.classList.remove('on');var b=$('breath');b.classList.remove('in');b.textContent='Solte devagar';
+    if(d>=1500){breaths++;$('bcount').textContent=breaths>=5?'5 ondas. O mar está calmo.':breaths+' de 5 ondas';h.textContent=breaths>=5?'Mais uma onda, se quiser':'Segure para puxar o ar';}
+    else{$('bcount').textContent='Essa foi curtinha. Segure um pouco mais na próxima.';h.textContent='Segure para puxar o ar';}}
+  h.addEventListener('pointerdown',function(e){try{h.setPointerCapture(e.pointerId);}catch(_){}down(e);});
+  h.addEventListener('pointerup',up);h.addEventListener('pointercancel',up);h.addEventListener('contextmenu',function(e){e.preventDefault();});
+  h.addEventListener('keydown',function(e){if((e.key===' '||e.key==='Enter')&&!e.repeat)down(e);else if(e.key===' '||e.key==='Enter')e.preventDefault();});
+  h.addEventListener('keyup',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();up();}});
+  h.addEventListener('blur',up);}
+
+function ladInit(force){var p=P(),f=focusFear(),fid=f?f.id:'_';if(!force&&p.lad.fid===fid&&(p.lad.pool.length||p.lad.steps.length))return;
+  var src=GENERIC;if(f)FEARS.forEach(function(x){if(x[0]===f.id)src=x[4];});p.lad={fid:fid,pool:shuffle(src),steps:[],tried:[]};if(p.climb)p.climb.r={};save();}
+V.escada=function(){var p=P();ladInit(false);var L=p.lad,f=focusFear(),h='';
+  if(f)h+='<p class="note">Medo em investigação: <b>'+f.icon+' '+esc(f.text)+'</b></p>';
+  if(L.pool.length)h+='<section class="sec"><h2 tabindex="-1" id="ladq">'+(L.steps.length?'E agora, qual é o mais fácil dos que sobraram?':'Qual destes passos é o mais fácil para você?')+'</h2><p class="lead">Toque nele. Ele vira o degrau '+(L.steps.length+1)+' da sua escada.</p><div class="poolc">'+L.pool.map(function(t,i){return '<button class="pc" data-act="ladpick" data-v="'+i+'">'+esc(t)+'</button>';}).join('')+'</div></section>';
+  else h+='<section class="sec"><h2 tabindex="-1" id="ladq">Sua escada está montada</h2><p class="lead">Comece pelo degrau 1. Quando tentar um degrau, toque em “Já tentei” para acender a lanterna dele.</p></section>';
+  if(L.steps.length)h+='<ol class="ladder" aria-label="Escada da coragem">'+L.steps.map(function(_,i){return i;}).reverse().map(function(i){return '<li class="rung'+(L.tried[i]?' lit':'')+'" style="--i:'+i+'"><span class="rn" aria-hidden="true">'+(i+1)+'</span><span class="rt"><span class="sr">Degrau '+(i+1)+': </span>'+esc(L.steps[i])+'</span>'+(L.pool.length?'':'<button class="chip" aria-pressed="'+!!L.tried[i]+'" data-act="ladtried" data-i="'+i+'">Já tentei</button>')+'</li>';}).join('')+'</ol>';
+  h+='<div class="row">'+(L.steps.length?'<button class="btn ghost" data-act="ladreset">Embaralhar e montar de novo</button>':'')+'</div>';
+  if(!L.pool.length)h+='<p class="note">Tentar já vale. Repetir o mesmo degrau várias vezes também é coragem. Só suba quando o degrau de baixo ficar fácil.</p><details'+(editLad?' open':'')+'><summary>Editar os degraus</summary><div class="dbody">'+L.steps.map(function(t,i){return '<label class="fld" for="le'+i+'"><span>Degrau '+(i+1)+'</span><input id="le'+i+'" data-bind="lad.steps.'+i+'" value="'+esc(t)+'" autocomplete="off"></label>';}).join('')+'<p>As mudanças aparecem na escada quando você reabrir a etapa.</p></div></details>';
+  return shell(6,h);};
+
+/* 8 subir a escada */
+function clR(i){var c=P().climb;if(!c.r)c.r={};if(!c.r[i])c.r[i]={};return c.r[i];}
+function clPhrase(){var c=P().climb,t=(c.custom||'').trim();return c.phrase===4&&t?t:THOUGHTS[Math.min(c.phrase||0,3)][0];}
+function clN(r){return (r.pulls||0)+(r.shouts||0);}
+function handsHTML(r){var n=r.dropped?5:5-Math.min(clN(r),4),d='';for(var i=0;i<5;i++)d+='<i class="'+(i<n?'on':'')+'"></i>';return '<span>'+(r.dropped?'Mãos livres':'Força nas mãos')+'</span><span class="dots" role="img" aria-label="'+n+' de 5">'+d+'</span>';}
+function vSay(i,t){var b=t.replace(/[.!]+$/,''),V5=/[aeiouáéíóúâêôãõ]/gi;
+  if(i===0)return b.toUpperCase().split(' ').join(' · ');
+  if(i===1)return '♪ '+b.replace(/([aeiouáéíóúâêôãõ])([^aeiouáéíóúâêôãõ]*)$/i,'$1$1$1$1$2')+' ♪';
+  if(i===2)return b.toUpperCase()+'!!!';
+  if(i===3)return b.toLowerCase();
+  if(i===4)return b.replace(V5,function(m){return m+m+m;});
+  return b+'… zzz';}
+function wheelSVG(){var s='<svg viewBox="-110 -122 220 232" role="img" aria-label="Roleta de vozes"><g id="wheel" style="transform:rotate('+wRot+'deg)">';
+  for(var i=0;i<6;i++){var a0=(i*60-120)*Math.PI/180,a1=(i*60-60)*Math.PI/180;
+    s+='<path d="M0 0L'+(100*Math.cos(a0)).toFixed(1)+' '+(100*Math.sin(a0)).toFixed(1)+'A100 100 0 0 1 '+(100*Math.cos(a1)).toFixed(1)+' '+(100*Math.sin(a1)).toFixed(1)+'Z" fill="'+VCOL[i]+'" stroke="#1B1E3D" stroke-width="2"/><text transform="rotate('+(i*60)+') translate(0 -62)" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="15" fill="#1B1E3D">'+VSHORT[i]+'</text>';}
+  return s+'<circle r="12" fill="#1B1E3D"/></g><path d="M-12 -120h24l-12 22Z" fill="var(--lamp)" stroke="#1B1E3D" stroke-width="2" stroke-linejoin="round"/></svg>';}
+function tugSVG(){return '<svg class="tug" id="tug" viewBox="0 0 400 230" role="img" aria-label="Você e o medo seguram uma corda. Atrás de você está o degrau, com uma lanterna.">'+
+  '<path d="M0 200h400v30H0Z" fill="var(--line)"/><circle id="tglow" cx="32" cy="118" r="50" fill="var(--lamp)" opacity="0"/>'+
+  '<path d="M0 200V140h64v30h48v30Z" fill="var(--surface)" stroke="var(--line)" stroke-width="3" stroke-linejoin="round"/>'+
+  '<g transform="translate(18 100)"><path d="M5 0a9 9 0 0 1 18 0" fill="none" stroke="var(--muted)" stroke-width="3"/><rect width="28" height="7" rx="3" fill="var(--muted)"/><rect id="tlamp" x="3" y="7" width="22" height="26" rx="5" fill="var(--line)"/><rect x="-2" y="33" width="32" height="7" rx="3" fill="var(--muted)"/></g>'+
+  '<line id="trope" x1="176" y1="178" x2="286" y2="178" stroke="#B88B4A" stroke-width="6" stroke-linecap="round"/>'+
+  '<path id="tslack" d="M200 197q14 -9 28 0t28 0t28 0" fill="none" stroke="#B88B4A" stroke-width="6" stroke-linecap="round" display="none"/>'+
+  '<path id="tflag" d="M0 -3v-17l14 6.5Z" fill="#E0625C" stroke="#E0625C" stroke-width="2" stroke-linejoin="round"/>'+
+  '<g id="tkid"><path d="M-6 0v-12M6 0v-12" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/><rect x="-12" y="-42" width="24" height="32" rx="10" fill="var(--sea)"/><path id="tarm1" d="M6 -32L26 -22" stroke="var(--sea)" stroke-width="7" stroke-linecap="round"/><path id="tarm2" d="M8 -32L15 -14" stroke="var(--sea)" stroke-width="7" stroke-linecap="round" display="none"/><circle cy="-54" r="13" fill="var(--lamp-soft)" stroke="var(--ink)" stroke-width="2.5"/><circle cx="1" cy="-56" r="2" fill="var(--ink)"/><circle cx="8" cy="-56" r="2" fill="var(--ink)"/><path d="M1 -49q3.5 3 7 0" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/></g>'+
+  '<g id="tmon">'+monG(P().mon,{mood:'scary'})+'</g></svg>';}
+function tugPaint(){var mon=$('tmon');if(!mon)return;var r=clR(cRung),s=.42+.035*Math.min(clN(r),5),mx=r.dropped?336:312,my=(r.dropped?205:200)-70*s;
+  mon.style.transform='translate('+mx+'px,'+my.toFixed(1)+'px)'+(r.dropped?' rotate(16deg)':'')+' scale('+s.toFixed(3)+')';
+  $('trope').setAttribute('x2',(mx-50*s).toFixed(0));$('trope').setAttribute('display',r.dropped?'none':'inline');$('tslack').setAttribute('display',r.dropped?'inline':'none');
+  $('tflag').setAttribute('display',r.dropped?'none':'inline');$('tflag').style.transform='translate('+(228+cTug*9)+'px,178px)';
+  $('tarm1').setAttribute('display',r.dropped?'none':'inline');$('tarm2').setAttribute('display',r.dropped?'inline':'none');
+  $('tkid').style.transform=r.stepped?'translate(88px,170px) scaleX(-1)':'translate(150px,200px)';
+  $('tlamp').setAttribute('fill',r.stepped?'var(--lamp)':'var(--line)');$('tglow').setAttribute('opacity',r.stepped?'.3':'0');}
+function tugCard(){var c=$('tcard');if(!c)return;var r=clR(cRung),n=cRung+1,h='';
+  if(cSub==='tug')h='<p class="status" id="tmsg" role="status">O medo segura a corda e não deixa você subir. O que você faz?</p><div class="hands" id="thands">'+handsHTML(r)+'</div><div class="row"><button class="btn" data-act="clpull">Puxar com força</button><button class="btn" data-act="clshout">Gritar de volta</button><button class="btn" data-act="cldrop">Soltar a corda</button></div>';
+  else if(cSub==='voice'){h='<h3 id="tvh" tabindex="-1">Ele continua aí, gritando</h3><p>Você soltou a corda e o medo caiu sentado. Ele não foi embora, e as suas mãos estão livres. Gire a roleta e repita a frase dele com a voz que sair.</p><div class="hands">'+handsHTML(r)+'</div><div class="wheelbox">'+wheelSVG()+'<div class="vres" id="vres" tabindex="-1">'+(r.voice!=null?'<h3>'+VOICES[r.voice][0]+'</h3><p>'+VOICES[r.voice][1]+'</p><p class="vsay v'+r.voice+'">'+esc(vSay(r.voice,clPhrase()))+'</p>':'<p class="lead">A voz sorteada aparece aqui.</p>')+'</div></div><div class="row"><button class="btn'+(r.voice==null?' pri':'')+'" data-act="clspin">'+(r.voice==null?'Girar a roleta':'Girar de novo')+'</button>'+(r.voice!=null?'<button class="btn pri" data-act="clsaid">Falei com essa voz</button>':'')+'<button class="linkbtn" data-act="clsaid">Pular a roleta</button></div>';}
+  else if(cSub==='step')h='<h3 id="tsh" tabindex="-1">O degrau está atrás de você</h3><p>O medo ainda está aí. Você não precisa esperar ele ir embora para subir.</p><div class="row"><button class="btn pri big" data-act="clstep">Dar o passo</button></div>';
+  else h='<h3 id="tuh" tabindex="-1">Você subiu o degrau '+n+'</h3><p>O medo veio gritando atrás, e você subiu mesmo assim. A lanterna do degrau acendeu.</p><div class="row"><button class="btn pri big" data-act="clnext">Continuar</button></div>';
+  c.innerHTML=h;}
+V.subir=function(){var p=P(),L=p.lad,c=p.climb,h='';if(!c.r)c.r={};
+  if(!L.steps.length||L.pool.length)return shell(7,'<section class="sec"><p class="note">Esta etapa usa a sua Escada da Coragem. Monte a escada primeiro e volte aqui para subir.</p><div class="row"><button class="btn pri" data-act="go" data-v="escada">Montar a escada</button></div></section>');
+  if(cRung==null||L.steps[cRung]==null){cRung=null;cPhase='pick';}
+  if(cPhase==='pick'){
+    h='<section class="sec"><h2 tabindex="-1">Qual degrau vamos subir hoje?</h2><p class="lead">Comece pelo mais baixo que ainda não ficou fácil. Toque em “Jogar”.</p><ol class="ladder" aria-label="Escada da coragem">'+L.steps.map(function(_,i){return i;}).reverse().map(function(i){var r=c.r[i]||{},st='';
+      if(r.stepped)st='Jogado'+(r.before!=null&&r.after!=null?' · medo antes '+(r.before+1)+', depois '+(r.after+1):'')+(r.when!=null?' · missão: '+WHEN2[r.when].toLowerCase()+(r.who!=null?', '+WHO[r.who].toLowerCase():''):'');
+      return '<li class="rung'+(L.tried[i]?' lit':'')+'" style="--i:'+i+'"><span class="rn" aria-hidden="true">'+(i+1)+'</span><span class="rt"><span class="sr">Degrau '+(i+1)+': </span>'+esc(L.steps[i])+(st?'<span class="rs">'+st+'</span>':'')+'</span><span class="rbtns">'+(r.stepped?'<button class="chip" aria-pressed="'+!!L.tried[i]+'" data-act="ladtried" data-i="'+i+'">Missão cumprida</button>':'')+'<button class="chip" data-act="clpick" data-i="'+i+'">'+(r.stepped?'Jogar de novo':'Jogar')+'</button></span></li>';}).join('')+'</ol></section>';
+  }else if(cPhase==='prep'){var r=clR(cRung);
+    h='<section class="sec"><h2 tabindex="-1">Degrau '+(cRung+1)+'</h2><p class="mission">'+esc(L.steps[cRung])+'</p><div class="opts"><div class="opt"><b>O que o medo mais grita neste degrau?</b>'+chipSet(THOUGHTS.map(function(t){return t[0];}).concat(['Outra frase']),c.phrase||0,'clphrase',true)+(c.phrase===4?'<label class="sr" for="clcustom">Frase do medo</label><input class="inp" id="clcustom" data-bind="climb.custom" value="'+esc(c.custom)+'" placeholder="Escreva a frase que o medo grita" autocomplete="off" style="margin-top:8px">':'')+'</div><div class="opt"><b>Pensando neste degrau, de que tamanho está o medo agora?</b>'+levelPick(r.before==null?null:r.before,'clbefore','b')+'</div></div><div class="row"><button class="btn ghost" data-act="clback">Escolher outro degrau</button><button class="btn pri big" data-act="clstart"'+(r.before==null?' disabled':'')+'>Chamar o medo</button></div></section>';
+  }else if(cPhase==='play'){
+    h='<section class="sec"><h2 tabindex="-1">Degrau '+(cRung+1)+': o medo segura a corda</h2><div class="bubble night" id="tsay" aria-live="polite">O medo grita: “'+esc(clPhrase())+'”</div>'+tugSVG()+'<div class="card" id="tcard"></div><div class="row"><button class="linkbtn" data-act="clback">Parar e escolher outro degrau</button></div></section>';
+  }else{var r2=clR(cRung),fb='';
+    if(r2.before!=null&&r2.after!=null)fb='<p class="note">'+(r2.after<r2.before?'Hoje ele ficou menor. Às vezes fica, às vezes não. O que conta é que você deu o passo.':r2.after===r2.before?'Ele está do mesmo tamanho, e você deu o passo mesmo assim. É isso que conta.':'Hoje ele está maior, e você deu o passo mesmo assim. Isso é coragem.')+'</p>';
+    h='<section class="sec"><h2 tabindex="-1">Como ficou o medo?</h2><p class="lead">Não tem resposta certa. Ele pode estar menor, igual ou maior.</p>'+levelPick(r2.after==null?null:r2.after,'clafter','a')+fb+'</section>'+
+    '<section class="card"><h2>Missão do degrau '+(cRung+1)+'</h2><p>No jogo você já subiu. A missão é subir de verdade:</p><p class="mission">'+esc(L.steps[cRung])+'</p><div class="opts"><div class="opt"><b>Quando</b>'+chipSet(WHEN2,r2.when==null?-1:r2.when,'clwhen',true)+'</div><div class="opt"><b>Com quem</b>'+chipSet(WHO,r2.who==null?-1:r2.who,'clwho',true)+'</div></div><p class="note">Se o medo puxar a corda na hora, você já sabe o caminho: soltar a corda e dar o passo.</p><div class="row"><button class="btn pri big" data-act="clsave">Guardar a missão</button></div></section>';
+  }
+  return shell(7,h);};
+
+function memHTML(){var p=P();return deck.map(function(c,i){var ok=p.kit.found.indexOf(c)>-1,up=ok||flipped.indexOf(i)>-1;return '<button class="mc'+(ok?' ok':up?' up':'')+'" data-act="flip" data-v="'+i+'" aria-label="'+(up?esc(CARDS[c]):'Cartão virado '+(i+1))+'">'+(up?CARDS[c]:lanternIcon(false,true))+'</button>';}).join('');}
+V.kit=function(){var p=P(),k=p.kit,all=k.found.length>=6;if(!deck)deck=shuffle([0,1,2,3,4,5,0,1,2,3,4,5]);
+  var sc=[1,.86,.74,.62,.52][Math.min(k.sprays,4)];
+  return shell(8,'<section class="sec"><h2>Jogo da memória da coragem</h2><p class="lead">Vire dois cartões por vez e ache os pares de frases. Leia cada frase em voz alta quando ela aparecer.</p><div class="mem" id="mem">'+memHTML()+'</div><p class="status" id="memmsg" role="status">'+k.found.length+' de 6 pares'+(all?'. Você achou todos.':'')+'</p>'+(all?'<div class="row"><button class="btn ghost" data-act="memreset">Jogar de novo</button></div>':'')+'</section>'+
+  (all?'<section class="sec"><h2>Suas frases favoritas</h2><p class="lead">Toque em até 3 frases para levar com você.</p><div class="ccards">'+CARDS.map(function(t,i){return '<button class="cc" aria-pressed="'+(k.fav.indexOf(i)>-1)+'" data-act="fav" data-v="'+i+'">'+t+'</button>';}).join('')+'</div></section>':'')+
+  '<section class="sec"><h2>Spray tira-medos</h2><p class="lead">Toque nos ingredientes para encher o frasco, agite e borrife no medo. Ele não some: fica do tamanho certo.</p><div class="card"><div class="sprayscene"><div class="monwrap"><div style="width:170px;max-width:100%">'+monSVG(p.mon,{mood:k.sprays>=3?'happy':'scary'},'O medo')+'</div></div><div>'+bottle(p)+'</div><div class="mist" id="mist" aria-hidden="true"></div></div>'+
+  '<div class="opt"><b>Ingredientes</b>'+chipSet(ING,k.ing,'ing')+'</div><div class="row"><button class="btn" data-act="shake"'+(k.ing.length?'':' disabled')+'>Agitar o frasco</button><button class="btn pri" data-act="spray"'+(k.ing.length?'':' disabled')+'>Borrifar</button>'+(k.sprays?'<button class="btn ghost" data-act="sprayreset">De novo</button>':'')+'</div><p class="status" id="psst" role="status">'+(k.sprays>=4?'O medo ficou do tamanho certo. Quem manda aqui é você.':k.sprays?'Pssst! Ele está encolhendo. Borrife mais.':k.ing.length?'':'Escolha pelo menos um ingrediente.')+'</p></div>'+
+  '<p class="note">Para fazer de verdade: um frasco com borrifador, água e um pouco de glitter. Cole um rótulo com o seu nome.</p></section>').replace('class="mon"','class="mon" style="transform:scale('+sc+')"');};
+
+V.pass=function(){var p=P(),f=focusFear(),m=p.mon,h='';
+  h+='<nav class="snav" aria-label="Navegação"><button class="btn ghost" data-act="go" data-v="home">← Trilha</button><span class="step">'+medalCount()+' de '+STN.length+' medalhas</span></nav><header class="shead"><h1 tabindex="-1">Passaporte da Coragem'+(p.name?' de '+esc(p.name):'')+'</h1><p class="lead">Aqui fica tudo o que você descobriu na trilha. O passaporte se preenche conforme você avança.</p></header><div class="shelf">'+STN.map(function(s,i){return '<figure>'+medal(i,!!p.medals[s.id])+'<figcaption>'+s.curto+'</figcaption></figure>';}).join('')+'</div>';
+  var kv=function(l,v){return v&&String(v).trim()?'<p><b>'+l+'</b>'+esc(v)+'</p>':'';},pickL=function(src,sel){return sel.map(function(i){return src[i];}).join(', ');};
+  h+='<hr><section class="sec"><h2>O medo que eu investiguei</h2><div class="passrow"><div class="monbox">'+monSVG(m,{mood:'happy'})+'</div><div class="kv">'+(kv('Medo investigado',f&&(f.icon+' '+f.text))+kv('Nome dele',m.name)+kv('Onde aparece',pickL(WHERE,m.where))+kv('Quando aparece',pickL(WHEN,m.when))+kv('Ele tenta me proteger',pickL(POS,m.pos))+kv('Ele me atrapalha a',pickL(NEG,m.neg))||'<p class="lead">A ficha do medo aparece aqui depois das etapas 1 e 2.</p>')+'</div></div></section>';
+  if(p.fears.length)h+='<hr><section class="sec"><h2>Meus medos no termômetro</h2><div class="chips">'+p.fears.map(function(x){return '<span class="tf">'+x.icon+' '+esc(x.text)+(x.level!=null?' · '+(x.level+1):'')+'</span>';}).join('')+'</div></section>';
+  h+='<hr><section class="sec"><h2>O tamanho do medo</h2>'+(f&&f.level!=null?'<p>No começo da trilha: <b>'+LEVELS[f.level]+' ('+(f.level+1)+')</b></p>':'<p class="lead">A medida inicial aparece aqui depois da etapa 1.</p>')+'<p><b>E agora, de que tamanho ele está?</b></p>'+levelPick(p.post,'post','p')+(p.post!=null&&f&&f.level!=null?'<p class="note">'+(p.post<f.level?'O medo ficou menor. Isso foi você que fez.':p.post===f.level?'O medo está do mesmo tamanho, e você já sabe muito mais sobre ele. Isso conta.':'Hoje o medo está maior. Acontece, e passa. Você tem as suas ferramentas.')+'</p>':'')+'</section>';
+  var parts=PARTS.filter(function(x){return p.body.parts.indexOf(x[0])>-1;}).map(function(x){return x[1];}).join(', '),sens=pickL(SENS,p.body.sens);
+  if(parts||sens)h+='<hr><section class="sec"><h2>O alarme do meu corpo</h2><div class="kv">'+kv('Onde eu sinto',parts)+kv('O que acontece',sens)+'</div></section>';
+  var ans=THOUGHTS.map(function(t,i){return p.lant.ans[i]!=null?'<li>'+t[1][p.lant.ans[i]]+'</li>':'';}).join('');
+  if(ans)h+='<hr><section class="sec"><h2>Minhas respostas da lanterna</h2><ul class="ex">'+ans+'</ul></section>';
+  var L=p.lad;if(L.steps.length)h+='<hr><section class="sec"><h2>Minha escada da coragem</h2><p>'+L.tried.filter(Boolean).length+' de '+L.steps.length+' degraus já tentados.</p><ol class="ex">'+L.steps.map(function(t,i){return '<li>'+esc(t)+(L.tried[i]?' <b>(já tentei)</b>':'')+'</li>';}).join('')+'</ol></section>';
+  var cr=p.climb&&p.climb.r||{},ck=Object.keys(cr).filter(function(k){return cr[k].stepped&&L.steps[k]!=null;});
+  if(ck.length)h+='<hr><section class="sec"><h2>Minha subida</h2><ul class="ex">'+ck.map(function(k){var r=cr[k];return '<li><b>Degrau '+(+k+1)+':</b> '+esc(L.steps[k])+(r.before!=null&&r.after!=null?' · medo antes '+(r.before+1)+', depois '+(r.after+1):'')+(r.voice!=null?' · voz: '+VOICES[r.voice][0]:'')+(r.when!=null?' · missão: '+WHEN2[r.when].toLowerCase():'')+'</li>';}).join('')+'</ul></section>';
+  if(p.kit.fav.length)h+='<hr><section class="sec"><h2>Minhas frases de coragem</h2><div class="chips">'+p.kit.fav.map(function(i){return '<span class="tf">'+CARDS[i]+'</span>';}).join('')+'</div></section>';
+  h+='<hr><p class="lead">Para guardar o passaporte, tire uma captura de tela desta página.</p>';
+  return h;};
+
+/* ---------- regras de conclusão ---------- */
+function check(id){var p=P(),f=focusFear();
+  if(id==='mapa'&&!(f&&f.level!=null))return 'Falta um passo: pegue um medo, meça o tamanho dele e escolha qual vamos investigar.';
+  if(id==='corpo'&&!(p.body.parts.length||p.body.sens.length))return 'Toque em pelo menos uma parte do corpo ou em um sinal.';
+  if(id==='lanterna'&&!p.lant.seen)return 'Arraste a lanterna até perto da sombra para ver o medo de verdade.';
+  if(id==='mar'&&!p.sea.done)return 'O exercício do mar ainda não chegou ao fim. Toque em “Próximo” para continuar.';
+  if(id==='escada'&&p.lad.steps.length<3)return 'Monte a escada: toque nos passos, do mais fácil ao mais difícil.';
+  if(id==='subir'){var cr=p.climb&&p.climb.r||{};if(!Object.keys(cr).some(function(k){return cr[k].dropped&&cr[k].stepped;}))return 'Jogue um degrau até o fim: descubra o que fazer com a corda e dê o passo.';}
+  if(id==='kit'&&p.kit.found.length<6)return 'Ainda há pares de cartões para encontrar.';
+  return '';}
+function award(id){var p=P(),i=STN.map(function(s){return s.id;}).indexOf(id);p.medals[id]=p.medals[id]||Date.now();save();
+  var last=i>=STN.length-1,next=last?'pass':STN[i+1].id;
+  ov.innerHTML='<div class="ovc" role="dialog" aria-modal="true" aria-labelledby="ovt">'+medal(i,true,120)+'<h2 id="ovt">'+STN[i].medal+'</h2><p>'+STN[i].win+'</p><div class="row"><button class="btn" data-act="go" data-v="home">Voltar para a trilha</button><button class="btn pri" id="ovnext" data-act="go" data-v="'+next+'">'+(last?'Abrir o passaporte':'Próxima etapa')+'</button></div></div>';
+  ov.hidden=false;$('ovnext').focus();}
+
+/* ---------- minijogos: ligações ---------- */
+function setupDark(){var d=$('dark');if(!d)return;
+  function set(x,y){light.x=Math.round(x);light.y=Math.round(y);d.style.setProperty('--lx',light.x+'px');d.style.setProperty('--ly',light.y+'px');}
+  function at(e){var r=d.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+  var lastPtr=0;d.addEventListener('pointerdown',function(e){lastPtr=Date.now();downLight={x:light.x,y:light.y};var q=at(e);set(q.x,q.y);},true);
+  d.addEventListener('pointermove',function(e){var q=at(e);set(q.x,q.y);});
+  d.addEventListener('focusin',function(e){var b=e.target.closest('.fr');if(!b)return;var r=d.getBoundingClientRect(),br=b.getBoundingClientRect();if(Date.now()-lastPtr<800)return;set(br.left-r.left+br.width/2,br.top-r.top+br.height/2);downLight={x:light.x,y:light.y};});}
+function lampUpdate(v){var t=v/100,sh=$('lshadow');if(!sh)return;
+  sh.setAttribute('transform','translate(262 '+(128+44*t).toFixed(0)+') scale('+(1.9-1.35*t).toFixed(2)+')');sh.setAttribute('opacity',(1-t).toFixed(2));
+  $('lglow').setAttribute('opacity',(t*.96).toFixed(2));$('lreal').setAttribute('opacity',Math.max(0,(t-.4)/.6).toFixed(2));
+  $('llamp').setAttribute('transform','translate('+(24+96*t).toFixed(0)+' 150)');
+  if(t>=.92&&!P().lant.seen){P().lant.seen=true;save();$('lmsg').hidden=false;$('lnext').hidden=false;}}
+function setupLamp(){var s=$('lscene'),r=$('lrange');if(!s)return;var drag=false;
+  function mv(e){var b=s.getBoundingClientRect(),v=Math.max(0,Math.min(100,((e.clientX-b.left)/b.width-.06)/.42*100));r.value=Math.round(v);lampUpdate(+r.value);}
+  s.addEventListener('pointerdown',function(e){drag=true;try{s.setPointerCapture(e.pointerId);}catch(_){}mv(e);});
+  s.addEventListener('pointermove',function(e){if(drag)mv(e);});
+  s.addEventListener('pointerup',function(){drag=false;});s.addEventListener('pointercancel',function(){drag=false;});
+  lampUpdate(+r.value);}
+function sparkle(box,n,dir){var cols=['#F4B13E','#E8698E','#7C6BD6','#62CEC5','#FFFFFF'];
+  for(var i=0;i<n;i++){var s=document.createElement('span');s.className='sp';s.style.setProperty('--c',cols[i%5]);
+    if(dir==='fall'){s.style.left=(Math.random()*100).toFixed(0)+'%';s.style.setProperty('--dx',(-20+Math.random()*40).toFixed(0)+'px');s.style.setProperty('--dy',(120+Math.random()*140).toFixed(0)+'px');}
+    else{s.style.setProperty('--dx',(-40-Math.random()*110).toFixed(0)+'px');s.style.setProperty('--dy',(-30+Math.random()*110).toFixed(0)+'px');}
+    s.style.animationDelay=(Math.random()*.3).toFixed(2)+'s';box.appendChild(s);(function(el){setTimeout(function(){el.remove();},2000);})(s);}}
+function seaOn(){var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;try{var ctx=new AC(),len=ctx.sampleRate*6,buf=ctx.createBuffer(1,len,ctx.sampleRate),d=buf.getChannelData(0),last=0,fade=ctx.sampleRate*.6;
+  for(var i=0;i<len;i++){var w=Math.random()*2-1;last=(last+.02*w)/1.02;var e=Math.min(1,i/fade,(len-i)/fade);d[i]=last*3.2*(.25+.75*e);}
+  var src=ctx.createBufferSource();src.buffer=buf;src.loop=true;var lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=850;var g=ctx.createGain();g.gain.value=0;
+  src.connect(lp);lp.connect(g);g.connect(ctx.destination);g.gain.linearRampToValueAtTime(.45,ctx.currentTime+3);src.start();audio={ctx:ctx,g:g};}catch(e){audio=null;}}
+function seaOff(){if(!audio)return;var a=audio;audio=null;try{a.g.gain.cancelScheduledValues(a.ctx.currentTime);a.g.gain.setValueAtTime(a.g.gain.value,a.ctx.currentTime);a.g.gain.linearRampToValueAtTime(0,a.ctx.currentTime+.8);setTimeout(function(){try{a.ctx.close();}catch(e){}},1000);}catch(e){}}
+
+/* ---------- motor ---------- */
+function render(top){var op=top?[]:[].map.call(app.querySelectorAll('details'),function(d){return d.open;});app.innerHTML=V[view]();if(!top)[].forEach.call(app.querySelectorAll('details'),function(d,i){if(op[i])d.open=true;});
+  if(view==='mapa')setupDark();if(view==='lanterna')setupLamp();if(view==='mar')seaCard();if(view==='subir'&&cPhase==='play'){tugCard();tugPaint();}
+  if(top){window.scrollTo(0,0);var h=app.querySelector('h1');if(h)h.focus({preventScroll:true});}}
+function selFor(el){var s='[data-act="'+el.dataset.act+'"]';['v','k','i'].forEach(function(k){if(el.dataset[k]!=null)s+='[data-'+k+'="'+el.dataset[k]+'"]';});return s;}
+function rer(el){var s=el?selFor(el):null;render(false);if(s){var n=app.querySelector(s);if(n&&!n.disabled)n.focus({preventScroll:true});}}
+function focusId(id){var n=$(id)||app.querySelector('h2[tabindex]');if(n)n.focus({preventScroll:true});}
+function go(v){clearTimers();seaOff();ov.hidden=true;ov.innerHTML='';delArm=false;mStep=0;mRoom=0;mIdx=0;huntMsg='';bPhase='mark';lq=0;dancing=false;deck=null;flipped=[];busy=false;editLad=false;cRung=null;cPhase='pick';cSub='tug';cTug=0;cSpin=false;wRot=0;if(v==='mar')seaStep=0;view=V[v]?v:'home';render(true);}
+function addFear(t){t=(t||'').trim();var p=P();if(!t||p.fears.some(function(f){return f.text.toLowerCase()===t.toLowerCase();}))return;var f={id:uid(),text:t.slice(0,60),icon:'💭',level:null};p.fears.push(f);if(!p.focus)p.focus=f.id;}
+
+document.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(!b||b.disabled)return;var a=b.dataset.act,v=b.dataset.v,i=b.dataset.i,k=b.dataset.k,p=P(),n=parseInt(v,10);
+  switch(a){
+    case 'go':go(v);return;
+    case 'done':var h=check(v);if(h){var hn=$('hint');hn.textContent=h;hn.hidden=false;$('force').hidden=false;return;}award(v);return;
+    case 'force':award(v);return;
+    case 'newplayer':db.cur=uid();db.profiles[db.cur]=blank();save();render(false);var pn=$('pname');if(pn)pn.focus();return;
+    case 'switch':db.cur=v;ensure();delArm=false;save();rer(b);return;
+    case 'delplayer':if(!delArm){delArm=true;rer(b);return;}delete db.profiles[db.cur];db.cur=null;delArm=false;ensure();save();rer(b);return;
+    /* 1 */
+    case 'mstep':mStep=n;mIdx=0;render(false);focusId('');return;
+    case 'room':mRoom=n;huntMsg='';break;
+    case 'catch':var d=$('dark'),r=d.getBoundingClientRect(),br=b.getBoundingClientRect(),cx=br.left-r.left+br.width/2,cy=br.top-r.top+br.height/2,F=FEARS.filter(function(x){return x[0]===v;})[0],has=p.fears.filter(function(x){return x.id===v;})[0];
+      if(!has&&Math.abs(downLight.x-cx)>br.width*.75||!has&&Math.abs(downLight.y-cy)>br.height*.75){huntMsg='Você achou “'+F[3]+'”. Se esse medo é seu, toque de novo para pegar.';downLight={x:cx,y:cy};$('hmsg').textContent=huntMsg;return;}
+      if(has){p.fears=p.fears.filter(function(x){return x!==has;});if(p.focus===v)p.focus=p.fears[0]?p.fears[0].id:null;huntMsg='“'+F[3]+'” voltou para o escuro.';}
+      else{p.fears.push({id:F[0],text:F[3],icon:F[2],level:null});if(!p.focus)p.focus=F[0];huntMsg='Você pegou “'+F[3]+'”.';}
+      break;
+    case 'addfear':addFear(draft);draft='';save();render(false);var nf=$('newfear');if(nf)nf.focus({preventScroll:true});return;
+    case 'rmfear':p.fears=p.fears.filter(function(f){return f.id!==i;});if(p.focus===i)p.focus=p.fears[0]?p.fears[0].id:null;save();render(false);return;
+    case 'mprev':case 'mnext':var cur=p.fears[mIdx],rg=$('rng');if(cur&&rg)cur.level=+rg.value-1;save();
+      if(a==='mnext'&&mIdx>=p.fears.length-1){mStep=2;render(false);focusId('');return;}mIdx+=a==='mnext'?1:-1;render(false);focusId('');return;
+    case 'focus':p.focus=i;break;
+    /* 2 */
+    case 'mopt':p.mon[k]=n;break;
+    case 'mlist':toggle(p.mon[k],n);break;
+    case 'rollname':p.mon.name=NA[Math.floor(Math.random()*NA.length)]+NB[Math.floor(Math.random()*NB.length)]+NC[Math.floor(Math.random()*NC.length)];break;
+    /* 3 */
+    case 'bphase':bPhase=v;render(false);focusId('');return;
+    case 'bagain':p.body.calm=[];break;
+    case 'part':if(bPhase==='calm'){if(p.body.parts.indexOf(v)<0||p.body.calm.indexOf(v)>-1)return;var g=app.querySelector('g.zone[data-v="'+v+'"]');if(g)g.classList.add('calm');p.body.calm.push(v);save();$('bmsg').textContent='Solte o ar devagar…';
+        later(function(){var m=$('bmsg');if(!m)return;var left=p.body.parts.filter(function(x){return p.body.calm.indexOf(x)<0;}).length;m.textContent=left?'Muito bem. Faltam '+left+'.':'O corpo está calmo. O alarme desligou.';},3000);return;}
+      toggle(p.body.parts,v);p.body.calm=p.body.calm.filter(function(x){return p.body.parts.indexOf(x)>-1;});save();render(false);var z=app.querySelector('button[data-act="part"][data-v="'+v+'"]');if(z)z.focus({preventScroll:true});return;
+    case 'sens':toggle(p.body.sens,n);break;
+    /* 4 */
+    case 'ans':p.lant.ans[lq]=n;break;
+    case 'lq':lq=Math.max(0,Math.min(3,lq+n));render(false);focusId('lqh');return;
+    /* 5 */
+    case 'popt':p.party[k]=n;dancing=false;break;
+    case 'dance':dancing=true;save();rer(b);var fl=$('fall');if(fl)sparkle(fl,18,'fall');later(function(){dancing=false;},3200);return;
+    /* 6 */
+    case 'seastep':clearTimers();seaStep=Math.max(0,Math.min(SEA.length-1,seaStep+n));seaCard();focusId('seat');return;
+    case 'seasound':if(audio)seaOff();else seaOn();b.setAttribute('aria-pressed',!!audio);b.textContent=audio?'Desligar o som do mar':'Ligar o som do mar';return;
+    case 'fish':b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');return;
+    case 'feel':p.sea.feel=n;saveSoon();seaCard();var fb=app.querySelector(selFor(b));if(fb)fb.focus({preventScroll:true});return;
+    /* 7 */
+    case 'ladpick':p.lad.steps.push(p.lad.pool.splice(n,1)[0]);p.lad.tried.push(false);if(p.lad.pool.length===1){p.lad.steps.push(p.lad.pool.pop());p.lad.tried.push(false);}save();render(false);focusId('ladq');return;
+    case 'ladtried':p.lad.tried[+i]=!p.lad.tried[+i];break;
+    case 'ladreset':ladInit(true);render(false);focusId('ladq');return;
+    /* 8 subir */
+    case 'clpick':cRung=+i;cPhase='prep';render(false);focusId('');return;
+    case 'clback':clearTimers();cSpin=false;cRung=null;cPhase='pick';render(false);focusId('');return;
+    case 'clphrase':p.climb.phrase=n;break;
+    case 'clbefore':clR(cRung).before=n;break;
+    case 'clstart':var r0=clR(cRung);if(r0.before==null)return;r0.pulls=0;r0.shouts=0;r0.dropped=false;r0.stepped=false;r0.voice=null;r0.after=null;cPhase='play';cSub='tug';cTug=0;wRot=0;save();render(false);focusId('');return;
+    case 'clpull':case 'clshout':var r1=clR(cRung);if(r1.dropped)return;if(a==='clpull')r1.pulls=(r1.pulls||0)+1;else r1.shouts=(r1.shouts||0)+1;var tn=clN(r1),tk=a==='clpull'?r1.pulls:r1.shouts;
+      $('tmsg').textContent=(a==='clpull'?['Você puxou. Ele puxou de volta.','Você puxou mais forte. Ele também.','Quanto mais você puxa, mais ele puxa.']:['Você gritou de volta. Ele gritou mais alto.','Você discutiu com ele. Ele cresceu.','Quanto mais você discute, mais ele cresce.'])[Math.min(tk-1,2)]+(tn>=3?' As suas mãos estão cansadas. O que mais dá para fazer com essa corda?':'');
+      $('thands').innerHTML=handsHTML(r1);$('tsay').textContent='O medo grita: “'+[clPhrase(),'Não sobe!','Volta aqui!','Você não vai conseguir!'][tn%4]+'”';
+      cTug=a==='clpull'?-1.5:0;tugPaint();later(function(){cTug=Math.min(tn,3);tugPaint();},450);saveSoon();return;
+    case 'cldrop':clearTimers();var r3=clR(cRung);r3.dropped=true;cSub='voice';cTug=0;save();$('tsay').textContent='O medo grita: “'+clPhrase()+'”';tugPaint();tugCard();focusId('tvh');return;
+    case 'clspin':if(cSpin)return;var r4=clR(cRung),vi;do{vi=Math.floor(Math.random()*6);}while(vi===r4.voice);
+      wRot+=720+(((-vi*60-wRot)%360)+360)%360;cSpin=true;var wh=$('wheel');if(wh)wh.style.transform='rotate('+wRot+'deg)';
+      later(function(){cSpin=false;r4.voice=vi;save();tugCard();focusId('vres');},window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches?60:2300);return;
+    case 'clsaid':if(cSpin)return;cSub='step';tugCard();focusId('tsh');return;
+    case 'clstep':clR(cRung).stepped=true;cSub='up';save();tugPaint();tugCard();focusId('tuh');return;
+    case 'clnext':cPhase='after';render(false);focusId('');return;
+    case 'clafter':clR(cRung).after=n;break;
+    case 'clwhen':clR(cRung).when=n;break;
+    case 'clwho':clR(cRung).who=n;break;
+    case 'clsave':clR(cRung).done=Date.now();cRung=null;cPhase='pick';save();render(false);focusId('');return;
+    /* 9 */
+    case 'flip':if(busy||flipped.indexOf(n)>-1||p.kit.found.indexOf(deck[n])>-1)return;flipped.push(n);
+      if(flipped.length===2){if(deck[flipped[0]]===deck[flipped[1]]){p.kit.found.push(deck[n]);flipped=[];save();if(p.kit.found.length>=6){rer(b);return;}}
+        else{busy=true;later(function(){flipped=[];busy=false;var mm=$('mem');if(mm)mm.innerHTML=memHTML();},1300);}}
+      $('mem').innerHTML=memHTML();$('memmsg').textContent=p.kit.found.length+' de 6 pares';var nb=app.querySelector('.mc[data-v="'+n+'"]');if(nb)nb.focus({preventScroll:true});return;
+    case 'memreset':p.kit.found=[];deck=null;flipped=[];break;
+    case 'fav':if(p.kit.fav.indexOf(n)<0&&p.kit.fav.length>=3)return;toggle(p.kit.fav,n);break;
+    case 'ing':toggle(p.kit.ing,n);break;
+    case 'shake':var bt=$('bottle');if(bt){bt.classList.remove('shake');void bt.getBoundingClientRect();bt.classList.add('shake');}$('psst').textContent='Chacoalha, chacoalha…';return;
+    case 'spray':p.kit.sprays=Math.min(4,p.kit.sprays+1);save();rer(b);var ms=$('mist');if(ms)sparkle(ms,14,'mist');return;
+    case 'sprayreset':p.kit.sprays=0;break;
+    case 'post':p.post=n;break;
+    default:return;
+  }
+  save();rer(b);});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&e.target.id==='newfear'){e.preventDefault();addFear(draft);draft='';save();render(false);var nf=$('newfear');if(nf)nf.focus({preventScroll:true});}
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('zone')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}));}
+  if(e.key==='Escape'&&!ov.hidden)go('home');});
+app.addEventListener('input',function(e){var t=e.target,p=P();
+  if(t.id==='newfear'){draft=t.value;return;}
+  if(t.id==='rng'){var f=p.fears[mIdx];if(!f)return;f.level=+t.value-1;saveSoon();var b=$('bigic');b.className='bigic lvc'+t.value;b.style.setProperty('--s',t.value);$('lvn').textContent=LEVELS[f.level];return;}
+  if(t.id==='lrange'){lampUpdate(+t.value);return;}
+  if(t.dataset.bind){setPath(p,t.dataset.bind,t.value);saveSoon();if(t.id==='mname')$('monname').textContent=t.value||'Sem nome ainda';}});
+
+function start(d){load();if(d&&d.db&&d.db.profiles)db=d.db;ensure();if(d&&d.view&&V[d.view])view=d.view;render(false);}
+var hot=window.claude&&window.claude.hot;
+if(hot&&hot.snapshot)hot.snapshot(function(){return {db:db,view:view};});
+if(hot&&hot.ready)hot.ready(start);else start(hot&&hot.data||{});
+})();
+</script>
+</body>
+</html>
